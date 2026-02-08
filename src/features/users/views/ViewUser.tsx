@@ -409,7 +409,11 @@ export default function ViewUser() {
         {userRole.value === EUserRole["patient"] && (
           <div className="flex flex-col gap-3">
             <PageHeader title="Historial médico" />
-            <HistoryTable history={medicalHistory} isLoading={isLoadingMedicalHistory} />
+            <HistoryTable
+              history={medicalHistory}
+              isLoading={isLoadingMedicalHistory}
+              onUpdated={() => getMedicalHistory(user.id)}
+            />
           </div>
         )}
       </Protected>
