@@ -4,6 +4,7 @@ import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { DataTable } from "@components/data-table/DataTable";
+import { Protected } from "@auth/components/Protected";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
 
 import type { ColumnDef } from "@tanstack/react-table";
@@ -12,6 +13,7 @@ import { format } from "date-fns";
 import { useState } from "react";
 
 import type { IMedicalHistory } from "@medical-history/interfaces/medical-history.interface";
+import type { TPermission } from "@permissions/interfaces/permission.type";
 import { cn } from "@lib/utils";
 
 interface IProps {
@@ -75,22 +77,28 @@ export function HistoryTable({ history, isLoading }: IProps) {
       header: () => <div>Acciones</div>,
       cell: ({ row }) => (
         <div className="flex justify-start gap-1">
-          <Button
-            onClick={() => {
-              setOpenSheet(true);
-              setSelectedHistory({ ...row.original, idx: row.index });
-            }}
-            size="icon-sm"
-            variant="ghost"
-          >
-            <FileText />
-          </Button>
-          <Button onClick={() => console.log(`Editar ${row.original.id}`)} size="icon-sm" variant="ghost">
-            <FilePenLine />
-          </Button>
-          <Button onClick={() => console.log(`Eliminar ${row.original.id}`)} size="icon-sm" variant="ghost">
-            <Trash2 />
-          </Button>
+          <Protected requiredPermission={"medical_history-view" as TPermission}>
+            <Button
+              onClick={() => {
+                setOpenSheet(true);
+                setSelectedHistory({ ...row.original, idx: row.index });
+              }}
+              size="icon-sm"
+              variant="ghost"
+            >
+              <FileText />
+            </Button>
+          </Protected>
+          <Protected requiredPermission={"medical_history-update" as TPermission}>
+            <Button onClick={() => console.log(`Editar ${row.original.id}`)} size="icon-sm" variant="ghost">
+              <FilePenLine />
+            </Button>
+          </Protected>
+          <Protected requiredPermission={"medical_history-delete-hard" as TPermission}>
+            <Button onClick={() => console.log(`Eliminar ${row.original.id}`)} size="icon-sm" variant="ghost">
+              <Trash2 />
+            </Button>
+          </Protected>
         </div>
       ),
     },
