@@ -28,7 +28,7 @@ class MedicalHistoryModuleService {
     return response.data;
   }
 
-  public async remove(id: string): Promise<IApiResponse> {
+  public async softRemove(id: string): Promise<IApiResponse> {
     const response = await apiClient.delete(`/medical-history/${id}/soft`);
     return response.data;
   }
