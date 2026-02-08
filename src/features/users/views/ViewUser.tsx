@@ -333,19 +333,21 @@ export default function ViewUser() {
                     <div className="flex w-full items-center justify-between">
                       {userRole.value === EUserRole["patient"] ? (
                         <div className="flex items-center gap-3">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                className="hover:text-fuchsia-500"
-                                onClick={() => setOpenSheet(true)}
-                                size="icon"
-                                variant="outline"
-                              >
-                                <FileClock className="h-5 w-5" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Agregar historia médica</TooltipContent>
-                          </Tooltip>
+                          <Protected requiredPermission={"medical_history-create" as TPermission}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  className="hover:text-fuchsia-500"
+                                  onClick={() => setOpenSheet(true)}
+                                  size="icon"
+                                  variant="outline"
+                                >
+                                  <FileClock className="h-5 w-5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Agregar historia médica</TooltipContent>
+                            </Tooltip>
+                          </Protected>
                         </div>
                       ) : (
                         <div></div>
