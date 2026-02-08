@@ -3,6 +3,7 @@ import { X, Check, FilePenLine, FileText, Trash2 } from "lucide-react";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
+import { ConfirmDialog } from "@components/ConfirmDialog";
 import { DataTable } from "@components/data-table/DataTable";
 import { EditHistorySheet } from "@medical-history/components/sheets/EditHistorySheet";
 import { Protected } from "@auth/components/Protected";
@@ -11,11 +12,14 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import type { ColumnDef } from "@tanstack/react-table";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { useState } from "react";
 
 import type { IMedicalHistory } from "@medical-history/interfaces/medical-history.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
+import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { cn } from "@lib/utils";
+import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   history?: IMedicalHistory[];
@@ -24,9 +28,11 @@ interface IProps {
 }
 
 export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
-  const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [openEditSheet, setOpenEditSheet] = useState<boolean>(false);
+  const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
+  const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [selectedHistory, setSelectedHistory] = useState<IMedicalHistory | undefined>(undefined);
+  const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
 
   if (!history) return null;
 
@@ -104,8 +110,15 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
               <FilePenLine />
             </Button>
           </Protected>
-          <Protected requiredPermission={"medical_history-delete-hard" as TPermission}>
-            <Button onClick={() => console.log(`Eliminar ${row.original.id}`)} size="icon-sm" variant="ghost">
+          <Protected requiredPermission={"medical_history-delete" as TPermission}>
+            <Button
+              onClick={() => {
+                setSelectedHistory({ ...row.original, idx: row.index });
+                setOpenRemoveDialog(true);
+              }}
+              size="icon-sm"
+              variant="ghost"
+            >
               <Trash2 />
             </Button>
           </Protected>
@@ -113,6 +126,20 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
       ),
     },
   ];
+
+  async function softRemoveHistory(id: string): Promise<void> {
+    const [response, error] = await tryCatchRemove(MedicalHistoryService.softRemove(id));
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    if (response && response.statusCode === 200) {
+      toast.success(response.message);
+      onUpdated();
+    }
+  }
 
   return history && history.length > 0 ? (
     <>
@@ -162,6 +189,32 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
           history={selectedHistory}
           onUpdated={onUpdated}
         />
+      )}
+      {selectedHistory && (
+        <ConfirmDialog
+          title="Eliminar historia médica"
+          description="¿Seguro que querés eliminar esta historia médica?"
+          callback={() => softRemoveHistory(selectedHistory.id)}
+          loader={isRemoving}
+          open={openRemoveDialog}
+          setOpen={setOpenRemoveDialog}
+          variant="destructive"
+        >
+          <ul>
+            <li className="flex items-center gap-2">
+              <span className="font-semibold">Fecha:</span>
+              {format(selectedHistory.date, "P", { locale: es })}
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="font-semibold">Pacient:</span>
+              {`${selectedHistory.user.firstName} ${selectedHistory.user.lastName}`}
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="font-semibold">Título:</span>
+              <span>{selectedHistory.reason}</span>
+            </li>
+          </ul>
+        </ConfirmDialog>
       )}
     </>
   ) : (
