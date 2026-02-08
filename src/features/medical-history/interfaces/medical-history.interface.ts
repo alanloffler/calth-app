@@ -12,7 +12,7 @@ export interface IMedicalHistoryCreate {
   businessId: string;
   comments: string;
   date: Date;
-  eventId?: string;
+  eventId?: string | null;
   reason: string;
   recipe: boolean;
   userId: string;
