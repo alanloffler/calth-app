@@ -20,9 +20,10 @@ import { cn } from "@lib/utils";
 interface IProps {
   history?: IMedicalHistory[];
   isLoading?: boolean;
+  onUpdated: () => void;
 }
 
-export function HistoryTable({ history, isLoading }: IProps) {
+export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
   const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [openEditSheet, setOpenEditSheet] = useState<boolean>(false);
   const [selectedHistory, setSelectedHistory] = useState<IMedicalHistory | undefined>(undefined);
@@ -92,7 +93,14 @@ export function HistoryTable({ history, isLoading }: IProps) {
             </Button>
           </Protected>
           <Protected requiredPermission={"medical_history-update" as TPermission}>
-            <Button onClick={() => setOpenEditSheet(true)} size="icon-sm" variant="ghost">
+            <Button
+              onClick={() => {
+                setSelectedHistory({ ...row.original, idx: row.index });
+                setOpenEditSheet(true);
+              }}
+              size="icon-sm"
+              variant="ghost"
+            >
               <FilePenLine />
             </Button>
           </Protected>
@@ -147,7 +155,14 @@ export function HistoryTable({ history, isLoading }: IProps) {
         </Sheet>
       )}
       <DataTable columns={columns} data={history} loading={isLoading} />
-      <EditHistorySheet open={openEditSheet} setOpen={setOpenEditSheet} />
+      {selectedHistory && (
+        <EditHistorySheet
+          open={openEditSheet}
+          setOpen={setOpenEditSheet}
+          history={selectedHistory}
+          onUpdated={onUpdated}
+        />
+      )}
     </>
   ) : (
     <Card className="text-muted-foreground text-center">El paciente no posee historial médico</Card>
