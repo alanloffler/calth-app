@@ -4,6 +4,7 @@ import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { DataTable } from "@components/data-table/DataTable";
+import { EditHistorySheet } from "@medical-history/components/sheets/EditHistorySheet";
 import { Protected } from "@auth/components/Protected";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
 
@@ -23,6 +24,7 @@ interface IProps {
 
 export function HistoryTable({ history, isLoading }: IProps) {
   const [openSheet, setOpenSheet] = useState<boolean>(false);
+  const [openEditSheet, setOpenEditSheet] = useState<boolean>(false);
   const [selectedHistory, setSelectedHistory] = useState<IMedicalHistory | undefined>(undefined);
 
   if (!history) return null;
@@ -90,7 +92,7 @@ export function HistoryTable({ history, isLoading }: IProps) {
             </Button>
           </Protected>
           <Protected requiredPermission={"medical_history-update" as TPermission}>
-            <Button onClick={() => console.log(`Editar ${row.original.id}`)} size="icon-sm" variant="ghost">
+            <Button onClick={() => setOpenEditSheet(true)} size="icon-sm" variant="ghost">
               <FilePenLine />
             </Button>
           </Protected>
@@ -145,6 +147,7 @@ export function HistoryTable({ history, isLoading }: IProps) {
         </Sheet>
       )}
       <DataTable columns={columns} data={history} loading={isLoading} />
+      <EditHistorySheet open={openEditSheet} setOpen={setOpenEditSheet} />
     </>
   ) : (
     <Card className="text-muted-foreground text-center">El paciente no posee historial médico</Card>
