@@ -22,6 +22,11 @@ class MedicalHistoryModuleService {
     const response = await apiClient.get(`/medical-history/${id}/patient`);
     return response.data;
   }
+
+  public async update(id: string, data: Partial<IMedicalHistory>): Promise<IApiResponse> {
+    const response = await apiClient.patch(`/medical-history/${id}`, data);
+    return response.data;
+  }
 }
 
 export const MedicalHistoryService = MedicalHistoryModuleService.getInstance();
