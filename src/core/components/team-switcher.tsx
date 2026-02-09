@@ -1,11 +1,14 @@
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@components/ui/sidebar";
 import { Link } from "react-router";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@components/ui/sidebar";
+
+import type { ElementType } from "react";
 
 interface IProps {
   teams: {
+    logo: ElementType;
     name: string;
-    logo: React.ElementType;
     plan: string;
+    version: string;
   };
 }
 
@@ -23,7 +26,11 @@ export function TeamSwitcher({ teams }: IProps) {
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{teams.name}</span>
-              <span className="truncate text-xs">{teams.plan}</span>
+              <div className="flex gap-2">
+                <span className="truncate text-xs">{teams.version}</span>
+                <span>-</span>
+                <span className="truncate text-xs">{teams.plan}</span>
+              </div>
             </div>
           </SidebarMenuButton>
         </Link>
