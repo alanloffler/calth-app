@@ -41,6 +41,14 @@ export const PERMISSIONS = [
     ],
   },
   {
+    name: "Negocio",
+    value: "business",
+    actions: [
+      { name: "Editar", value: "business-update" },
+      { name: "Ver", value: "business-view" },
+    ],
+  },
+  {
     name: "Pacientes",
     value: "patient",
     actions: [
