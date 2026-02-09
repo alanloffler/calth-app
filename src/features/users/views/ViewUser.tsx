@@ -65,7 +65,12 @@ export default function ViewUser() {
 
   const getMedicalHistory = useCallback(
     async function (id: string): Promise<void> {
-      const [response, error] = await tryCatchMedicalHistory(MedicalHistoryService.findAllByPatient(id));
+      const isSuperAdmin = adminAuth?.role.value === ERoles.super;
+      const serviceByRole = isSuperAdmin
+        ? MedicalHistoryService.findAllByPatientRemoved(id)
+        : MedicalHistoryService.findAllByPatient(id);
+
+      const [response, error] = await tryCatchMedicalHistory(serviceByRole);
 
       if (error) {
         toast.error(error.message);
@@ -76,7 +81,7 @@ export default function ViewUser() {
         setMedicalHistory(response.data);
       }
     },
-    [tryCatchMedicalHistory],
+    [adminAuth?.role.value, tryCatchMedicalHistory],
   );
 
   const findOneUser = useCallback(
