@@ -95,54 +95,74 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
         <div className="flex justify-start gap-1">
           {row.original.deletedAt ? (
             <Protected requiredPermission={"medical_history-restore" as TPermission}>
-              <Button
-                onClick={() => {
-                  setSelectedHistory({ ...row.original, idx: row.index });
-                  setOpenRestoreDialog(true);
-                }}
-                size="icon-sm"
-                variant="ghost"
-              >
-                <RotateCcw />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={() => {
+                      setSelectedHistory({ ...row.original, idx: row.index });
+                      setOpenRestoreDialog(true);
+                    }}
+                    size="icon-sm"
+                    variant="ghost"
+                  >
+                    <RotateCcw />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Restaurar</TooltipContent>
+              </Tooltip>
             </Protected>
           ) : (
             <>
               <Protected requiredPermission={"medical_history-view" as TPermission}>
-                <Button
-                  onClick={() => {
-                    setOpenSheet(true);
-                    setSelectedHistory({ ...row.original, idx: row.index });
-                  }}
-                  size="icon-sm"
-                  variant="ghost"
-                >
-                  <FileText />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={() => {
+                        setOpenSheet(true);
+                        setSelectedHistory({ ...row.original, idx: row.index });
+                      }}
+                      size="icon-sm"
+                      variant="ghost"
+                    >
+                      <FileText />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Ver detalles</TooltipContent>
+                </Tooltip>
               </Protected>
               <Protected requiredPermission={"medical_history-update" as TPermission}>
-                <Button
-                  onClick={() => {
-                    setSelectedHistory({ ...row.original, idx: row.index });
-                    setOpenEditSheet(true);
-                  }}
-                  size="icon-sm"
-                  variant="ghost"
-                >
-                  <FilePenLine />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={() => {
+                        setSelectedHistory({ ...row.original, idx: row.index });
+                        setOpenEditSheet(true);
+                      }}
+                      size="icon-sm"
+                      variant="ghost"
+                    >
+                      <FilePenLine />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Editar</TooltipContent>
+                </Tooltip>
               </Protected>
               <Protected requiredPermission={"medical_history-delete" as TPermission}>
-                <Button
-                  onClick={() => {
-                    setSelectedHistory({ ...row.original, idx: row.index });
-                    setOpenRemoveDialog(true);
-                  }}
-                  size="icon-sm"
-                  variant="ghost"
-                >
-                  <Trash2 />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={() => {
+                        setSelectedHistory({ ...row.original, idx: row.index });
+                        setOpenRemoveDialog(true);
+                      }}
+                      size="icon-sm"
+                      variant="ghost"
+                    >
+                      <Trash2 />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Eliminar</TooltipContent>
+                </Tooltip>
               </Protected>
               <Protected requiredPermission={"medical_history-delete-hard" as TPermission}>
                 <Tooltip>
