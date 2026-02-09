@@ -6,6 +6,8 @@ export type TPermission =
   | "admin-update"
   | "admin-update-password"
   | "admin-view"
+  | "business-update"
+  | "business-view"
   | "calendar-view"
   | "events-create"
   | "events-delete-hard"
