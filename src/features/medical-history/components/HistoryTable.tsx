@@ -1,4 +1,4 @@
-import { X, Check, FilePenLine, FileText, Trash2, RotateCcw } from "lucide-react";
+import { X, Check, FilePenLine, FileText, Trash2, RotateCcw, Ban } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
@@ -62,12 +62,14 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
       cell: ({ row }) => <div className="text-center">{format(row.original?.date, "P", { locale: es })}</div>,
     },
     {
-      accessorKey: "type",
-      header: () => <div>Tipo</div>,
-    },
-    {
       accessorKey: "reason",
-      header: () => <div>Motivo</div>,
+      header: () => <div>Título</div>,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-3">
+          <span>{row.original.reason}</span>
+          {row.original.deletedAt && <Ban className="h-4 w-4 text-rose-500" />}
+        </div>
+      ),
     },
     {
       accessorKey: "recipe",
@@ -91,30 +93,6 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
       header: () => <div>Acciones</div>,
       cell: ({ row }) => (
         <div className="flex justify-start gap-1">
-          <Protected requiredPermission={"medical_history-view" as TPermission}>
-            <Button
-              onClick={() => {
-                setOpenSheet(true);
-                setSelectedHistory({ ...row.original, idx: row.index });
-              }}
-              size="icon-sm"
-              variant="ghost"
-            >
-              <FileText />
-            </Button>
-          </Protected>
-          <Protected requiredPermission={"medical_history-update" as TPermission}>
-            <Button
-              onClick={() => {
-                setSelectedHistory({ ...row.original, idx: row.index });
-                setOpenEditSheet(true);
-              }}
-              size="icon-sm"
-              variant="ghost"
-            >
-              <FilePenLine />
-            </Button>
-          </Protected>
           {row.original.deletedAt ? (
             <Protected requiredPermission={"medical_history-restore" as TPermission}>
               <Button
@@ -129,38 +107,64 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
               </Button>
             </Protected>
           ) : (
-            <Protected requiredPermission={"medical_history-delete" as TPermission}>
-              <Button
-                onClick={() => {
-                  setSelectedHistory({ ...row.original, idx: row.index });
-                  setOpenRemoveDialog(true);
-                }}
-                size="icon-sm"
-                variant="ghost"
-              >
-                <Trash2 />
-              </Button>
-            </Protected>
-          )}
-          <Protected requiredPermission={"medical_history-delete-hard" as TPermission}>
-            <Tooltip>
-              <TooltipTrigger asChild>
+            <>
+              <Protected requiredPermission={"medical_history-view" as TPermission}>
                 <Button
-                  className="gap-0 hover:text-red-500"
+                  onClick={() => {
+                    setOpenSheet(true);
+                    setSelectedHistory({ ...row.original, idx: row.index });
+                  }}
+                  size="icon-sm"
+                  variant="ghost"
+                >
+                  <FileText />
+                </Button>
+              </Protected>
+              <Protected requiredPermission={"medical_history-update" as TPermission}>
+                <Button
                   onClick={() => {
                     setSelectedHistory({ ...row.original, idx: row.index });
-                    setOpenRemoveHardDialog(true);
+                    setOpenEditSheet(true);
+                  }}
+                  size="icon-sm"
+                  variant="ghost"
+                >
+                  <FilePenLine />
+                </Button>
+              </Protected>
+              <Protected requiredPermission={"medical_history-delete" as TPermission}>
+                <Button
+                  onClick={() => {
+                    setSelectedHistory({ ...row.original, idx: row.index });
+                    setOpenRemoveDialog(true);
                   }}
                   size="icon-sm"
                   variant="ghost"
                 >
                   <Trash2 />
-                  <span>!</span>
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>Eliminar permanente</TooltipContent>
-            </Tooltip>
-          </Protected>
+              </Protected>
+              <Protected requiredPermission={"medical_history-delete-hard" as TPermission}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      className="gap-0 hover:text-red-500"
+                      onClick={() => {
+                        setSelectedHistory({ ...row.original, idx: row.index });
+                        setOpenRemoveHardDialog(true);
+                      }}
+                      size="icon-sm"
+                      variant="ghost"
+                    >
+                      <Trash2 />
+                      <span>!</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Eliminar permanente</TooltipContent>
+                </Tooltip>
+              </Protected>
+            </>
+          )}
         </div>
       ),
     },
