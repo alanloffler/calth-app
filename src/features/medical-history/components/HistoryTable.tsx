@@ -31,6 +31,7 @@ interface IProps {
 export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
   const [openEditSheet, setOpenEditSheet] = useState<boolean>(false);
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
+  const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [selectedHistory, setSelectedHistory] = useState<IMedicalHistory | undefined>(undefined);
@@ -146,7 +147,10 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
               <TooltipTrigger asChild>
                 <Button
                   className="gap-0 hover:text-red-500"
-                  onClick={() => console.log(`remove hard history`)}
+                  onClick={() => {
+                    setSelectedHistory({ ...row.original, idx: row.index });
+                    setOpenRemoveHardDialog(true);
+                  }}
                   size="icon-sm"
                   variant="ghost"
                 >
@@ -309,6 +313,32 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                 <span className="text-muted-foreground text-sm">
                   Historia médica eliminada el {format(selectedHistory.deletedAt, "P", { locale: es })}
                 </span>
+              </li>
+            </ul>
+          </ConfirmDialog>
+          <ConfirmDialog
+            title="Eliminar historia médica"
+            description="¿Seguro que querés eliminar esta historia médica?"
+            alertMessage="La historia médica será eliminada de la base de datos. Esta acción es irreversible."
+            callback={() => removeHardHistory(selectedHistory.id)}
+            loader={isRemovingHard}
+            open={openRemoveHardDialog}
+            setOpen={setOpenRemoveHardDialog}
+            showAlert
+            variant="destructive"
+          >
+            <ul>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Fecha:</span>
+                {format(selectedHistory.date, "P", { locale: es })}
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Pacient:</span>
+                {`${selectedHistory.user.firstName} ${selectedHistory.user.lastName}`}
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Título:</span>
+                <span>{selectedHistory.reason}</span>
               </li>
             </ul>
           </ConfirmDialog>
