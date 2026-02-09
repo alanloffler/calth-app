@@ -32,9 +32,10 @@ import { useAuthStore } from "@auth/stores/auth.store";
 
 const data = {
   teams: {
-    name: "App",
+    name: "Calth",
     logo: GalleryVerticalEnd,
-    plan: "v 0.1",
+    version: "v 0.0.1",
+    plan: "Free",
   },
   navMain: [
     {
