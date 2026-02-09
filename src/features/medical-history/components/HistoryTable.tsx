@@ -1,4 +1,4 @@
-import { X, Check, FilePenLine, FileText, Trash2 } from "lucide-react";
+import { X, Check, FilePenLine, FileText, Trash2, RotateCcw } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
@@ -30,9 +30,11 @@ interface IProps {
 export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
   const [openEditSheet, setOpenEditSheet] = useState<boolean>(false);
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
+  const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [selectedHistory, setSelectedHistory] = useState<IMedicalHistory | undefined>(undefined);
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
+  const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   if (!history) return null;
 
@@ -110,18 +112,33 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
               <FilePenLine />
             </Button>
           </Protected>
-          <Protected requiredPermission={"medical_history-delete" as TPermission}>
-            <Button
-              onClick={() => {
-                setSelectedHistory({ ...row.original, idx: row.index });
-                setOpenRemoveDialog(true);
-              }}
-              size="icon-sm"
-              variant="ghost"
-            >
-              <Trash2 />
-            </Button>
-          </Protected>
+          {row.original.deletedAt ? (
+            <Protected requiredPermission={"medical_history-restore" as TPermission}>
+              <Button
+                onClick={() => {
+                  setSelectedHistory({ ...row.original, idx: row.index });
+                  setOpenRestoreDialog(true);
+                }}
+                size="icon-sm"
+                variant="ghost"
+              >
+                <RotateCcw />
+              </Button>
+            </Protected>
+          ) : (
+            <Protected requiredPermission={"medical_history-delete" as TPermission}>
+              <Button
+                onClick={() => {
+                  setSelectedHistory({ ...row.original, idx: row.index });
+                  setOpenRemoveDialog(true);
+                }}
+                size="icon-sm"
+                variant="ghost"
+              >
+                <Trash2 />
+              </Button>
+            </Protected>
+          )}
         </div>
       ),
     },
@@ -139,6 +156,10 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
       toast.success(response.message);
       onUpdated();
     }
+  }
+
+  async function restoreHistory(id: string) {
+    console.log(`Restore history ${id}`);
   }
 
   return history && history.length > 0 ? (
@@ -191,30 +212,61 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
         />
       )}
       {selectedHistory && (
-        <ConfirmDialog
-          title="Eliminar historia médica"
-          description="¿Seguro que querés eliminar esta historia médica?"
-          callback={() => softRemoveHistory(selectedHistory.id)}
-          loader={isRemoving}
-          open={openRemoveDialog}
-          setOpen={setOpenRemoveDialog}
-          variant="destructive"
-        >
-          <ul>
-            <li className="flex items-center gap-2">
-              <span className="font-semibold">Fecha:</span>
-              {format(selectedHistory.date, "P", { locale: es })}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="font-semibold">Pacient:</span>
-              {`${selectedHistory.user.firstName} ${selectedHistory.user.lastName}`}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="font-semibold">Título:</span>
-              <span>{selectedHistory.reason}</span>
-            </li>
-          </ul>
-        </ConfirmDialog>
+        <>
+          <ConfirmDialog
+            title="Eliminar historia médica"
+            description="¿Seguro que querés eliminar esta historia médica?"
+            callback={() => softRemoveHistory(selectedHistory.id)}
+            loader={isRemoving}
+            open={openRemoveDialog}
+            setOpen={setOpenRemoveDialog}
+            variant="destructive"
+          >
+            <ul>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Fecha:</span>
+                {format(selectedHistory.date, "P", { locale: es })}
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Pacient:</span>
+                {`${selectedHistory.user.firstName} ${selectedHistory.user.lastName}`}
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Título:</span>
+                <span>{selectedHistory.reason}</span>
+              </li>
+            </ul>
+          </ConfirmDialog>
+          <ConfirmDialog
+            title="Restaurar historia médica"
+            description="¿Seguro que querés restaurar esta historia médica?"
+            callback={() => restoreHistory(selectedHistory.id)}
+            loader={isRestoring}
+            open={openRestoreDialog}
+            setOpen={setOpenRestoreDialog}
+            variant="warning"
+          >
+            <ul>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Fecha:</span>
+                {format(selectedHistory.date, "P", { locale: es })}
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Pacient:</span>
+                {`${selectedHistory.user.firstName} ${selectedHistory.user.lastName}`}
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Título:</span>
+                <span>{selectedHistory.reason}</span>
+              </li>
+              <li className="pt-2">
+                <span className="text-muted-foreground text-sm">
+                  Historia médica eliminada el {format(selectedHistory.deletedAt, "P", { locale: es })}
+                </span>
+              </li>
+            </ul>
+          </ConfirmDialog>
+        </>
       )}
     </>
   ) : (
