@@ -90,12 +90,11 @@ const data = {
       icon: KeyRound,
       permission: "permissions-view" as TPermission,
     },
-    // TODO: set permission
     {
       title: "Tu negocio",
       url: "/business",
       icon: Store,
-      permission: "*" as TPermission,
+      permission: "business-view" as TPermission,
     },
     {
       title: "Configuraciones",
@@ -106,7 +105,7 @@ const data = {
           title: "Tu negocio",
           url: "/settings/business",
           icon: Store,
-          permission: "*" as TPermission,
+          permission: "business-update" as TPermission,
         },
         {
           title: "Aplicación",
