@@ -35,6 +35,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
   const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [selectedHistory, setSelectedHistory] = useState<IMedicalHistory | undefined>(undefined);
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
+  const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   if (!history) return null;
@@ -175,10 +176,26 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
     }
   }
 
-  async function restoreHistory(id: string) {
+  async function restoreHistory(id: string): Promise<void> {
     if (!id) return;
 
     const [response, error] = await tryCatchRestore(MedicalHistoryService.restore(id));
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    if (response && response.statusCode === 200) {
+      toast.success(response.message);
+      onUpdated();
+    }
+  }
+
+  async function removeHardHistory(id: string): Promise<void> {
+    if (!id) return;
+
+    const [response, error] = await tryCatchRemoveHard(MedicalHistoryService.remove(id));
 
     if (error) {
       toast.error(error.message);
