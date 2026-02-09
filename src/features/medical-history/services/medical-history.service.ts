@@ -42,6 +42,11 @@ class MedicalHistoryModuleService {
     const response = await apiClient.patch(`/medical-history/${id}/restore`);
     return response.data;
   }
+
+  public async remove(id: string): Promise<IApiResponse> {
+    const response = await apiClient.delete(`/medical-history/${id}`);
+    return response.data;
+  }
 }
 
 export const MedicalHistoryService = MedicalHistoryModuleService.getInstance();
