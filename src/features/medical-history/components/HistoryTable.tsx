@@ -159,7 +159,19 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
   }
 
   async function restoreHistory(id: string) {
-    console.log(`Restore history ${id}`);
+    if (!id) return;
+
+    const [response, error] = await tryCatchRestore(MedicalHistoryService.restore(id));
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    if (response && response.statusCode === 200) {
+      toast.success(response.message);
+      onUpdated();
+    }
   }
 
   return history && history.length > 0 ? (
