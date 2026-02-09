@@ -39,7 +39,7 @@ class MedicalHistoryModuleService {
   }
 
   public async restore(id: string): Promise<IApiResponse> {
-    const response = await apiClient.put(`/medical-history/${id}/restore`);
+    const response = await apiClient.patch(`/medical-history/${id}/restore`);
     return response.data;
   }
 }
