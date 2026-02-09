@@ -8,6 +8,7 @@ import { DataTable } from "@components/data-table/DataTable";
 import { EditHistorySheet } from "@medical-history/components/sheets/EditHistorySheet";
 import { Protected } from "@auth/components/Protected";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { es } from "date-fns/locale";
@@ -139,6 +140,22 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
               </Button>
             </Protected>
           )}
+          <Protected requiredPermission={"medical_history-delete-hard" as TPermission}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  className="gap-0 hover:text-red-500"
+                  onClick={() => console.log(`remove hard history`)}
+                  size="icon-sm"
+                  variant="ghost"
+                >
+                  <Trash2 />
+                  <span>!</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Eliminar permanente</TooltipContent>
+            </Tooltip>
+          </Protected>
         </div>
       ),
     },
