@@ -23,6 +23,11 @@ class MedicalHistoryModuleService {
     return response.data;
   }
 
+  public async findAllByPatientRemoved(id: string): Promise<IApiResponse<IMedicalHistory[]>> {
+    const response = await apiClient.get(`/medical-history/${id}/patient/removed`);
+    return response.data;
+  }
+
   public async update(id: string, data: Partial<IMedicalHistory>): Promise<IApiResponse> {
     const response = await apiClient.patch(`/medical-history/${id}`, data);
     return response.data;
