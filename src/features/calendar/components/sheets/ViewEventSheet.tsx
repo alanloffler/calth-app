@@ -27,6 +27,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Loader } from "@components/Loader";
 import { Protected } from "@auth/components/Protected";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
@@ -133,32 +134,47 @@ export function ViewEventSheet({ event, onRemoveEvent, open, setOpen, setOpenEdi
               <Activity mode={hasPermissions ? "visible" : "hidden"}>
                 <footer className="mt-4 flex justify-end gap-1">
                   <Protected requiredPermission="events-delete-hard">
-                    <Button
-                      className="hover:bg-rose-50 hover:text-rose-600"
-                      onClick={removeEventDialog}
-                      size="icon"
-                      variant="ghost"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          className="hover:bg-rose-50 hover:text-rose-600"
+                          onClick={removeEventDialog}
+                          size="icon"
+                          variant="ghost"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Eliminar</TooltipContent>
+                    </Tooltip>
                   </Protected>
                   <Protected requiredPermission="events-update">
-                    <Button
-                      className="hover:bg-green-50 hover:text-green-600"
-                      onClick={() => setOpenEditSheet(true)}
-                      size="icon"
-                      variant="ghost"
-                    >
-                      <FilePenLine className="h-4 w-4" />
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          className="hover:bg-green-50 hover:text-green-600"
+                          onClick={() => setOpenEditSheet(true)}
+                          size="icon"
+                          variant="ghost"
+                        >
+                          <FilePenLine className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Editar</TooltipContent>
+                    </Tooltip>
                   </Protected>
                   <Protected requiredPermission="events-notify">
                     {/* TODO: implement notifications with email and WhatsApp */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button className="hover:bg-fuchsia-50 hover:text-fuchsia-600" size="icon" variant="ghost">
-                          <BellRing className="h-4 w-4" />
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button className="hover:bg-fuchsia-50 hover:text-fuchsia-600" size="icon" variant="ghost">
+                              <BellRing className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Notificaciones</TooltipContent>
+                        </Tooltip>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => notify("Email")}>
