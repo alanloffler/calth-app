@@ -7,6 +7,7 @@ import { Link } from "react-router";
 import { PageHeader } from "@components/pages/PageHeader";
 import { Protected } from "@auth/components/Protected";
 import { SortableHeader } from "@components/data-table/SortableHeader";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
@@ -120,11 +121,16 @@ export default function Permissions() {
       minSize: 168,
       cell: ({ row }) => (
         <div className="flex justify-end gap-2">
-          <Button className="hover:text-view" size="icon-sm" variant="outline" asChild>
-            <Link to={`/permissions/view/${row.original.id}`}>
-              <FileText />
-            </Link>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className="hover:text-view" size="icon-sm" variant="outline" asChild>
+                <Link to={`/permissions/view/${row.original.id}`}>
+                  <FileText />
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Ver detalles</TooltipContent>
+          </Tooltip>
           {row.original.deletedAt ? (
             <Protected requiredPermission="permissions-restore">
               <Button
@@ -139,32 +145,47 @@ export default function Permissions() {
           ) : (
             <>
               <Protected requiredPermission="permissions-update">
-                <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
-                  <Link to={`/permissions/edit/${row.original.id}`}>
-                    <FilePenLine />
-                  </Link>
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
+                      <Link to={`/permissions/edit/${row.original.id}`}>
+                        <FilePenLine />
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Editar</TooltipContent>
+                </Tooltip>
               </Protected>
               <Protected requiredPermission="permissions-delete">
-                <Button
-                  className="hover:text-delete"
-                  onClick={() => removePermission(row.original.id)}
-                  size="icon-sm"
-                  variant="outline"
-                >
-                  <Trash2 />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      className="hover:text-delete"
+                      onClick={() => removePermission(row.original.id)}
+                      size="icon-sm"
+                      variant="outline"
+                    >
+                      <Trash2 />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Eliminar</TooltipContent>
+                </Tooltip>
               </Protected>
               <Protected requiredPermission="permissions-delete-hard">
-                <Button
-                  className="hover:text-delete gap-0"
-                  onClick={() => hardRemovePermission(row.original.id)}
-                  size="icon-sm"
-                  variant="outline"
-                >
-                  <Trash2 />
-                  <span>!</span>
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      className="hover:text-delete gap-0"
+                      onClick={() => hardRemovePermission(row.original.id)}
+                      size="icon-sm"
+                      variant="outline"
+                    >
+                      <Trash2 />
+                      <span>!</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Eliminar permanente</TooltipContent>
+                </Tooltip>
               </Protected>
             </>
           )}
