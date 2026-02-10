@@ -1,9 +1,8 @@
-import { Ban, Eye, FilePenLine, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Ban, FilePenLine, FileText, Plus, RotateCcw, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { DataTable } from "@components/data-table/DataTable";
-import { HoldButton } from "@components/ui/HoldButton";
 import { Link } from "react-router";
 import { PageHeader } from "@components/pages/PageHeader";
 import { Protected } from "@auth/components/Protected";
@@ -118,48 +117,53 @@ export default function Roles() {
       minSize: 168,
       cell: ({ row }) => (
         <div className="flex justify-end gap-2">
-          <Button className="px-5! hover:text-sky-500" variant="outline" asChild>
+          <Button className="hover:text-view" size="icon-sm" variant="outline" asChild>
             <Link to={`/roles/view/${row.original.id}`}>
-              <Eye className="h-4 w-4" />
+              <FileText />
             </Link>
           </Button>
           {row.original.deletedAt ? (
             <Protected requiredPermission="roles-restore">
-              <HoldButton callback={() => restoreRole(row.original.id)} size="icon" type="restore" variant="outline">
-                <RotateCcw className="h-4 w-4" />
-              </HoldButton>
+              <Button
+                className="hover:text-restore"
+                onClick={() => restoreRole(row.original.id)}
+                size="icon-sm"
+                variant="outline"
+              >
+                <RotateCcw />
+              </Button>
             </Protected>
           ) : (
             <>
               <Protected requiredPermission="roles-update">
-                <Button className="px-5! hover:text-green-500" variant="outline" asChild>
+                <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
                   <Link to={`/roles/edit/${row.original.id}`}>
-                    <FilePenLine className="h-4 w-4" />
+                    <FilePenLine />
                   </Link>
                 </Button>
               </Protected>
               {row.original.value !== ERoles.super && row.original.value !== ERoles.admin && (
                 <>
                   <Protected requiredPermission="roles-delete">
-                    <HoldButton
-                      callback={() => removeRole(row.original.id)}
-                      size="icon"
-                      type="delete"
+                    <Button
+                      className="hover:text-delete"
+                      onClick={() => removeRole(row.original.id)}
+                      size="icon-sm"
                       variant="outline"
                     >
                       <Trash2 className="h-4 w-4" />
-                    </HoldButton>
+                    </Button>
                   </Protected>
                   <Protected requiredPermission="roles-delete-hard">
-                    <HoldButton
-                      callback={() => hardRemoveRole(row.original.id)}
-                      size="icon"
-                      type="hard-delete"
+                    <Button
+                      className="hover:text-delete gap-0"
+                      onClick={() => hardRemoveRole(row.original.id)}
+                      size="icon-sm"
                       variant="outline"
                     >
                       <Trash2 className="h-4 w-4" />
                       <span>!</span>
-                    </HoldButton>
+                    </Button>
                   </Protected>
                 </>
               )}
