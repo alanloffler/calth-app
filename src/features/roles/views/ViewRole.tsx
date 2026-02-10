@@ -10,6 +10,7 @@ import { Link } from "react-router";
 import { Loader } from "@components/Loader";
 import { PageHeader } from "@components/pages/PageHeader";
 import { Protected } from "@core/auth/components/Protected";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
@@ -229,14 +230,19 @@ export default function ViewRole() {
                       Eliminado
                     </Badge>
                     <Protected requiredPermission="roles-restore">
-                      <Button
-                        className="hover:text-restore"
-                        onClick={() => id && restoreRole(id)}
-                        size="icon-sm"
-                        variant="outline"
-                      >
-                        <RotateCcw />
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            className="hover:text-restore"
+                            onClick={() => id && restoreRole(id)}
+                            size="icon-sm"
+                            variant="outline"
+                          >
+                            <RotateCcw />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Restaurar</TooltipContent>
+                      </Tooltip>
                     </Protected>
                   </div>
                 ) : (
@@ -244,42 +250,62 @@ export default function ViewRole() {
                     {role?.value !== ERoles.super ? (
                       <>
                         <Protected requiredPermission="roles-update">
-                          <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
-                            <Link to={`/roles/edit/${id}`}>
-                              <FilePenLine />
-                            </Link>
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
+                                <Link to={`/roles/edit/${id}`}>
+                                  <FilePenLine />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Editar</TooltipContent>
+                          </Tooltip>
                         </Protected>
                         <Protected requiredPermission="roles-delete">
-                          <Button
-                            className="hover:text-delete"
-                            onClick={() => id && removeRole(id)}
-                            size="icon-sm"
-                            variant="outline"
-                          >
-                            <Trash2 />
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                className="hover:text-delete"
+                                onClick={() => id && removeRole(id)}
+                                size="icon-sm"
+                                variant="outline"
+                              >
+                                <Trash2 />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Eliminar</TooltipContent>
+                          </Tooltip>
                         </Protected>
                         <Protected requiredPermission="roles-delete-hard">
-                          <Button
-                            className="hover:text-delete gap-0"
-                            onClick={() => id && hardRemoveRole(id)}
-                            size="icon-sm"
-                            variant="outline"
-                          >
-                            <Trash2 />
-                            <span>!</span>
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                className="hover:text-delete gap-0"
+                                onClick={() => id && hardRemoveRole(id)}
+                                size="icon-sm"
+                                variant="outline"
+                              >
+                                <Trash2 />
+                                <span>!</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Eliminar permanente</TooltipContent>
+                          </Tooltip>
                         </Protected>
                       </>
                     ) : (
                       admin?.role.value === ERoles.super && (
                         <Protected requiredPermission="roles-update">
-                          <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
-                            <Link to={`/roles/edit/${id}`}>
-                              <FilePenLine />
-                            </Link>
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
+                                <Link to={`/roles/edit/${id}`}>
+                                  <FilePenLine />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Editar</TooltipContent>
+                          </Tooltip>
                         </Protected>
                       )
                     )}
