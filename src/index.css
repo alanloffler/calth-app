@@ -130,6 +130,12 @@ body {
   --color-brand-foreground: var(--brand-foreground);
   --text-xxs: var(--font-size-xxs);
   --text-xxs--line-height: var(--font-size-xxs--line-height);
+
+  /* Action buttons colors */
+  --color-view: oklch(0.68 0.15 237); /* sky-500 */
+  --color-edit: oklch(0.72 0.19 150); /* green-500 */
+  --color-restore: oklch(0.67 0.16 58); /* amber-600 */
+  --color-delete: oklch(0.64 0.21 25); /* red-500 */
 }
 
 .dark {
