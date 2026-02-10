@@ -5,7 +5,6 @@ import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
 import { CreatedAt } from "@components/CreatedAt";
-import { HoldButton } from "@components/ui/HoldButton";
 import { Link } from "react-router";
 import { Loader } from "@components/Loader";
 import { PageHeader } from "@components/pages/PageHeader";
@@ -148,44 +147,44 @@ export default function ViewPermission() {
                     <Badge size="small" variant="red">
                       Eliminado
                     </Badge>
-                    <HoldButton
-                      callback={() => id && restorePermission(id)}
-                      size="icon"
-                      type="restore"
+                    <Button
+                      className="hover:text-restore"
+                      onClick={() => id && restorePermission(id)}
+                      size="icon-sm"
                       variant="outline"
                     >
-                      <RotateCcw className="h-4 w-4" />
-                    </HoldButton>
+                      <RotateCcw />
+                    </Button>
                   </div>
                 ) : (
                   <>
                     <Protected requiredPermission="permissions-update">
-                      <Button className="px-5! hover:text-green-500" variant="outline" asChild>
+                      <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
                         <Link to={`/permissions/edit/${id}`}>
-                          <FilePenLine className="h-4 w-4" />
+                          <FilePenLine />
                         </Link>
                       </Button>
                     </Protected>
                     <Protected requiredPermission="permissions-delete">
-                      <HoldButton
-                        callback={() => id && removePermission(id)}
-                        size="icon"
-                        type="delete"
+                      <Button
+                        className="hover:text-delete"
+                        onClick={() => id && removePermission(id)}
+                        size="icon-sm"
                         variant="outline"
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </HoldButton>
+                        <Trash2 />
+                      </Button>
                     </Protected>
                     <Protected requiredPermission="permissions-delete-hard">
-                      <HoldButton
-                        callback={() => id && hardRemovePermission(id)}
-                        size="icon"
-                        type="hard-delete"
+                      <Button
+                        className="hover:text-delete gap-0"
+                        onClick={() => id && hardRemovePermission(id)}
+                        size="icon-sm"
                         variant="outline"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 />
                         <span>!</span>
-                      </HoldButton>
+                      </Button>
                     </Protected>
                   </>
                 )}
