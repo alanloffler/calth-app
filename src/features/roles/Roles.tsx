@@ -151,7 +151,7 @@ export default function Roles() {
                       size="icon-sm"
                       variant="outline"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 />
                     </Button>
                   </Protected>
                   <Protected requiredPermission="roles-delete-hard">
@@ -161,7 +161,7 @@ export default function Roles() {
                       size="icon-sm"
                       variant="outline"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 />
                       <span>!</span>
                     </Button>
                   </Protected>
