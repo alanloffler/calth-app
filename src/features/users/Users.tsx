@@ -212,7 +212,7 @@ export default function Users() {
         <div className="flex justify-end gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button className="hover:text-sky-500" size="icon" variant="outline" asChild>
+              <Button className="hover:text-view" size="icon" variant="outline" asChild>
                 <Link to={`/users/view/${row.original.id}`} state={{ role: row.original.role }}>
                   <FileText />
                 </Link>
@@ -224,7 +224,7 @@ export default function Users() {
             <Protected requiredPermission={`${role}-update` as TPermission}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button className="hover:text-green-500" size="icon" variant="outline" asChild>
+                  <Button className="hover:text-edit" size="icon" variant="outline" asChild>
                     <Link to={`/users/edit/${row.original.id}`} state={{ role: row.original.role.value }}>
                       <FilePenLine />
                     </Link>
@@ -234,12 +234,12 @@ export default function Users() {
               </Tooltip>
             </Protected>
           )}
-          {row.original.deletedAt ? (
+          {row.original.deletedAt && true ? (
             <Protected requiredPermission={`${role}-restore` as TPermission}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    className="hover:text-amber-600"
+                    className="hover:text-restore"
                     onClick={() => {
                       setSelectedUser(row.original);
                       setOpenRestoreDialog(true);
@@ -260,7 +260,7 @@ export default function Users() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        className="hover:text-red-500"
+                        className="hover:text-delete"
                         onClick={() => {
                           setSelectedUser(row.original);
                           setOpenRemoveDialog(true);
@@ -280,7 +280,7 @@ export default function Users() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        className="gap-0 hover:text-red-500"
+                        className="hover:text-delete gap-0"
                         onClick={() => {
                           setSelectedUser(row.original);
                           setOpenRemoveHardDialog(true);
