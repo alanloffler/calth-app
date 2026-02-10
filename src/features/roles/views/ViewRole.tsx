@@ -121,8 +121,10 @@ export default function ViewRole() {
   function translate(content: string) {
     const dictionary: Record<string, string> = {
       admin: "Administradores",
+      business: "Negocio",
       calendar: "Agenda",
       events: "Eventos",
+      medical_history: "Historias médicas",
       patient: "Pacientes",
       permissions: "Permisos",
       professional: "Profesionales",
