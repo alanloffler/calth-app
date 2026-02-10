@@ -2,6 +2,7 @@ import * as React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 import { cn } from "@/lib/utils";
+import { useSettingsStore } from "@settings/stores/settings.store";
 
 function TooltipProvider({ delayDuration = 0, ...props }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
   return <TooltipPrimitive.Provider data-slot="tooltip-provider" delayDuration={delayDuration} {...props} />;
@@ -25,10 +26,15 @@ function TooltipContent({
   children,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+  const { appSettings } = useSettingsStore();
+
+  const showTooltips = appSettings.find((s) => s.key === "showMenuIcons")?.value === "true";
+  console.log(showTooltips);
+
   return (
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
-        hidden={false}
+        hidden={!showTooltips}
         data-slot="tooltip-content"
         sideOffset={sideOffset}
         className={cn(
