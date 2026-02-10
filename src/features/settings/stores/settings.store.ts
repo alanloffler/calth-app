@@ -335,7 +335,7 @@ export const useSettingsStore = create(
       },
     }),
     {
-      name: "react-auth-settings",
+      name: "calth-app-settings",
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
