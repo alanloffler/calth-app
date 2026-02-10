@@ -1,9 +1,8 @@
-import { Ban, Eye, FilePenLine, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Ban, FilePenLine, FileText, Plus, RotateCcw, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { DataTable } from "@components/data-table/DataTable";
-import { HoldButton } from "@components/ui/HoldButton";
 import { Link } from "react-router";
 import { PageHeader } from "@components/pages/PageHeader";
 import { Protected } from "@auth/components/Protected";
@@ -121,51 +120,51 @@ export default function Permissions() {
       minSize: 168,
       cell: ({ row }) => (
         <div className="flex justify-end gap-2">
-          <Button className="px-5! hover:text-sky-500" variant="outline" asChild>
+          <Button className="hover:text-view" size="icon-sm" variant="outline" asChild>
             <Link to={`/permissions/view/${row.original.id}`}>
-              <Eye className="h-4 w-4" />
+              <FileText />
             </Link>
           </Button>
           {row.original.deletedAt ? (
             <Protected requiredPermission="permissions-restore">
-              <HoldButton
-                callback={() => restorePermission(row.original.id)}
-                size="icon"
-                type="restore"
+              <Button
+                className="hover:text-restore"
+                onClick={() => restorePermission(row.original.id)}
+                size="icon-sm"
                 variant="outline"
               >
-                <RotateCcw className="h-4 w-4" />
-              </HoldButton>
+                <RotateCcw />
+              </Button>
             </Protected>
           ) : (
             <>
               <Protected requiredPermission="permissions-update">
-                <Button className="px-5! hover:text-green-500" variant="outline" asChild>
+                <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
                   <Link to={`/permissions/edit/${row.original.id}`}>
-                    <FilePenLine className="h4- w-4" />
+                    <FilePenLine />
                   </Link>
                 </Button>
               </Protected>
               <Protected requiredPermission="permissions-delete">
-                <HoldButton
-                  callback={() => removePermission(row.original.id)}
-                  size="icon"
-                  type="delete"
+                <Button
+                  className="hover:text-delete"
+                  onClick={() => removePermission(row.original.id)}
+                  size="icon-sm"
                   variant="outline"
                 >
-                  <Trash2 className="h-4 w-4" />
-                </HoldButton>
+                  <Trash2 />
+                </Button>
               </Protected>
               <Protected requiredPermission="permissions-delete-hard">
-                <HoldButton
-                  callback={() => hardRemovePermission(row.original.id)}
-                  size="icon"
-                  type="hard-delete"
+                <Button
+                  className="hover:text-delete gap-0"
+                  onClick={() => hardRemovePermission(row.original.id)}
+                  size="icon-sm"
                   variant="outline"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 />
                   <span>!</span>
-                </HoldButton>
+                </Button>
               </Protected>
             </>
           )}
