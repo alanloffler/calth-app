@@ -26,15 +26,15 @@ function TooltipContent({
   children,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
-  const { appSettings } = useSettingsStore();
+  const showTooltips = useSettingsStore(
+    (state) => state.appSettings.find((s) => s.key === "showMenuTooltips")?.value === "true",
+  );
 
-  const showTooltips = appSettings.find((s) => s.key === "showMenuIcons")?.value === "true";
-  console.log(showTooltips);
+  if (!showTooltips) return null;
 
   return (
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
-        hidden={!showTooltips}
         data-slot="tooltip-content"
         sideOffset={sideOffset}
         className={cn(
