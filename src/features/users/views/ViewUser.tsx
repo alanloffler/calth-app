@@ -322,9 +322,9 @@ export default function ViewUser() {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
-                              className="hover:text-amber-600"
+                              className="hover:text-restore"
                               onClick={() => setOpenRestoreDialog(true)}
-                              size="icon"
+                              size="icon-sm"
                               variant="outline"
                             >
                               <RotateCcw />
@@ -342,12 +342,12 @@ export default function ViewUser() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
-                                  className="hover:text-fuchsia-500"
+                                  className="hover:text-history"
                                   onClick={() => setOpenSheet(true)}
-                                  size="icon"
+                                  size="icon-sm"
                                   variant="outline"
                                 >
-                                  <FileClock className="h-5 w-5" />
+                                  <FileClock />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>Agregar historia médica</TooltipContent>
@@ -361,9 +361,9 @@ export default function ViewUser() {
                         <Protected requiredPermission={`${userRole.value}-update` as TPermission}>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button className="hover:text-green-500" size="icon" variant="outline" asChild>
+                              <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
                                 <Link to={`/users/edit/${id}`} state={{ role: userRole.value }}>
-                                  <FilePenLine className="h-5 w-5" />
+                                  <FilePenLine />
                                 </Link>
                               </Button>
                             </TooltipTrigger>
@@ -374,12 +374,12 @@ export default function ViewUser() {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
-                                className="hover:text-red-500"
+                                className="hover:text-delete"
                                 onClick={() => setOpenRemoveDialog(true)}
-                                size="icon"
+                                size="icon-sm"
                                 variant="outline"
                               >
-                                <Trash2 className="h-5 w-5" />
+                                <Trash2 />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>Eliminar</TooltipContent>
@@ -389,12 +389,12 @@ export default function ViewUser() {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
-                                className="gap-0 hover:text-red-500"
+                                className="hover:text-delete gap-0"
                                 onClick={() => setOpenRemoveHardDialog(true)}
-                                size="icon"
+                                size="icon-sm"
                                 variant="outline"
                               >
-                                <Trash2 className="h-5 w-5" />
+                                <Trash2 />
                                 <span>!</span>
                               </Button>
                             </TooltipTrigger>
