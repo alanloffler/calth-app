@@ -212,7 +212,7 @@ export default function Users() {
         <div className="flex justify-end gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button className="hover:text-view" size="icon" variant="outline" asChild>
+              <Button className="hover:text-view" size="icon-sm" variant="outline" asChild>
                 <Link to={`/users/view/${row.original.id}`} state={{ role: row.original.role }}>
                   <FileText />
                 </Link>
@@ -224,7 +224,7 @@ export default function Users() {
             <Protected requiredPermission={`${role}-update` as TPermission}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button className="hover:text-edit" size="icon" variant="outline" asChild>
+                  <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
                     <Link to={`/users/edit/${row.original.id}`} state={{ role: row.original.role.value }}>
                       <FilePenLine />
                     </Link>
@@ -244,7 +244,7 @@ export default function Users() {
                       setSelectedUser(row.original);
                       setOpenRestoreDialog(true);
                     }}
-                    size="icon"
+                    size="icon-sm"
                     variant="outline"
                   >
                     <RotateCcw />
@@ -265,7 +265,7 @@ export default function Users() {
                           setSelectedUser(row.original);
                           setOpenRemoveDialog(true);
                         }}
-                        size="icon"
+                        size="icon-sm"
                         variant="outline"
                       >
                         <Trash2 />
@@ -285,7 +285,7 @@ export default function Users() {
                           setSelectedUser(row.original);
                           setOpenRemoveHardDialog(true);
                         }}
-                        size="icon"
+                        size="icon-sm"
                         variant="outline"
                       >
                         <Trash2 />
