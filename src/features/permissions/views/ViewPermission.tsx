@@ -9,6 +9,7 @@ import { Link } from "react-router";
 import { Loader } from "@components/Loader";
 import { PageHeader } from "@components/pages/PageHeader";
 import { Protected } from "@core/auth/components/Protected";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import { toast } from "sonner";
 import { useCallback, useEffect, useState } from "react";
@@ -147,44 +148,64 @@ export default function ViewPermission() {
                     <Badge size="small" variant="red">
                       Eliminado
                     </Badge>
-                    <Button
-                      className="hover:text-restore"
-                      onClick={() => id && restorePermission(id)}
-                      size="icon-sm"
-                      variant="outline"
-                    >
-                      <RotateCcw />
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          className="hover:text-restore"
+                          onClick={() => id && restorePermission(id)}
+                          size="icon-sm"
+                          variant="outline"
+                        >
+                          <RotateCcw />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Restaurar</TooltipContent>
+                    </Tooltip>
                   </div>
                 ) : (
                   <>
                     <Protected requiredPermission="permissions-update">
-                      <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
-                        <Link to={`/permissions/edit/${id}`}>
-                          <FilePenLine />
-                        </Link>
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
+                            <Link to={`/permissions/edit/${id}`}>
+                              <FilePenLine />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Editar</TooltipContent>
+                      </Tooltip>
                     </Protected>
                     <Protected requiredPermission="permissions-delete">
-                      <Button
-                        className="hover:text-delete"
-                        onClick={() => id && removePermission(id)}
-                        size="icon-sm"
-                        variant="outline"
-                      >
-                        <Trash2 />
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            className="hover:text-delete"
+                            onClick={() => id && removePermission(id)}
+                            size="icon-sm"
+                            variant="outline"
+                          >
+                            <Trash2 />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Eliminar</TooltipContent>
+                      </Tooltip>
                     </Protected>
                     <Protected requiredPermission="permissions-delete-hard">
-                      <Button
-                        className="hover:text-delete gap-0"
-                        onClick={() => id && hardRemovePermission(id)}
-                        size="icon-sm"
-                        variant="outline"
-                      >
-                        <Trash2 />
-                        <span>!</span>
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            className="hover:text-delete gap-0"
+                            onClick={() => id && hardRemovePermission(id)}
+                            size="icon-sm"
+                            variant="outline"
+                          >
+                            <Trash2 />
+                            <span>!</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Eliminar permanente</TooltipContent>
+                      </Tooltip>
                     </Protected>
                   </>
                 )}
