@@ -50,7 +50,7 @@ export function NavMain({ items }: IProps) {
   const { state } = useSidebar();
 
   const showMenuIcons = appSettings.find((s) => s.key === "showMenuIcons")?.value === "true";
-  const showMenuTooltips = appSettings.find((s) => s.key === "showMenuTooltips")?.value === "true";
+  const showMenuTooltips = appSettings.find((s) => s.key === "showTooltips")?.value === "true";
 
   const hasRoleAccess = (itemRole?: string | string[]) => {
     if (!itemRole) return true;
