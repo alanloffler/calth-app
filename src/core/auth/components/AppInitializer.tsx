@@ -30,7 +30,7 @@ export function AppInitializer({ children }: IProps) {
 
       isInitializing.current = true;
 
-      const storedTheme = localStorage.getItem("react-auth-theme");
+      const storedTheme = localStorage.getItem("calth-app-theme");
       if (storedTheme && (storedTheme === "light" || storedTheme === "dark" || storedTheme === "system")) {
         setTheme(storedTheme);
       }
