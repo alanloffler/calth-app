@@ -6,7 +6,6 @@ import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
 import { CreatedAt } from "@components/CreatedAt";
-import { HoldButton } from "@components/ui/HoldButton";
 import { Link } from "react-router";
 import { Loader } from "@components/Loader";
 import { PageHeader } from "@components/pages/PageHeader";
@@ -230,9 +229,14 @@ export default function ViewRole() {
                       Eliminado
                     </Badge>
                     <Protected requiredPermission="roles-restore">
-                      <HoldButton callback={() => id && restoreRole(id)} size="icon" type="restore" variant="outline">
-                        <RotateCcw className="h-4 w-4" />
-                      </HoldButton>
+                      <Button
+                        className="hover:text-restore"
+                        onClick={() => id && restoreRole(id)}
+                        size="icon-sm"
+                        variant="outline"
+                      >
+                        <RotateCcw />
+                      </Button>
                     </Protected>
                   </div>
                 ) : (
@@ -240,35 +244,40 @@ export default function ViewRole() {
                     {role?.value !== ERoles.super ? (
                       <>
                         <Protected requiredPermission="roles-update">
-                          <Button className="px-5! hover:text-green-500" variant="outline" asChild>
+                          <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
                             <Link to={`/roles/edit/${id}`}>
-                              <FilePenLine className="h-4 w-4" />
+                              <FilePenLine />
                             </Link>
                           </Button>
                         </Protected>
                         <Protected requiredPermission="roles-delete">
-                          <HoldButton callback={() => id && removeRole(id)} size="icon" type="delete" variant="outline">
-                            <Trash2 className="h-4 w-4" />
-                          </HoldButton>
-                        </Protected>
-                        <Protected requiredPermission="roles-delete-hard">
-                          <HoldButton
-                            callback={() => id && hardRemoveRole(id)}
-                            size="icon"
-                            type="hard-delete"
+                          <Button
+                            className="hover:text-delete"
+                            onClick={() => id && removeRole(id)}
+                            size="icon-sm"
                             variant="outline"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 />
+                          </Button>
+                        </Protected>
+                        <Protected requiredPermission="roles-delete-hard">
+                          <Button
+                            className="hover:text-delete gap-0"
+                            onClick={() => id && hardRemoveRole(id)}
+                            size="icon-sm"
+                            variant="outline"
+                          >
+                            <Trash2 />
                             <span>!</span>
-                          </HoldButton>
+                          </Button>
                         </Protected>
                       </>
                     ) : (
                       admin?.role.value === ERoles.super && (
                         <Protected requiredPermission="roles-update">
-                          <Button className="px-5! hover:text-green-500" variant="outline" asChild>
+                          <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
                             <Link to={`/roles/edit/${id}`}>
-                              <FilePenLine className="h-4 w-4" />
+                              <FilePenLine />
                             </Link>
                           </Button>
                         </Protected>
