@@ -27,7 +27,7 @@ function TooltipContent({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
   const showTooltips = useSettingsStore(
-    (state) => state.appSettings.find((s) => s.key === "showMenuTooltips")?.value === "true",
+    (state) => state.appSettings.find((s) => s.key === "showTooltips")?.value === "true",
   );
 
   if (!showTooltips) return null;
