@@ -18,18 +18,19 @@ import type { IRole } from "@roles/interfaces/role.interface";
 import { ERoles } from "@auth/enums/role.enum";
 import { EUserRole } from "@roles/enums/user-role.enum";
 import { RolesService } from "@roles/services/roles.service";
-import { tryCatch } from "@core/utils/try-catch";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function Roles() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
+  const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [roles, setRoles] = useState<IRole[] | undefined>(undefined);
   const [selectedRole, setSelectedRole] = useState<IRole | undefined>(undefined);
   const admin = useAuthStore((state) => state.admin);
   const { isLoading: isLoadingRoles, tryCatch: tryCatchRoles } = useTryCatch();
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
+  const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   const fetchRoles = useCallback(async () => {
@@ -66,8 +67,8 @@ export default function Roles() {
     }
   }
 
-  async function hardRemoveRole(id: string): Promise<void> {
-    const [response, error] = await tryCatch(RolesService.remove(id));
+  async function removeHardRole(id: string): Promise<void> {
+    const [response, error] = await tryCatchRemoveHard(RolesService.remove(id));
 
     if (error) {
       toast.error(error.message);
@@ -196,7 +197,10 @@ export default function Roles() {
                       <TooltipTrigger asChild>
                         <Button
                           className="hover:text-delete gap-0"
-                          onClick={() => hardRemoveRole(row.original.id)}
+                          onClick={() => {
+                            setSelectedRole(row.original);
+                            setOpenRemoveHardDialog(true);
+                          }}
                           size="icon-sm"
                           variant="outline"
                         >
@@ -267,6 +271,28 @@ export default function Roles() {
             open={openRestoreDialog}
             setOpen={setOpenRestoreDialog}
             variant="warning"
+          >
+            <ul>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Nombre:</span>
+                <span>{selectedRole.name}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Valor:</span>
+                <span>{selectedRole.value}</span>
+              </li>
+            </ul>
+          </ConfirmDialog>
+          <ConfirmDialog
+            title="Eliminar rol"
+            description="¿Seguro que querés eliminar el rol?"
+            alertMessage="El rol será eliminado de la base de datos. Esta acción es irreversible."
+            callback={() => removeHardRole(selectedRole.id)}
+            loader={isRemovingHard}
+            open={openRemoveHardDialog}
+            setOpen={setOpenRemoveHardDialog}
+            showAlert
+            variant="destructive"
           >
             <ul>
               <li className="flex items-center gap-2">
