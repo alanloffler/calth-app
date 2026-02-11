@@ -69,11 +69,31 @@
 
 .rbc-events-container .rbc-event {
   display: flex;
-  width: full !important;
-  padding: 2px 0px 2px 4px !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 6px 4px 4px 6px !important;
+  margin: 0 !important;
+}
+
+.rbc-events-container .rbc-event::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: var(--color-event-bg);
+  border: 1px solid var(--color-event-border);
   border-radius: 4px;
-  margin: 4px 0px 0px 2px;
-  max-height: 14px !important;
+  z-index: 0;
+}
+
+.rbc-events-container .rbc-event:hover::before {
+  background: var(--color-event-hover);
+  border-color: var(--color-event-hover);
+}
+
+.rbc-events-container .rbc-event-label,
+.rbc-events-container .rbc-event-content {
+  position: relative;
+  z-index: 1;
 }
 
 /* Day slot off range */
