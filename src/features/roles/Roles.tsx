@@ -2,6 +2,7 @@ import { Ban, FilePenLine, FileText, Plus, RotateCcw, Trash2 } from "lucide-reac
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
+import { ConfirmDialog } from "@components/ConfirmDialog";
 import { DataTable } from "@components/data-table/DataTable";
 import { Link } from "react-router";
 import { PageHeader } from "@components/pages/PageHeader";
@@ -22,9 +23,14 @@ import { useAuthStore } from "@auth/stores/auth.store";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function Roles() {
+  const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
+  const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [roles, setRoles] = useState<IRole[] | undefined>(undefined);
+  const [selectedRole, setSelectedRole] = useState<IRole | undefined>(undefined);
   const admin = useAuthStore((state) => state.admin);
   const { isLoading: isLoadingRoles, tryCatch: tryCatchRoles } = useTryCatch();
+  const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
+  const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   const fetchRoles = useCallback(async () => {
     const isSuperAdmin = admin?.role.value === ERoles.super;
@@ -47,7 +53,7 @@ export default function Roles() {
   }, [fetchRoles]);
 
   async function removeRole(id: string): Promise<void> {
-    const [response, error] = await tryCatch(RolesService.softRemove(id));
+    const [response, error] = await tryCatchRemove(RolesService.softRemove(id));
 
     if (error) {
       toast.error(error.message);
@@ -75,7 +81,7 @@ export default function Roles() {
   }
 
   async function restoreRole(id: string): Promise<void> {
-    const [response, error] = await tryCatch(RolesService.restore(id));
+    const [response, error] = await tryCatchRestore(RolesService.restore(id));
 
     if (error) {
       toast.error(error.message);
@@ -135,7 +141,10 @@ export default function Roles() {
                 <TooltipTrigger asChild>
                   <Button
                     className="hover:text-restore"
-                    onClick={() => restoreRole(row.original.id)}
+                    onClick={() => {
+                      setSelectedRole(row.original);
+                      setOpenRestoreDialog(true);
+                    }}
                     size="icon-sm"
                     variant="outline"
                   >
@@ -169,7 +178,10 @@ export default function Roles() {
                       <TooltipTrigger asChild>
                         <Button
                           className="hover:text-delete"
-                          onClick={() => removeRole(row.original.id)}
+                          onClick={() => {
+                            setSelectedRole(row.original);
+                            setOpenRemoveDialog(true);
+                          }}
                           size="icon-sm"
                           variant="outline"
                         >
@@ -205,24 +217,70 @@ export default function Roles() {
   ];
 
   return (
-    <div className="flex flex-col gap-8">
-      <PageHeader title="Roles" subtitle="Gestioná los roles de los administradores del sistema">
-        <Protected requiredPermission="roles-create">
-          <Button variant="default" size="lg" asChild>
-            <Link to="/roles/create">
-              <Plus />
-              Crear rol
-            </Link>
-          </Button>
-        </Protected>
-      </PageHeader>
-      <DataTable
-        columns={columns}
-        data={roles}
-        defaultPageSize={10}
-        defaultSorting={[{ id: "name", desc: false }]}
-        loading={isLoadingRoles}
-      />
-    </div>
+    <>
+      <div className="flex flex-col gap-8">
+        <PageHeader title="Roles" subtitle="Gestioná los roles de los administradores del sistema">
+          <Protected requiredPermission="roles-create">
+            <Button variant="default" size="lg" asChild>
+              <Link to="/roles/create">
+                <Plus />
+                Crear rol
+              </Link>
+            </Button>
+          </Protected>
+        </PageHeader>
+        <DataTable
+          columns={columns}
+          data={roles}
+          defaultPageSize={10}
+          defaultSorting={[{ id: "name", desc: false }]}
+          loading={isLoadingRoles}
+        />
+      </div>
+      {selectedRole && (
+        <>
+          <ConfirmDialog
+            title="Eliminar rol"
+            description="¿Seguro que querés eliminar el rol?"
+            callback={() => removeRole(selectedRole.id)}
+            loader={isRemoving}
+            open={openRemoveDialog}
+            setOpen={setOpenRemoveDialog}
+            variant="destructive"
+          >
+            <ul>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Nombre:</span>
+                <span>{selectedRole.name}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Valor:</span>
+                <span>{selectedRole.value}</span>
+              </li>
+            </ul>
+          </ConfirmDialog>
+          <ConfirmDialog
+            title="Restaurar rol"
+            description="¿Seguro que querés restaurar el rol?"
+            callback={() => restoreRole(selectedRole.id)}
+            loader={isRestoring}
+            open={openRestoreDialog}
+            setOpen={setOpenRestoreDialog}
+            variant="warning"
+          >
+            <ul>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Nombre:</span>
+                <span>{selectedRole.name}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Valor:</span>
+                <span>{selectedRole.value}</span>
+              </li>
+            </ul>
+          </ConfirmDialog>
+        </>
+      )}
+    </>
   );
 }
