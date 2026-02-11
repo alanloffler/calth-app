@@ -5,6 +5,7 @@ import { BackButton } from "@components/BackButton";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
+import { ConfirmDialog } from "@components/ConfirmDialog";
 import { CreatedAt } from "@components/CreatedAt";
 import { Link } from "react-router";
 import { Loader } from "@components/Loader";
@@ -23,12 +24,14 @@ import type { IRole, IRolePermissions } from "@roles/interfaces/role.interface";
 import { ERoles } from "@auth/enums/role.enum";
 import { EUserRole } from "@roles/enums/user-role.enum";
 import { RolesService } from "@roles/services/roles.service";
-import { tryCatch } from "@core/utils/try-catch";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function ViewRole() {
+  const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
+  const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
+  const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [role, setRole] = useState<IRole | undefined>(undefined);
   const admin = useAuthStore((state) => state.admin);
   const usersInRole = useMemo(() => [...(role?.users ?? []), ...(role?.admins ?? [])], [role?.users, role?.admins]);
@@ -36,6 +39,9 @@ export default function ViewRole() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { isLoading: isLoadingRole, tryCatch: tryCatchRole } = useTryCatch();
+  const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
+  const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
+  const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   const findOneRole = useCallback(
     async function (id: string) {
@@ -78,7 +84,7 @@ export default function ViewRole() {
   };
 
   async function removeRole(id: string): Promise<void> {
-    const [response, error] = await tryCatch(RolesService.softRemove(id));
+    const [response, error] = await tryCatchRemove(RolesService.softRemove(id));
 
     if (error) {
       toast.error(error.message);
@@ -91,8 +97,8 @@ export default function ViewRole() {
     }
   }
 
-  async function hardRemoveRole(id: string): Promise<void> {
-    const [response, error] = await tryCatch(RolesService.remove(id));
+  async function removeHardRole(id: string): Promise<void> {
+    const [response, error] = await tryCatchRemoveHard(RolesService.remove(id));
 
     if (error) {
       toast.error(error.message);
@@ -106,7 +112,7 @@ export default function ViewRole() {
   }
 
   async function restoreRole(id: string): Promise<void> {
-    const [response, error] = await tryCatch(RolesService.restore(id));
+    const [response, error] = await tryCatchRestore(RolesService.restore(id));
 
     if (error) {
       toast.error(error.message);
@@ -235,7 +241,7 @@ export default function ViewRole() {
                         <TooltipTrigger asChild>
                           <Button
                             className="hover:text-restore"
-                            onClick={() => id && restoreRole(id)}
+                            onClick={() => id && setOpenRestoreDialog(true)}
                             size="icon-sm"
                             variant="outline"
                           >
@@ -270,7 +276,7 @@ export default function ViewRole() {
                             <TooltipTrigger asChild>
                               <Button
                                 className="hover:text-delete"
-                                onClick={() => id && removeRole(id)}
+                                onClick={() => id && setOpenRemoveDialog(true)}
                                 size="icon-sm"
                                 variant="outline"
                               >
@@ -285,7 +291,7 @@ export default function ViewRole() {
                             <TooltipTrigger asChild>
                               <Button
                                 className="hover:text-delete gap-0"
-                                onClick={() => id && hardRemoveRole(id)}
+                                onClick={() => id && setOpenRemoveHardDialog(true)}
                                 size="icon-sm"
                                 variant="outline"
                               >
@@ -302,6 +308,72 @@ export default function ViewRole() {
                 )}
               </CardFooter>
             </Activity>
+            {role && (
+              <>
+                <ConfirmDialog
+                  title="Eliminar rol"
+                  description="¿Seguro que querés eliminar el rol?"
+                  callback={() => removeRole(role.id)}
+                  loader={isRemoving}
+                  open={openRemoveDialog}
+                  setOpen={setOpenRemoveDialog}
+                  variant="destructive"
+                >
+                  <ul>
+                    <li className="flex items-center gap-2">
+                      <span className="font-semibold">Nombre:</span>
+                      <span>{role.name}</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="font-semibold">Valor:</span>
+                      <span>{role.value}</span>
+                    </li>
+                  </ul>
+                </ConfirmDialog>
+                <ConfirmDialog
+                  title="Restaurar rol"
+                  description="¿Seguro que querés restaurar el rol?"
+                  callback={() => restoreRole(role.id)}
+                  loader={isRestoring}
+                  open={openRestoreDialog}
+                  setOpen={setOpenRestoreDialog}
+                  variant="warning"
+                >
+                  <ul>
+                    <li className="flex items-center gap-2">
+                      <span className="font-semibold">Nombre:</span>
+                      <span>{role.name}</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="font-semibold">Valor:</span>
+                      <span>{role.value}</span>
+                    </li>
+                  </ul>
+                </ConfirmDialog>
+                <ConfirmDialog
+                  title="Eliminar rol"
+                  description="¿Seguro que querés eliminar el rol?"
+                  alertMessage="El rol será eliminado de la base de datos. Esta acción es irreversible."
+                  callback={() => removeHardRole(role.id)}
+                  loader={isRemovingHard}
+                  open={openRemoveHardDialog}
+                  setOpen={setOpenRemoveHardDialog}
+                  showAlert
+                  variant="destructive"
+                >
+                  <ul>
+                    <li className="flex items-center gap-2">
+                      <span className="font-semibold">Nombre:</span>
+                      <span>{role.name}</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="font-semibold">Valor:</span>
+                      <span>{role.value}</span>
+                    </li>
+                  </ul>
+                </ConfirmDialog>
+              </>
+            )}
           </>
         )}
       </Card>
