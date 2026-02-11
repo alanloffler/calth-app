@@ -19,6 +19,7 @@ import { useState, type Dispatch, type SetStateAction } from "react";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { formatIc } from "@core/formatters/ic.formatter";
+import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
@@ -94,7 +95,7 @@ export function ViewEventSheet({ event, onRemoveEvent, open, setOpen, setOpenEdi
                 <li>
                   <div className="flex items-center gap-3">
                     <CalendarDays className="h-4.5 w-4.5 shrink-0" strokeWidth={1.5} />
-                    <span>{event.startDate && format(event.startDate, "dd 'de' MMMM 'de' yyyy", { locale: es })}</span>
+                    <span>{event.startDate && uppercaseFirst(format(event.startDate, "PPPP", { locale: es }))}</span>
                   </div>
                 </li>
                 <li>
