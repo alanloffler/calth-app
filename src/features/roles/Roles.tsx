@@ -15,6 +15,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { IRole } from "@roles/interfaces/role.interface";
 import { ERoles } from "@auth/enums/role.enum";
+import { EUserRole } from "@roles/enums/user-role.enum";
 import { RolesService } from "@roles/services/roles.service";
 import { tryCatch } from "@core/utils/try-catch";
 import { useAuthStore } from "@auth/stores/auth.store";
@@ -146,18 +147,21 @@ export default function Roles() {
             </Protected>
           ) : (
             <>
-              <Protected requiredPermission="roles-update">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
-                      <Link to={`/roles/edit/${row.original.id}`}>
-                        <FilePenLine />
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Editar</TooltipContent>
-                </Tooltip>
-              </Protected>
+              {(admin?.role.value === EUserRole.super ||
+                (admin?.role.value === EUserRole.admin && row.original.value !== EUserRole.admin)) && (
+                <Protected requiredPermission="roles-update">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button className="hover:text-edit" size="icon-sm" variant="outline" asChild>
+                        <Link to={`/roles/edit/${row.original.id}`}>
+                          <FilePenLine />
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Editar</TooltipContent>
+                  </Tooltip>
+                </Protected>
+              )}
               {row.original.value !== ERoles.super && row.original.value !== ERoles.admin && (
                 <>
                   <Protected requiredPermission="roles-delete">
