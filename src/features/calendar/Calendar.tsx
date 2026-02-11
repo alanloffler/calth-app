@@ -22,7 +22,7 @@ import type { TView } from "@calendar/interfaces/calendar-view.type";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { UsersService } from "@users/services/users.service";
 import { cn } from "@lib/utils";
-import { createSlotPropGetter, parseCalendarConfig } from "@calendar/utils/calendar.utils";
+import { createEventPropGetter, createSlotPropGetter, parseCalendarConfig } from "@calendar/utils/calendar.utils";
 import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useTryCatch } from "@core/hooks/useTryCatch";
@@ -69,6 +69,7 @@ export default function Calendar() {
     useCalendarStore();
 
   const slotPropGetter = useMemo(() => createSlotPropGetter(selectedProfessionalConfig), [selectedProfessionalConfig]);
+  const eventPropGetter = useMemo(() => createEventPropGetter(), []);
 
   const getProfessional = useCallback(
     async (id: string): Promise<void> => {
@@ -207,6 +208,7 @@ export default function Calendar() {
             onSelectEvent={onSelectEvent}
             onView={onView}
             slotPropGetter={slotPropGetter}
+            eventPropGetter={eventPropGetter}
             startAccessor="startDate"
             step={selectedProfessionalConfig?.step}
             timeslots={selectedProfessionalConfig?.timeSlots}
