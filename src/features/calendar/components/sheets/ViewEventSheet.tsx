@@ -11,6 +11,7 @@ import { EventStatus } from "@calendar/components/ui/EventStatus";
 import { Protected } from "@auth/components/Protected";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
+import { UpdateEventStatus } from "@calendar/components/UpdateEventStatus";
 
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
@@ -178,6 +179,10 @@ export function ViewEventSheet({ event, onRemoveEvent, open, setOpen, setOpenEdi
                 </footer>
               </Activity>
             </article>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Cambiar estado:</span>
+              <UpdateEventStatus event={event} />
+            </div>
           </div>
         </SheetContent>
       </Sheet>
