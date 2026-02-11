@@ -7,6 +7,7 @@ import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { ConfirmDialog } from "@components/ConfirmDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@components/ui/dropdown-menu";
+import { EventStatus } from "@calendar/components/ui/EventStatus";
 import { Protected } from "@auth/components/Protected";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
@@ -77,6 +78,9 @@ export function ViewEventSheet({ event, onRemoveEvent, open, setOpen, setOpenEdi
                 <h2 className="text-base font-semibold md:text-lg">{event.title}</h2>
               </header>
               <ul className="mt-4 flex flex-col gap-3 text-sm md:text-base">
+                <li>
+                  <EventStatus variant={event.status} />
+                </li>
                 <li>
                   <div className="flex items-center gap-3">
                     <BriefcaseMedical className="h-4.5 w-4.5 shrink-0" strokeWidth={1.5} />
