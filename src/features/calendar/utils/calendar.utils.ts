@@ -1,4 +1,5 @@
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
+import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IProfessionalProfile } from "@users/interfaces/professional-profile.interface";
 
 export function parseCalendarConfig(profile: IProfessionalProfile): ICalendarConfig {
@@ -50,6 +51,14 @@ export function parseCalendarConfig(profile: IProfessionalProfile): ICalendarCon
 export function dailyExceptionRange(date: Date, dailyExceptionStart: Date, dailyExceptionEnd: Date): boolean {
   const hour = date.getHours();
   return hour >= dailyExceptionStart.getHours() && hour < dailyExceptionEnd.getHours();
+}
+
+export function createEventPropGetter() {
+  return (event: ICalendarEvent) => {
+    return {
+      className: `event-status-${event.status}`,
+    };
+  };
 }
 
 export function createSlotPropGetter(calendarConfig: ICalendarConfig | null) {
