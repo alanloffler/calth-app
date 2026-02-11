@@ -2,6 +2,7 @@ import type z from "zod";
 
 import type { IApiResponse } from "@core/interfaces/api-response.interface";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
+import type { TEventStatus } from "@calendar/enums/event-status.enum";
 import type { eventSchema } from "@calendar/schemas/event.schema";
 import { apiClient } from "@core/client/client";
 
@@ -51,6 +52,11 @@ class CalendarModuleService {
 
   public async update(id: string, data: z.infer<typeof eventSchema>): Promise<IApiResponse<ICalendarEvent>> {
     const response = await apiClient.patch(`/events/${id}`, data);
+    return response.data;
+  }
+
+  public async updateStatus(eventId: string, status: TEventStatus): Promise<IApiResponse> {
+    const response = await apiClient.patch(`/events/${eventId}/status/`, { status });
     return response.data;
   }
 
