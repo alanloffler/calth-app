@@ -117,6 +117,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
+                      className="hover:text-view"
                       onClick={() => {
                         setOpenSheet(true);
                         setSelectedHistory({ ...row.original, idx: row.index });
@@ -134,6 +135,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
+                      className="hover:text-edit"
                       onClick={() => {
                         setSelectedHistory({ ...row.original, idx: row.index });
                         setOpenEditSheet(true);
@@ -151,6 +153,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
+                      className="hover:text-delete"
                       onClick={() => {
                         setSelectedHistory({ ...row.original, idx: row.index });
                         setOpenRemoveDialog(true);
@@ -168,7 +171,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      className="gap-0 hover:text-red-500"
+                      className="hover:text-delete gap-0"
                       onClick={() => {
                         setSelectedHistory({ ...row.original, idx: row.index });
                         setOpenRemoveHardDialog(true);
