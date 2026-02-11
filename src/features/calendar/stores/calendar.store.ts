@@ -29,7 +29,7 @@ export const useCalendarStore = create(
       setSelectedView: (view) => set({ selectedView: view }),
     }),
     {
-      name: "app-calendar",
+      name: "calth-app-calendar",
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) =>
         ({
