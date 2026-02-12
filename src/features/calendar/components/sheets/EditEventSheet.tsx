@@ -13,7 +13,7 @@ import type z from "zod";
 import { addMinutes, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
-import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -47,7 +47,7 @@ interface IProps {
   event: ICalendarEvent | null;
   onUpdateEvent: (updatedEvent: ICalendarEvent) => void;
   open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  setOpen: (open: boolean) => void;
 }
 
 export function EditEventSheet({ event, onUpdateEvent, open, setOpen }: IProps) {
