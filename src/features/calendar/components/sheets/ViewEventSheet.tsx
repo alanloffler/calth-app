@@ -197,9 +197,10 @@ export function ViewEventSheet({
               </Activity>
             </article>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Cambiar estado:</span>
-              {/* TODO: apply permissions */}
-              <UpdateEventStatus event={event} onEventChange={onEventChange} />
+              <Protected requiredPermission="events-update">
+                <span className="text-sm font-medium">Cambiar estado:</span>
+                <UpdateEventStatus event={event} onEventChange={onEventChange} />
+              </Protected>
             </div>
           </div>
         </SheetContent>
