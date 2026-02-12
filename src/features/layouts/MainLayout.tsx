@@ -4,24 +4,28 @@ import { ModeToggle } from "@components/mode-toggle";
 import { Outlet } from "react-router";
 import { Separator } from "@components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@components/ui/sidebar";
+import { ViewEventSheet } from "@calendar/components/sheets/ViewEventSheet";
 
 export function MainLayout() {
   return (
-    <SidebarProvider className="h-full overflow-hidden">
-      <AppSidebar />
-      <SidebarInset className="flex h-full flex-col overflow-hidden">
-        <header className="light:shadow-lg light:shadow-white z-50 flex h-16 shrink-0 items-center justify-between gap-2 border-b pr-3 pl-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-16">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-            <HeaderBreadcrumb />
+    <>
+      <SidebarProvider className="h-full overflow-hidden">
+        <AppSidebar />
+        <SidebarInset className="flex h-full flex-col overflow-hidden">
+          <header className="light:shadow-lg light:shadow-white z-50 flex h-16 shrink-0 items-center justify-between gap-2 border-b pr-3 pl-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-16">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
+              <HeaderBreadcrumb />
+            </div>
+            <ModeToggle />
+          </header>
+          <div className="flex flex-1 flex-col overflow-y-auto p-8">
+            <Outlet />
           </div>
-          <ModeToggle />
-        </header>
-        <div className="flex flex-1 flex-col overflow-y-auto p-8">
-          <Outlet />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+        </SidebarInset>
+      </SidebarProvider>
+      <ViewEventSheet />
+    </>
   );
 }
