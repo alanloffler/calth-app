@@ -34,6 +34,11 @@ class UsersModuleService {
     return response.data;
   }
 
+  public async findLatestPatients(limit: number): Promise<IApiResponse<IUser[]>> {
+    const response = await apiClient.get(`/users/role/patient?limit=${limit}`);
+    return response.data;
+  }
+
   public async findPatientWithHistory(id: string): Promise<IApiResponse<IUser>> {
     const response = await apiClient.get(`/users/patient-history/${id}`);
     return response.data;
