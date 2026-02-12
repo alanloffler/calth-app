@@ -7,7 +7,6 @@ import { ConfigButton } from "@dashboard/components/ConfigButton";
 import { KeyRoundPlus } from "@components/icons/KeyRoundPlus";
 import { LatestEvents } from "@dashboard/components/LatestEvents";
 import { Link } from "react-router";
-import { PageHeader } from "@components/pages/PageHeader";
 import { Protected } from "@auth/components/Protected";
 
 import { useAuthStore } from "@auth/stores/auth.store";
@@ -35,9 +34,10 @@ export default function Dashboard() {
           <p className="text-lg font-medium">Bienvenido a tu panel de control</p>
         </Card>
       )}
-      <PageHeader title="Panel de control" subtitle="Administra tu aplicación" />
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <LatestEvents className="lg:col-span-12 xl:col-span-8 2xl:col-span-6" />
+      </div>
       <div className="flex flex-col gap-8">
-        <LatestEvents />
         {showAdmin && (
           <div className="grid grid-cols-4 items-center gap-8 lg:grid-cols-6 xl:grid-cols-8">
             <ActionCard
