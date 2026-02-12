@@ -12,6 +12,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { cn } from "@lib/utils";
+import { useEventStore } from "@calendar/stores/event.store";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
@@ -21,6 +22,7 @@ interface IProps {
 export function LatestEvents({ className }: IProps) {
   const [events, setEvents] = useState<ICalendarEvent[]>();
   const { isLoading, tryCatch } = useTryCatch();
+  const setSelectedEvent = useEventStore((state) => state.setSelectedEvent);
 
   const getLatestEvents = useCallback(async () => {
     const [response, error] = await tryCatch(CalendarService.findAllByBusiness(5));
@@ -60,6 +62,7 @@ export function LatestEvents({ className }: IProps) {
             <TableRow
               className="hover:cursor-pointer hover:bg-neutral-50/80 dark:hover:bg-neutral-900/50"
               key={event.id}
+              onClick={() => setSelectedEvent(event)}
             >
               <TableCell>{format(event.startDate, "dd/MM", { locale: es })}</TableCell>
               <TableCell>{format(event.startDate, "HH:mm", { locale: es }) + " hs."}</TableCell>
