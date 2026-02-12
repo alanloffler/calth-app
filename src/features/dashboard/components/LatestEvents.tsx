@@ -1,5 +1,7 @@
+import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { EventStatus } from "@calendar/components/ui/EventStatus";
+import { Link } from "react-router";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@components/ui/table";
 
 import { es } from "date-fns/locale";
@@ -71,6 +73,9 @@ export function LatestEvents({ className }: IProps) {
           ))}
         </TableBody>
       </Table>
+      <Button className="text-foreground justify-end" variant="link" asChild>
+        <Link to="/calendar">Ver todos</Link>
+      </Button>
     </Card>
   );
 }
