@@ -7,7 +7,6 @@ import { Loader } from "@components/Loader";
 import { PageLoader } from "@components/PageLoader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 import { Toolbar } from "@calendar/components/Toolbar";
-import { ViewEvent } from "@calendar/components/ViewEvent";
 
 import type { Event, ToolbarProps, View } from "react-big-calendar";
 import { dateFnsLocalizer } from "react-big-calendar";
@@ -24,6 +23,7 @@ import { UsersService } from "@users/services/users.service";
 import { cn } from "@lib/utils";
 import { createEventPropGetter, createSlotPropGetter, parseCalendarConfig } from "@calendar/utils/calendar.utils";
 import { useCalendarStore } from "@calendar/stores/calendar.store";
+import { useEventStore } from "@calendar/stores/event.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
@@ -57,10 +57,9 @@ export default function Calendar() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [errorNotification, setErrorNotification] = useState<boolean>(false);
   const [events, setEvents] = useState<ICalendarEvent[] | undefined>(undefined);
-  const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [professionals, setProfessionals] = useState<IUser[] | undefined>(undefined);
-  const [selectedEvent, setSelectedEvent] = useState<ICalendarEvent | null>(null);
   const canViewEvent = usePermission("events-view");
+  const { refreshKey, setSelectedEvent, setOpenViewEventSheet } = useEventStore();
   const { isLoading: isLoadingEvents, tryCatch: tryCatchEvents } = useTryCatch();
   const { isLoading: isLoadingProfessional, tryCatch: tryCatchProfessional } = useTryCatch();
   const { isLoading: isLoadingProfessionals, tryCatch: tryCatchProfessionals } = useTryCatch();
@@ -138,8 +137,8 @@ export default function Calendar() {
 
   const onSelectEvent = useCallback((event: Event) => {
     setSelectedEvent(event as ICalendarEvent);
-    setOpenSheet(true);
-  }, []);
+    setOpenViewEventSheet(true);
+  }, [setSelectedEvent, setOpenViewEventSheet]);
 
   useEffect(() => {
     fetchProfessionals();
@@ -147,7 +146,7 @@ export default function Calendar() {
 
   useEffect(() => {
     refreshEvents();
-  }, [refreshEvents]);
+  }, [refreshEvents, refreshKey]);
 
   if (isLoadingEvents) return <PageLoader text="Cargando agenda" />;
 
@@ -217,7 +216,6 @@ export default function Calendar() {
           />
         )}
       </div>
-      <ViewEvent event={selectedEvent} onRefresh={refreshEvents} openSheet={openSheet} setOpenSheet={setOpenSheet} />
     </>
   );
 }
