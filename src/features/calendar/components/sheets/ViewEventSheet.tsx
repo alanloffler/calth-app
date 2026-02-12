@@ -43,7 +43,7 @@ export function ViewEventSheet() {
 
   function handleOpenChange(isOpen: boolean): void {
     setOpenViewEventSheet(isOpen);
-    if (!isOpen) triggerRefresh();
+    if (!isOpen && event) triggerRefresh();
   }
 
   function removeEventDialog(): void {
@@ -62,6 +62,8 @@ export function ViewEventSheet() {
       toast.success("Turno eliminado");
       setOpenRemoveDialog(false);
       setOpenViewEventSheet(false);
+      setSelectedEvent(null);
+      triggerRefresh();
     }
   }
 
