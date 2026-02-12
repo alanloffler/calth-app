@@ -21,8 +21,9 @@ interface IProps {
 
 export function LatestEvents({ className }: IProps) {
   const [events, setEvents] = useState<ICalendarEvent[]>();
-  const { isLoading, tryCatch } = useTryCatch();
+  const setOpenViewEventSheet = useEventStore((state) => state.setOpenViewEventSheet);
   const setSelectedEvent = useEventStore((state) => state.setSelectedEvent);
+  const { isLoading, tryCatch } = useTryCatch();
 
   const getLatestEvents = useCallback(async () => {
     const [response, error] = await tryCatch(CalendarService.findAllByBusiness(5));
@@ -37,10 +38,16 @@ export function LatestEvents({ className }: IProps) {
     }
   }, [tryCatch]);
 
+  function handleSelectEvent(event: ICalendarEvent): void {
+    setSelectedEvent(event);
+    setOpenViewEventSheet(true);
+  }
+
   useEffect(() => {
     getLatestEvents();
   }, [getLatestEvents]);
 
+  // TODO: handle loading UI (check on LatestPatients.tsx too)
   if (isLoading) return <>Is Loading</>;
 
   return (
@@ -62,7 +69,7 @@ export function LatestEvents({ className }: IProps) {
             <TableRow
               className="hover:cursor-pointer hover:bg-neutral-50/80 dark:hover:bg-neutral-900/50"
               key={event.id}
-              onClick={() => setSelectedEvent(event)}
+              onClick={() => handleSelectEvent(event)}
             >
               <TableCell>{format(event.startDate, "dd/MM", { locale: es })}</TableCell>
               <TableCell>{format(event.startDate, "HH:mm", { locale: es }) + " hs."}</TableCell>
