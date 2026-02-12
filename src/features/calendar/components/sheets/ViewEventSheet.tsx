@@ -27,16 +27,33 @@ import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   event: ICalendarEvent | null;
+  onClose: () => void;
+  onEventChange: (event: ICalendarEvent) => void;
   onRemoveEvent: () => Promise<void>;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   setOpenEditSheet: Dispatch<SetStateAction<boolean>>;
 }
 
-export function ViewEventSheet({ event, onRemoveEvent, open, setOpen, setOpenEditSheet }: IProps) {
+export function ViewEventSheet({
+  event,
+  onClose,
+  onEventChange,
+  onRemoveEvent,
+  open,
+  setOpen,
+  setOpenEditSheet,
+}: IProps) {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const { isLoading: isRemoving, tryCatch: tryCatchRemoveEvent } = useTryCatch();
   const hasPermissions = usePermission(["events-delete-hard", "events-update", "events-notify"], "some");
+
+  function handleOpenChange(isOpen: boolean): void {
+    setOpen(isOpen);
+    if (!isOpen) {
+      onClose();
+    }
+  }
 
   function removeEventDialog(): void {
     setOpenRemoveDialog(true);
@@ -66,7 +83,7 @@ export function ViewEventSheet({ event, onRemoveEvent, open, setOpen, setOpenEdi
 
   return (
     <>
-      <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet open={open} onOpenChange={handleOpenChange}>
         <SheetTrigger asChild></SheetTrigger>
         <SheetContent className="sm:min-w-[480px]" onOpenAutoFocus={(e) => e.preventDefault()}>
           <SheetHeader className="pt-8">
@@ -181,7 +198,8 @@ export function ViewEventSheet({ event, onRemoveEvent, open, setOpen, setOpenEdi
             </article>
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Cambiar estado:</span>
-              <UpdateEventStatus event={event} />
+              {/* TODO: apply permissions */}
+              <UpdateEventStatus event={event} onEventChange={onEventChange} />
             </div>
           </div>
         </SheetContent>
