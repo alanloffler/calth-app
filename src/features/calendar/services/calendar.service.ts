@@ -30,6 +30,11 @@ class CalendarModuleService {
     return { ...data, data: this.toDate(data.data) };
   }
 
+  public async findAllByBusiness(limit: number): Promise<IApiResponse<ICalendarEvent[]>> {
+    const response = await apiClient.get(`/events/business?limit=${limit}`);
+    return response.data;
+  }
+
   public async findAllByDateArray(professionalId: string, date: string): Promise<IApiResponse<string[]>> {
     const response = await apiClient.get(`events/professional/${professionalId}/date-array/${date}`);
     return response.data;
