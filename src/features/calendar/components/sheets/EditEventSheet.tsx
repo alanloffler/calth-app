@@ -45,7 +45,7 @@ function getEventTimeSlot(event: ICalendarEvent | null): string | null {
 
 interface IProps {
   event: ICalendarEvent | null;
-  onUpdateEvent: () => void;
+  onUpdateEvent: (updatedEvent: ICalendarEvent) => void;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
@@ -90,9 +90,29 @@ export function EditEventSheet({ event, onUpdateEvent, open, setOpen }: IProps) 
     }
 
     if (response && response.statusCode === 200) {
-      toast.success("Turno actualizado exitosamente");
-      setOpen(false);
-      onUpdateEvent();
+      const [updatedEventResponse] = await tryCatchUpdateEvent(CalendarService.findOne(event.id));
+
+      if (updatedEventResponse?.data) {
+        const mergedEvent: ICalendarEvent = {
+          ...event,
+          ...updatedEventResponse.data,
+          professional: {
+            ...event.professional,
+            ...updatedEventResponse.data.professional,
+            professionalProfile: {
+              ...event.professional.professionalProfile,
+              ...updatedEventResponse.data.professional?.professionalProfile,
+            },
+          },
+          user: {
+            ...event.user,
+            ...updatedEventResponse.data.user,
+          },
+        };
+
+        toast.success("Turno actualizado exitosamente");
+        onUpdateEvent(mergedEvent);
+      }
     }
   }
 
