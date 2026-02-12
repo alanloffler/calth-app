@@ -6,6 +6,7 @@ import { Card } from "@components/ui/card";
 import { ConfigButton } from "@dashboard/components/ConfigButton";
 import { KeyRoundPlus } from "@components/icons/KeyRoundPlus";
 import { LatestEvents } from "@dashboard/components/LatestEvents";
+import { LatestPatients } from "@dashboard/components/LatestPatients";
 import { Link } from "react-router";
 import { Protected } from "@auth/components/Protected";
 
@@ -35,7 +36,8 @@ export default function Dashboard() {
         </Card>
       )}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-        <LatestEvents className="lg:col-span-12 xl:col-span-8 2xl:col-span-6" />
+        <LatestEvents className="col-span-12 xl:col-span-8 2xl:col-span-6" />
+        <LatestPatients className="col-span-12 xl:col-span-4 2xl:col-span-6" />
       </div>
       <div className="flex flex-col gap-8">
         {showAdmin && (
