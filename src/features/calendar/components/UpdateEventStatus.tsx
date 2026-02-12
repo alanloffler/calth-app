@@ -7,21 +7,25 @@ import type { TEventStatus } from "@calendar/enums/event-status.enum";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { DEventStatus } from "@calendar/dictionaries/status.dictionary";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
-import { useTryCatch } from "@/core/hooks/useTryCatch";
+import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   event: ICalendarEvent;
+  onEventChange: (event: ICalendarEvent) => void;
 }
 
-export function UpdateEventStatus({ event }: IProps) {
+export function UpdateEventStatus({ event, onEventChange }: IProps) {
   const { tryCatch: tryCatchUpdateEvent } = useTryCatch();
 
   if (!DEventStatus || !event) return;
 
   async function updateEventStatus(status: TEventStatus): Promise<void> {
+    onEventChange({ ...event, status });
+
     const [response, error] = await tryCatchUpdateEvent(CalendarService.updateStatus(event.id, status));
 
     if (error) {
+      onEventChange(event);
       toast.error(error.message);
       return;
     }
