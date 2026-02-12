@@ -9,9 +9,14 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
+import { cn } from "@lib/utils";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
-export function LatestEvents() {
+interface IProps {
+  className?: string;
+}
+
+export function LatestEvents({ className }: IProps) {
   const [events, setEvents] = useState<ICalendarEvent[]>();
   const { isLoading, tryCatch } = useTryCatch();
 
@@ -35,7 +40,7 @@ export function LatestEvents() {
   if (isLoading) return <>Is Loading</>;
 
   return (
-    <Card className="gap-4 px-6">
+    <Card className={cn("gap-4 px-6", className)}>
       <h2 className="font-semibold">Últimos turnos</h2>
       <Table>
         <TableHeader className="dark:bg-primary-foreground bg-neutral-100">
@@ -51,7 +56,7 @@ export function LatestEvents() {
         <TableBody>
           {events?.map((event) => (
             <TableRow className="hover:cursor-pointer hover:bg-neutral-50/80 dark:hover:bg-neutral-900/50">
-              <TableCell>{format(event.startDate, "P", { locale: es })}</TableCell>
+              <TableCell>{format(event.startDate, "dd/MM", { locale: es })}</TableCell>
               <TableCell>{format(event.startDate, "HH:mm", { locale: es }) + " hs."}</TableCell>
               <TableCell>
                 <EventStatus size="small" variant={event.status} />
