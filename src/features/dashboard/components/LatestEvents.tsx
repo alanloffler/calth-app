@@ -55,7 +55,10 @@ export function LatestEvents({ className }: IProps) {
         </TableHeader>
         <TableBody>
           {events?.map((event) => (
-            <TableRow className="hover:cursor-pointer hover:bg-neutral-50/80 dark:hover:bg-neutral-900/50">
+            <TableRow
+              className="hover:cursor-pointer hover:bg-neutral-50/80 dark:hover:bg-neutral-900/50"
+              key={event.id}
+            >
               <TableCell>{format(event.startDate, "dd/MM", { locale: es })}</TableCell>
               <TableCell>{format(event.startDate, "HH:mm", { locale: es }) + " hs."}</TableCell>
               <TableCell>
