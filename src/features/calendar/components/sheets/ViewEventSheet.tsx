@@ -7,6 +7,7 @@ import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { ConfirmDialog } from "@components/ConfirmDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@components/ui/dropdown-menu";
+import { EditEventSheet } from "@calendar/components/sheets/EditEventSheet";
 import { EventStatus } from "@calendar/components/ui/EventStatus";
 import { Protected } from "@auth/components/Protected";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
@@ -16,43 +17,33 @@ import { UpdateEventStatus } from "@calendar/components/UpdateEventStatus";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useState } from "react";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { formatIc } from "@core/formatters/ic.formatter";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
+import { useEventStore } from "@calendar/stores/event.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
-interface IProps {
-  event: ICalendarEvent | null;
-  onClose: () => void;
-  onEventChange: (event: ICalendarEvent) => void;
-  onRemoveEvent: () => Promise<void>;
-  open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  setOpenEditSheet: Dispatch<SetStateAction<boolean>>;
-}
-
-export function ViewEventSheet({
-  event,
-  onClose,
-  onEventChange,
-  onRemoveEvent,
-  open,
-  setOpen,
-  setOpenEditSheet,
-}: IProps) {
+export function ViewEventSheet() {
+  const {
+    openEditEventSheet,
+    openViewEventSheet,
+    selectedEvent: event,
+    setOpenEditEventSheet,
+    setOpenViewEventSheet,
+    setSelectedEvent,
+    triggerRefresh,
+  } = useEventStore();
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const { isLoading: isRemoving, tryCatch: tryCatchRemoveEvent } = useTryCatch();
   const hasPermissions = usePermission(["events-delete-hard", "events-update", "events-notify"], "some");
 
   function handleOpenChange(isOpen: boolean): void {
-    setOpen(isOpen);
-    if (!isOpen) {
-      onClose();
-    }
+    setOpenViewEventSheet(isOpen);
+    if (!isOpen) triggerRefresh();
   }
 
   function removeEventDialog(): void {
@@ -70,8 +61,7 @@ export function ViewEventSheet({
     if (response && response.statusCode === 200) {
       toast.success("Turno eliminado");
       setOpenRemoveDialog(false);
-      setOpen(false);
-      onRemoveEvent();
+      setOpenViewEventSheet(false);
     }
   }
 
@@ -79,11 +69,16 @@ export function ViewEventSheet({
     toast.success(`Notificación enviada por ${type}`);
   }
 
+  function handleUpdateEvent(updatedEvent: ICalendarEvent): void {
+    setSelectedEvent(updatedEvent);
+    setOpenEditEventSheet(false);
+  }
+
   if (!event) return null;
 
   return (
     <>
-      <Sheet open={open} onOpenChange={handleOpenChange}>
+      <Sheet open={openViewEventSheet} onOpenChange={handleOpenChange}>
         <SheetTrigger asChild></SheetTrigger>
         <SheetContent className="sm:min-w-[480px]" onOpenAutoFocus={(e) => e.preventDefault()}>
           <SheetHeader className="pt-8">
@@ -158,7 +153,7 @@ export function ViewEventSheet({
                       <TooltipTrigger asChild>
                         <Button
                           className="hover:bg-green-50 hover:text-green-600"
-                          onClick={() => setOpenEditSheet(true)}
+                          onClick={() => setOpenEditEventSheet(true)}
                           size="icon"
                           variant="ghost"
                         >
@@ -199,7 +194,7 @@ export function ViewEventSheet({
             <div className="flex items-center gap-2">
               <Protected requiredPermission="events-update">
                 <span className="text-sm font-medium">Cambiar estado:</span>
-                <UpdateEventStatus event={event} onEventChange={onEventChange} />
+                <UpdateEventStatus event={event} onEventChange={setSelectedEvent} />
               </Protected>
             </div>
           </div>
@@ -235,6 +230,12 @@ export function ViewEventSheet({
           </li>
         </ul>
       </ConfirmDialog>
+      <EditEventSheet
+        event={event}
+        onUpdateEvent={handleUpdateEvent}
+        open={openEditEventSheet}
+        setOpen={setOpenEditEventSheet}
+      />
     </>
   );
 }
