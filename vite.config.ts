@@ -18,7 +18,6 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
       "@account": path.resolve(__dirname, "./src/features/account"),
       "@admin": path.resolve(__dirname, "./src/features/admin"),
       "@auth": path.resolve(__dirname, "./src/core/auth"),
@@ -35,6 +34,7 @@ export default defineConfig({
       "@roles": path.resolve(__dirname, "./src/features/roles"),
       "@settings": path.resolve(__dirname, "./src/features/settings"),
       "@users": path.resolve(__dirname, "./src/features/users"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   test: {
