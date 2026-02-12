@@ -28,7 +28,7 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col gap-10">
       {showHelloMessage && (
-        <Card className="bg-accent mx-auto w-full gap-2 p-6 text-center lg:w-1/2">
+        <Card className="bg-accent dark:bg-card mx-auto w-full gap-2 p-6 text-center lg:w-1/2">
           <h1 className="text-2xl font-semibold">
             Hola, {user?.firstName} {user?.lastName}
           </h1>
