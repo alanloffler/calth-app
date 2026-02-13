@@ -12,6 +12,7 @@ import type { IUser } from "@users/interfaces/user.interface";
 import { UsersService } from "@users/services/users.service";
 import { cn } from "@lib/utils";
 import { useTryCatch } from "@core/hooks/useTryCatch";
+import { Loader } from "@components/Loader";
 
 interface IProps {
   className?: string;
@@ -38,37 +39,41 @@ export function LatestPatients({ className }: IProps) {
     getLatestEvents();
   }, [getLatestEvents]);
 
-  if (isLoading) return <>Is Loading</>;
-
   return (
-    <Card className={cn("gap-4 px-6", className)}>
+    <Card className={cn("relative gap-4 px-6", className)}>
       <h2 className="font-semibold">Últimos pacientes</h2>
-      <Table>
-        <TableHeader className="dark:bg-primary-foreground bg-neutral-100">
-          <TableRow>
-            <TableHead>Fecha</TableHead>
-            <TableHead>Nombre</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Teléfono</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {patients?.map((patient) => (
-            <TableRow
-              className="hover:cursor-pointer hover:bg-neutral-50/80 dark:hover:bg-neutral-900/50"
-              key={patient.id}
-            >
-              <TableCell>{format(patient.createdAt, "dd/MM", { locale: es })}</TableCell>
-              <TableCell>{`${patient.firstName} ${patient.lastName}`}</TableCell>
-              <TableCell>{patient.email}</TableCell>
-              <TableCell>{patient.phoneNumber}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <Button className="text-foreground justify-end" variant="link" asChild>
-        <Link to="/users/role/patient">Ver todos</Link>
-      </Button>
+      {isLoading ? (
+        <Loader absolute size={20} text="Cargando pacientes" />
+      ) : (
+        <>
+          <Table>
+            <TableHeader className="dark:bg-primary-foreground bg-neutral-100">
+              <TableRow>
+                <TableHead>Fecha</TableHead>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Teléfono</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {patients?.map((patient) => (
+                <TableRow
+                  className="hover:cursor-pointer hover:bg-neutral-50/80 dark:hover:bg-neutral-900/50"
+                  key={patient.id}
+                >
+                  <TableCell>{format(patient.createdAt, "dd/MM", { locale: es })}</TableCell>
+                  <TableCell>{`${patient.firstName} ${patient.lastName}`}</TableCell>
+                  <TableCell>{patient.email}</TableCell>
+                  <TableCell>{patient.phoneNumber}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <Button className="text-foreground justify-end" variant="link" asChild>
+            <Link to="/users/role/patient">Ver todos</Link>
+          </Button>
+        </>
+      )}
     </Card>
   );
 }
