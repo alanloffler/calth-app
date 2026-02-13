@@ -10,7 +10,7 @@ interface IProps {
   text?: string;
 }
 
-export function Loader({ absolute, className, color, size = 16, spinnerSize = 2, text }: IProps) {
+export function Loader({ absolute = false, className, color, size = 16, spinnerSize = 2, text }: IProps) {
   const { theme } = useTheme();
 
   const borderColor = color || (theme === "dark" ? "white" : "black");
