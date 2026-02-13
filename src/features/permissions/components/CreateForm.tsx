@@ -1,4 +1,3 @@
-import { BackButton } from "@components/BackButton";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
 import { Controller } from "react-hook-form";
@@ -101,8 +100,7 @@ export function CreateForm() {
 
   return (
     <div>
-      <Card className="relative">
-        <BackButton />
+      <Card>
         <CardHeader>
           <CardTitle>Nuevo Permiso</CardTitle>
           <CardDescription>Creá un permiso para usarlo en roles del sistema</CardDescription>

@@ -1,7 +1,6 @@
 import { FileClock, FilePenLine, RotateCcw, Trash2 } from "lucide-react";
 
 import { Activity } from "react";
-import { BackButton } from "@components/BackButton";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
@@ -158,14 +157,13 @@ export default function ViewUser() {
     <section className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
         <PageHeader title={`Detalles del ${userRole.name.toLowerCase()}`} />
-        <Card className="relative w-full p-6 text-center md:w-[80%] lg:w-[60%] xl:w-[50%]">
+        <Card className="w-full p-6 text-center md:w-[80%] lg:w-[60%] xl:w-[50%]">
           {isLoadingUser ? (
             <div className="flex justify-center">
               <Loader size={20} text={`Cargando ${userRole.name.toLowerCase()}`} />
             </div>
           ) : (
             <>
-              <BackButton />
               <CardHeader>
                 <CardTitle className="text-xl">
                   <Activity mode={user.role.value === EUserRole["professional"] ? "visible" : "hidden"}>

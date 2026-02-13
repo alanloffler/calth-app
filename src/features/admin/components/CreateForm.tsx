@@ -1,4 +1,3 @@
-import { BackButton } from "@components/BackButton";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
 import { Controller } from "react-hook-form";
@@ -153,8 +152,7 @@ export function CreateForm() {
   }
 
   return (
-    <Card className="relative">
-      <BackButton />
+    <Card>
       <CardHeader>
         <CardTitle>Nuevo Administrador</CardTitle>
         <CardDescription>Creá un administrador para el sistema</CardDescription>

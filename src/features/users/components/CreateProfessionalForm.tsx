@@ -1,4 +1,3 @@
-import { BackButton } from "@components/BackButton";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
 import { Controller } from "react-hook-form";
@@ -142,8 +141,7 @@ export function CreateProfessionalForm() {
   }
 
   return (
-    <Card className="relative w-full">
-      <BackButton />
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>{`${uppercaseFirst(roleTranslated)} nuevo`}</CardTitle>
         <CardDescription>{`Creá un usuario ${roleTranslated} para el sistema`}</CardDescription>

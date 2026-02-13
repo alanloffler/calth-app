@@ -1,4 +1,3 @@
-import { BackButton } from "@components/BackButton";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
 import { Checkbox } from "@components/ui/checkbox";
@@ -83,8 +82,7 @@ export function CreateForm() {
 
   return (
     <div>
-      <Card className="relative">
-        <BackButton />
+      <Card>
         <CardHeader>
           <CardTitle>Nuevo Rol</CardTitle>
           <CardDescription>Creá un rol para los administradores del sistema</CardDescription>

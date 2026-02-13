@@ -1,6 +1,5 @@
 import { FilePenLine, RotateCcw, Trash2 } from "lucide-react";
 
-import { BackButton } from "@components/BackButton";
 import { Button } from "@components/ui/button";
 import { Badge } from "@components/Badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
@@ -100,14 +99,13 @@ export default function ViewAdmin() {
   return (
     <section className="flex flex-col gap-6">
       <PageHeader title="Detalles del administrador" />
-      <Card className="relative w-full p-6 text-center md:max-w-100 md:p-10">
+      <Card className="w-full p-6 text-center md:max-w-100 md:p-10">
         {isLoadingAdmin ? (
           <div className="flex justify-center">
             <Loader size={20} text="Cargando administrador" />
           </div>
         ) : (
           <>
-            <BackButton />
             <CardHeader>
               <CardTitle className="text-xl">{`${admin?.firstName} ${admin?.lastName}`}</CardTitle>
               <CardDescription className="text-base">{admin?.role.name}</CardDescription>

@@ -1,7 +1,6 @@
 import { Check, FilePenLine, RotateCcw, Trash2 } from "lucide-react";
 
 import { Activity } from "react";
-import { BackButton } from "@components/BackButton";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
@@ -145,14 +144,13 @@ export default function ViewRole() {
   return (
     <section className="flex flex-col gap-6">
       <PageHeader title="Detalles del rol" />
-      <Card className="relative w-full p-6 text-center md:p-10 lg:w-[80%] xl:w-[60%]">
+      <Card className="w-full p-6 text-center md:p-10 lg:w-[80%] xl:w-[60%]">
         {isLoadingRole ? (
           <div className="flex min-w-80 justify-center">
             <Loader size={20} text="Cargando rol" />
           </div>
         ) : (
           <>
-            <BackButton />
             <CardHeader>
               <CardTitle className="text-xl">{role?.name}</CardTitle>
               <CardDescription className="text-base">{role?.value}</CardDescription>

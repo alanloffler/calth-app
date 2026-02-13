@@ -1,6 +1,5 @@
 import { LockKeyhole } from "lucide-react";
 
-import { BackButton } from "@components/BackButton";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
 import { Checkbox } from "@components/ui/checkbox";
@@ -134,8 +133,7 @@ export function EditForm() {
   }
 
   return (
-    <Card className="relative gap-10">
-      <BackButton />
+    <Card>
       <CardHeader>
         <CardTitle>Editar Rol</CardTitle>
         <CardDescription>Actualizá los datos del rol</CardDescription>

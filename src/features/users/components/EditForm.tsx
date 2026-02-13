@@ -1,6 +1,5 @@
 import { Eye, EyeOff } from "lucide-react";
 
-import { BackButton } from "@components/BackButton";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
 import { Controller } from "react-hook-form";
@@ -217,8 +216,7 @@ export function EditForm({ userId }: IProps) {
   }
 
   return (
-    <Card className="relative">
-      <BackButton />
+    <Card>
       <CardHeader>
         <CardTitle>{`Editar ${userRole.name}`}</CardTitle>
         <CardDescription>{`Actualizá los datos del ${userRole.name.toLowerCase()}`}</CardDescription>

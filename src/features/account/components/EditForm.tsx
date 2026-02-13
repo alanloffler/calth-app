@@ -1,6 +1,5 @@
 import { Eye, EyeOff } from "lucide-react";
 
-import { BackButton } from "@components/BackButton";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
@@ -178,8 +177,7 @@ export function EditForm() {
   }
 
   return (
-    <Card className="relative">
-      <BackButton />
+    <Card>
       <CardHeader>
         <CardTitle>Mi cuenta</CardTitle>
         <CardDescription>Actualizá los datos de tu perfil</CardDescription>
