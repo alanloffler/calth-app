@@ -47,7 +47,7 @@ export function ConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="gap-6 sm:min-w-[480px]">
+      <DialogContent className="gap-6 sm:min-w-120">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
@@ -56,7 +56,7 @@ export function ConfirmDialog({
           <div className="flex flex-col gap-1">{children}</div>
           {showAlert && (
             <div className="flex flex-col gap-4">
-              <div className="mx-auto flex w-fit items-center gap-2 rounded-md border border-amber-300/70 bg-amber-200/70 p-2 text-sm font-medium text-pretty text-amber-600">
+              <div className="mx-auto flex w-fit items-center gap-2 rounded-md border border-amber-300/70 bg-amber-200/70 p-2 text-sm font-medium text-pretty text-amber-600 dark:border-amber-900/70 dark:bg-amber-950/70">
                 <CircleAlert className="h-5 w-5 shrink-0" />
                 {alertMessage ? alertMessage : "Esta acción es irreversible."}
               </div>
