@@ -108,7 +108,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                 <TooltipTrigger asChild>
                   <Button
                     onClick={() => {
-                      setSelectedHistory({ ...row.original, idx: row.index });
+                      setSelectedHistory({ ...row.original });
                       setOpenRestoreDialog(true);
                     }}
                     size="icon-sm"
@@ -129,7 +129,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                       className="hover:text-view"
                       onClick={() => {
                         setOpenSheet(true);
-                        setSelectedHistory({ ...row.original, idx: row.index });
+                        setSelectedHistory({ ...row.original });
                       }}
                       size="icon-sm"
                       variant="ghost"
@@ -146,7 +146,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                     <Button
                       className="hover:text-edit"
                       onClick={() => {
-                        setSelectedHistory({ ...row.original, idx: row.index });
+                        setSelectedHistory({ ...row.original });
                         setOpenEditSheet(true);
                       }}
                       size="icon-sm"
@@ -164,7 +164,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                     <Button
                       className="hover:text-delete"
                       onClick={() => {
-                        setSelectedHistory({ ...row.original, idx: row.index });
+                        setSelectedHistory({ ...row.original });
                         setOpenRemoveDialog(true);
                       }}
                       size="icon-sm"
@@ -182,7 +182,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                     <Button
                       className="hover:text-delete gap-0"
                       onClick={() => {
-                        setSelectedHistory({ ...row.original, idx: row.index });
+                        setSelectedHistory({ ...row.original });
                         setOpenRemoveHardDialog(true);
                       }}
                       size="icon-sm"
