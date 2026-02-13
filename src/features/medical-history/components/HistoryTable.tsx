@@ -41,7 +41,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
 
   if (!history) return null;
 
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<IMedicalHistory>[] = [
     {
       accessorKey: "id",
       enableHiding: true,
@@ -68,6 +68,15 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
         <div className="flex items-center gap-3">
           <span>{row.original.reason}</span>
           {row.original.deletedAt && <Ban className="h-4 w-4 text-rose-500" />}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "professional",
+      header: () => <div className="text-center">Profesional</div>,
+      cell: ({ row }) => (
+        <div className="text-center">
+          {`${row.original.professional.professionalProfile?.professionalPrefix} ${row.original.professional.firstName} ${row.original.professional.lastName}`}
         </div>
       ),
     },
@@ -244,7 +253,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
       {selectedHistory && (
         <Sheet open={openSheet} onOpenChange={setOpenSheet}>
           <SheetTrigger asChild></SheetTrigger>
-          <SheetContent className="sm:min-w-[480px]" onOpenAutoFocus={(e) => e.preventDefault()}>
+          <SheetContent className="sm:min-w-120" onOpenAutoFocus={(e) => e.preventDefault()}>
             <SheetHeader className="pt-8">
               <SheetTitle className="text-lg">Historia médica</SheetTitle>
               <SheetDescription className="text-base">Detalles de la historia médica seleccionada</SheetDescription>
