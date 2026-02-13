@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 
 interface EventState {
-  events: ICalendarEvent[];
+  events?: ICalendarEvent[];
   openEditEventSheet: boolean;
   openViewEventSheet: boolean;
   refreshKey: number;
@@ -12,7 +12,7 @@ interface EventState {
 }
 
 interface EventActions {
-  setEvents: (events: ICalendarEvent[]) => void;
+  setEvents: (events?: ICalendarEvent[]) => void;
   setOpenEditEventSheet: (open: boolean) => void;
   setOpenViewEventSheet: (open: boolean) => void;
   setSelectedEvent: (event: ICalendarEvent | null) => void;
@@ -22,7 +22,7 @@ interface EventActions {
 export const useEventStore = create(
   persist<EventState & EventActions>(
     (set) => ({
-      events: [],
+      events: undefined,
       openEditEventSheet: false,
       openViewEventSheet: false,
       refreshKey: 0,
