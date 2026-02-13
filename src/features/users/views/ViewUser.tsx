@@ -123,8 +123,13 @@ export default function ViewUser() {
     const [response, error] = await tryCatchRemoveHard(UsersService.remove(id, userRole.value));
 
     if (error) {
-      toast.error(error.message);
-      return;
+      if (error.status === 409) {
+        toast.warning(error.message);
+        return;
+      } else {
+        toast.error(error.message);
+        return;
+      }
     }
 
     if (response && response.statusCode === 200) {
