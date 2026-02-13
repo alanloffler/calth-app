@@ -1,4 +1,5 @@
 import { AppSidebar } from "@components/app-sidebar";
+import { BackButton } from "@components/ui/BackButton";
 import { HeaderBreadcrumb } from "@components/Breadcrumb";
 import { ModeToggle } from "@components/mode-toggle";
 import { Outlet } from "react-router";
@@ -18,7 +19,10 @@ export function MainLayout() {
               <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
               <HeaderBreadcrumb />
             </div>
-            <ModeToggle />
+            <div className="item-center flex gap-3">
+              <ModeToggle />
+              <BackButton />
+            </div>
           </header>
           <div className="flex flex-1 flex-col overflow-y-auto p-8">
             <Outlet />
