@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
@@ -21,10 +21,10 @@ interface IProps {
 }
 
 export function LatestEvents({ className }: IProps) {
-  const [events, setEvents] = useState<ICalendarEvent[]>();
   const setOpenViewEventSheet = useEventStore((state) => state.setOpenViewEventSheet);
   const setSelectedEvent = useEventStore((state) => state.setSelectedEvent);
   const { isLoading, tryCatch } = useTryCatch();
+  const { events, setEvents, refreshKey } = useEventStore();
 
   const getLatestEvents = useCallback(async () => {
     const [response, error] = await tryCatch(CalendarService.findAllByBusiness(5));
@@ -46,7 +46,7 @@ export function LatestEvents({ className }: IProps) {
 
   useEffect(() => {
     getLatestEvents();
-  }, [getLatestEvents]);
+  }, [getLatestEvents, refreshKey]);
 
   return (
     <Card className={cn("relative gap-4 px-6", className)}>
