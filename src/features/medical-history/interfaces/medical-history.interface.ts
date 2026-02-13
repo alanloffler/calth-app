@@ -6,6 +6,7 @@ export interface IMedicalHistory extends IMedicalHistoryCreate {
   id: string;
   updatedAt: Date;
   user: IUser;
+  professional: IUser;
 }
 
 export interface IMedicalHistoryCreate {
