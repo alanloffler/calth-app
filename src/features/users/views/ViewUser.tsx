@@ -411,7 +411,7 @@ export default function ViewUser() {
       <Protected requiredPermission={`medical_history-view` as TPermission}>
         {userRole.value === EUserRole["patient"] && (
           <div className="flex flex-col gap-3">
-            <PageHeader title="Historial médico" />
+            <PageHeader title={`Historial médico de ${user.firstName} ${user.lastName}`} />
             <HistoryTable
               history={medicalHistory}
               isLoading={isLoadingMedicalHistory}
