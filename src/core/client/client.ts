@@ -48,7 +48,7 @@ class ApiClient {
       async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-        if (!originalRequest?.url || originalRequest.url.includes("/auth/signIn")) {
+        if (!originalRequest?.url || originalRequest.url.includes("/auth/login")) {
           return Promise.reject(error);
         }
 
@@ -70,7 +70,7 @@ class ApiClient {
         isRefreshing = true;
 
         try {
-          await axios.post(`${import.meta.env.VITE_API_URL}/auth/refreshToken`, {}, { withCredentials: true });
+          await axios.post(`${import.meta.env.VITE_API_URL}/auth/refresh`, {}, { withCredentials: true });
           processQueue(null, true);
 
           return this.axiosInstance(originalRequest);
