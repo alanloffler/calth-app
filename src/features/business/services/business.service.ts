@@ -14,12 +14,12 @@ class BusinessModuleService {
   }
 
   public async findOne(): Promise<IApiResponse<IBusiness>> {
-    const response = await apiClient.get(`/business/find-one`);
+    const response = await apiClient.get(`/businesses/find-one`);
     return response.data;
   }
 
   public async update(id: string, data: Partial<IBusiness>): Promise<IApiResponse<IBusiness>> {
-    const response = await apiClient.patch(`/business/${id}`, data);
+    const response = await apiClient.patch(`/businesses/${id}`, data);
     return response.data;
   }
 }
