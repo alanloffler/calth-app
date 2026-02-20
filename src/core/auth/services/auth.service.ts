@@ -16,12 +16,12 @@ class AuthModuleService {
   }
 
   public async signIn(credentials: ICredentials): Promise<IApiResponse<ISignIn>> {
-    const response = await apiClient.post<IApiResponse<ISignIn>>("/auth/signIn", credentials);
+    const response = await apiClient.post<IApiResponse<ISignIn>>("/auth/login", credentials);
     return response.data;
   }
 
   public async signOut(): Promise<IApiResponse<null>> {
-    const response = await apiClient.get<IApiResponse<null>>("/auth/signOut");
+    const response = await apiClient.get<IApiResponse<null>>("/auth/logout");
     return response.data;
   }
 
