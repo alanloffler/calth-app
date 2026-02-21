@@ -49,7 +49,7 @@ class RolesModuleService {
   }
 
   public async softRemove(id: string): Promise<IApiResponse<IRole>> {
-    const response = await apiClient.delete(`/roles/soft-remove/${id}`);
+    const response = await apiClient.delete(`/roles/${id}/soft`);
     return response.data;
   }
 
