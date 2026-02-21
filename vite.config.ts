@@ -13,6 +13,24 @@ export default defineConfig({
       cert: readFileSync("/Users/alan/.certs/localhost.pem"),
     },
     host: true,
+    // For Go API
+    proxy: {
+      "/api": {
+        target: "http://localhost:4000",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+        configure: (proxy) => {
+          proxy.on("proxyRes", (proxyRes) => {
+            const cookies = proxyRes.headers["set-cookie"];
+            if (cookies) {
+              proxyRes.headers["set-cookie"] = cookies.map((cookie) =>
+                cookie.includes("Secure") ? cookie : cookie + "; Secure",
+              );
+            }
+          });
+        },
+      },
+    },
   },
 
   plugins: [react(), tailwindcss()],
