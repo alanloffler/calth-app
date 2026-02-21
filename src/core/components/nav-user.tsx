@@ -57,11 +57,11 @@ export function NavUser() {
             >
               <div className="flex flex-1 items-center gap-2 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                 <span className="flex size-6 items-center justify-center rounded-full bg-gray-400 p-1 text-sm font-semibold text-white">
-                  {admin?.role.name.charAt(0)}
+                  {admin?.role?.name.charAt(0)}
                 </span>
                 <div className="grid">
                   <span className="truncate font-medium">{admin?.userName}</span>
-                  <span className="truncate text-xs">{admin?.role.name}</span>
+                  <span className="truncate text-xs">{admin?.role?.name}</span>
                 </div>
               </div>
               <Ellipsis className="ml-auto size-4 group-data-[collapsible=icon]:mx-auto" />
