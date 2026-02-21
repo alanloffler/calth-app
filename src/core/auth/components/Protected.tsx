@@ -12,7 +12,7 @@ interface IProps {
 
 export function Protected({ children, mode = "some", requiredPermission, variant = "invisible" }: IProps) {
   const admin = useAuthStore((state) => state.admin);
-  const adminPermissions = admin?.role.rolePermissions ?? [];
+  const adminPermissions = admin?.role?.rolePermissions ?? [];
 
   const required = Array.isArray(requiredPermission)
     ? requiredPermission
