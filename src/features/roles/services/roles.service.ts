@@ -34,7 +34,7 @@ class RolesModuleService {
   }
 
   public async findOneSoftRemoved(id: string): Promise<IApiResponse<IRole>> {
-    const response = await apiClient.get(`/roles/${id}/soft-removed`);
+    const response = await apiClient.get(`/roles/${id}/soft`);
     return response.data;
   }
 
