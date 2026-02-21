@@ -56,7 +56,7 @@ class UsersModuleService {
   }
 
   public async findAllSoftRemoved(role: string): Promise<IApiResponse<IUser[]>> {
-    const response = await apiClient.get(`/users/all-soft-remove/${role}`);
+    const response = await apiClient.get(`/users/role/${role}/soft`);
     return response.data;
   }
 
