@@ -54,7 +54,7 @@ class RolesModuleService {
   }
 
   public async restore(id: string): Promise<IApiResponse<IRole>> {
-    const response = await apiClient.patch(`/roles/restore/${id}`);
+    const response = await apiClient.patch(`/roles/${id}/restore`);
     return response.data;
   }
 }
