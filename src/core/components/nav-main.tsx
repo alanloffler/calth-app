@@ -54,7 +54,7 @@ export function NavMain({ items }: IProps) {
 
   const hasRoleAccess = (itemRole?: string | string[]) => {
     if (!itemRole) return true;
-    if (admin) {
+    if (admin?.role) {
       if (typeof itemRole === "string") return admin.role.value === itemRole;
       if (Array.isArray(itemRole)) return itemRole.includes(admin.role.value);
     }
