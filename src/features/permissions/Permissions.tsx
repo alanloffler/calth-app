@@ -2,6 +2,7 @@ import { Ban, FilePenLine, FileText, Plus, RotateCcw, Trash2 } from "lucide-reac
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
+import { ConfirmDialog } from "@components/ConfirmDialog";
 import { DataTable } from "@components/data-table/DataTable";
 import { Link } from "react-router";
 import { PageHeader } from "@components/pages/PageHeader";
@@ -20,9 +21,12 @@ import { useAuthStore } from "@auth/stores/auth.store";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function Permissions() {
+  const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const [permissions, setPermissions] = useState<IPermission[] | undefined>(undefined);
+  const [selectedPermission, setSelectedPermission] = useState<IPermission | undefined>(undefined);
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const { isLoading: isLoadingPermissions, tryCatch: tryCatchPermissions } = useTryCatch();
+  const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
 
   const fetchPermissions = useCallback(async () => {
     const [response, error] = await tryCatchPermissions(PermissionsService.findAll());
@@ -42,7 +46,7 @@ export default function Permissions() {
   }, [fetchPermissions]);
 
   async function removePermission(id: string): Promise<void> {
-    const [response, error] = await tryCatch(PermissionsService.softRemove(id));
+    const [response, error] = await tryCatchRemove(PermissionsService.softRemove(id));
 
     if (error) {
       toast.error(error.message);
@@ -161,7 +165,10 @@ export default function Permissions() {
                   <TooltipTrigger asChild>
                     <Button
                       className="hover:text-delete"
-                      onClick={() => removePermission(row.original.id)}
+                      onClick={() => {
+                        setSelectedPermission(row.original);
+                        setOpenRemoveDialog(true);
+                      }}
                       size="icon-sm"
                       variant="outline"
                     >
@@ -195,24 +202,54 @@ export default function Permissions() {
   ];
 
   return (
-    <div className="flex flex-col gap-8">
-      <PageHeader title="Permisos" subtitle="Gestioná los permisos para los roles del sistema">
-        <Protected requiredPermission="permissions-create">
-          <Button variant="default" size="lg" asChild>
-            <Link to="/permissions/create">
-              <Plus />
-              Crear permiso
-            </Link>
-          </Button>
-        </Protected>
-      </PageHeader>
-      <DataTable
-        columns={columns}
-        data={permissions}
-        defaultPageSize={10}
-        defaultSorting={[{ id: "actionKey", desc: false }]}
-        loading={isLoadingPermissions}
-      />
-    </div>
+    <>
+      <div className="flex flex-col gap-8">
+        <PageHeader title="Permisos" subtitle="Gestioná los permisos para los roles del sistema">
+          <Protected requiredPermission="permissions-create">
+            <Button variant="default" size="lg" asChild>
+              <Link to="/permissions/create">
+                <Plus />
+                Crear permiso
+              </Link>
+            </Button>
+          </Protected>
+        </PageHeader>
+        <DataTable
+          columns={columns}
+          data={permissions}
+          defaultPageSize={10}
+          defaultSorting={[{ id: "actionKey", desc: false }]}
+          loading={isLoadingPermissions}
+        />
+      </div>
+      <ConfirmDialog
+        title="Eliminar paciente"
+        description="¿Seguro que querés eliminar a este paciente?"
+        callback={() => selectedPermission && removePermission(selectedPermission.id)}
+        loader={isRemoving}
+        open={openRemoveDialog}
+        setOpen={setOpenRemoveDialog}
+        variant="destructive"
+      >
+        <ul>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Nombre:</span>
+            {selectedPermission?.name}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Categoría:</span>
+            {selectedPermission?.category}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Acción:</span>
+            {selectedPermission?.actionKey}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Descripción:</span>
+            {selectedPermission?.description}
+          </li>
+        </ul>
+      </ConfirmDialog>
+    </>
   );
 }
