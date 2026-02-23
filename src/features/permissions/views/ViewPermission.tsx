@@ -26,6 +26,7 @@ import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function ViewPermission() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
+  const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [permission, setPermission] = useState<IPermission | undefined>(undefined);
   const hasPermissions = usePermission(
     ["permissions-delete", "permissions-delete-hard", "permissions-restore", "permissions-update"],
@@ -36,6 +37,7 @@ export default function ViewPermission() {
   const { id } = useParams();
   const { isLoading: isLoadingPermission, tryCatch: tryCatchPermission } = useTryCatch();
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
+  const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
 
   const findOnePermission = useCallback(
     async function (id: string) {
@@ -60,7 +62,7 @@ export default function ViewPermission() {
   }, [id, findOnePermission]);
 
   async function removePermission(id: string): Promise<void> {
-    const [response, error] = await tryCatchPermission(PermissionsService.softRemove(id));
+    const [response, error] = await tryCatchRemove(PermissionsService.softRemove(id));
 
     if (error) {
       toast.error(error.message);
@@ -75,7 +77,7 @@ export default function ViewPermission() {
   }
 
   async function hardRemovePermission(id: string): Promise<void> {
-    const [response, error] = await tryCatch(PermissionsService.remove(id));
+    const [response, error] = await tryCatchRemoveHard(PermissionsService.remove(id));
 
     if (error) {
       toast.error(error.message);
@@ -200,7 +202,7 @@ export default function ViewPermission() {
                           <TooltipTrigger asChild>
                             <Button
                               className="hover:text-delete gap-0"
-                              onClick={() => id && hardRemovePermission(id)}
+                              onClick={() => setOpenRemoveHardDialog(true)}
                               size="icon-sm"
                               variant="outline"
                             >
@@ -226,6 +228,36 @@ export default function ViewPermission() {
         loader={isRemoving}
         open={openRemoveDialog}
         setOpen={setOpenRemoveDialog}
+        variant="destructive"
+      >
+        <ul>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Nombre:</span>
+            {permission?.name}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Categoría:</span>
+            {permission?.category}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Acción:</span>
+            {permission?.actionKey}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Descripción:</span>
+            {permission?.description}
+          </li>
+        </ul>
+      </ConfirmDialog>
+      <ConfirmDialog
+        title="Eliminar permiso"
+        description="¿Seguro que querés eliminar este permiso?"
+        alertMessage="El permiso será eliminado de la base de datos. Esta acción es irreversible."
+        callback={() => permission && hardRemovePermission(permission.id)}
+        loader={isRemovingHard}
+        open={openRemoveHardDialog}
+        setOpen={setOpenRemoveHardDialog}
+        showAlert
         variant="destructive"
       >
         <ul>
