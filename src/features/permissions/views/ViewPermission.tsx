@@ -19,7 +19,6 @@ import { useParams } from "react-router";
 
 import type { IPermission } from "@permissions/interfaces/permission.interface";
 import { PermissionsService } from "@permissions/services/permissions.service";
-import { tryCatch } from "@core/utils/try-catch";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useTryCatch } from "@core/hooks/useTryCatch";
@@ -27,6 +26,7 @@ import { useTryCatch } from "@core/hooks/useTryCatch";
 export default function ViewPermission() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
+  const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [permission, setPermission] = useState<IPermission | undefined>(undefined);
   const hasPermissions = usePermission(
     ["permissions-delete", "permissions-delete-hard", "permissions-restore", "permissions-update"],
@@ -38,6 +38,7 @@ export default function ViewPermission() {
   const { isLoading: isLoadingPermission, tryCatch: tryCatchPermission } = useTryCatch();
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
+  const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   const findOnePermission = useCallback(
     async function (id: string) {
@@ -92,7 +93,7 @@ export default function ViewPermission() {
   }
 
   async function restorePermission(id: string): Promise<void> {
-    const [response, error] = await tryCatch(PermissionsService.restore(id));
+    const [response, error] = await tryCatchRestore(PermissionsService.restore(id));
 
     if (error) {
       toast.error(error.message);
@@ -158,7 +159,7 @@ export default function ViewPermission() {
                         <TooltipTrigger asChild>
                           <Button
                             className="hover:text-restore"
-                            onClick={() => id && restorePermission(id)}
+                            onClick={() => setOpenRestoreDialog(true)}
                             size="icon-sm"
                             variant="outline"
                           >
@@ -229,6 +230,34 @@ export default function ViewPermission() {
         open={openRemoveDialog}
         setOpen={setOpenRemoveDialog}
         variant="destructive"
+      >
+        <ul>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Nombre:</span>
+            {permission?.name}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Categoría:</span>
+            {permission?.category}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Acción:</span>
+            {permission?.actionKey}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Descripción:</span>
+            {permission?.description}
+          </li>
+        </ul>
+      </ConfirmDialog>
+      <ConfirmDialog
+        title="Restaurar permiso"
+        description="¿Seguro que querés restaurar este permiso?"
+        callback={() => permission && restorePermission(permission.id)}
+        loader={isRestoring}
+        open={openRestoreDialog}
+        setOpen={setOpenRestoreDialog}
+        variant="warning"
       >
         <ul>
           <li className="flex items-center gap-2">
