@@ -22,11 +22,13 @@ import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function Permissions() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
+  const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [permissions, setPermissions] = useState<IPermission[] | undefined>(undefined);
   const [selectedPermission, setSelectedPermission] = useState<IPermission | undefined>(undefined);
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const { isLoading: isLoadingPermissions, tryCatch: tryCatchPermissions } = useTryCatch();
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
+  const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   const fetchPermissions = useCallback(async () => {
     const [response, error] = await tryCatchPermissions(PermissionsService.findAll());
@@ -61,7 +63,7 @@ export default function Permissions() {
   }
 
   async function restorePermission(id: string): Promise<void> {
-    const [response, error] = await tryCatch(PermissionsService.restore(id));
+    const [response, error] = await tryCatchRestore(PermissionsService.restore(id));
 
     if (error) {
       toast.error(error.message);
@@ -139,7 +141,10 @@ export default function Permissions() {
             <Protected requiredPermission="permissions-restore">
               <Button
                 className="hover:text-restore"
-                onClick={() => restorePermission(row.original.id)}
+                onClick={() => {
+                  setSelectedPermission(row.original);
+                  setOpenRestoreDialog(true);
+                }}
                 size="icon-sm"
                 variant="outline"
               >
@@ -223,13 +228,41 @@ export default function Permissions() {
         />
       </div>
       <ConfirmDialog
-        title="Eliminar paciente"
-        description="¿Seguro que querés eliminar a este paciente?"
+        title="Eliminar permiso"
+        description="¿Seguro que querés eliminar este permiso?"
         callback={() => selectedPermission && removePermission(selectedPermission.id)}
         loader={isRemoving}
         open={openRemoveDialog}
         setOpen={setOpenRemoveDialog}
         variant="destructive"
+      >
+        <ul>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Nombre:</span>
+            {selectedPermission?.name}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Categoría:</span>
+            {selectedPermission?.category}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Acción:</span>
+            {selectedPermission?.actionKey}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="font-semibold">Descripción:</span>
+            {selectedPermission?.description}
+          </li>
+        </ul>
+      </ConfirmDialog>
+      <ConfirmDialog
+        title="Restaurar permiso"
+        description="¿Seguro que querés restaurar este permiso?"
+        callback={() => selectedPermission && restorePermission(selectedPermission.id)}
+        loader={isRestoring}
+        open={openRestoreDialog}
+        setOpen={setOpenRestoreDialog}
+        variant="warning"
       >
         <ul>
           <li className="flex items-center gap-2">
