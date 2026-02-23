@@ -13,8 +13,8 @@ class BusinessModuleService {
     return BusinessModuleService.instance;
   }
 
-  public async findOne(): Promise<IApiResponse<IBusiness>> {
-    const response = await apiClient.get(`/businesses/find-one`);
+  public async findOne(businessId: string): Promise<IApiResponse<IBusiness>> {
+    const response = await apiClient.get(`/businesses/${businessId}`);
     return response.data;
   }
 
