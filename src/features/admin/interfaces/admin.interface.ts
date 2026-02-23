@@ -1,6 +1,7 @@
 import type { IRole } from "@roles/interfaces/role.interface";
 
 export interface IAdmin {
+  businessId: string;
   createdAt: string;
   deletedAt?: string;
   email: string;
