@@ -50,12 +50,12 @@ class PermissionsModuleService {
   }
 
   public async softRemove(id: string): Promise<IApiResponse<IPermission>> {
-    const response = await apiClient.delete(`/permissions/soft-remove/${id}`);
+    const response = await apiClient.delete(`/permissions/${id}/soft`);
     return response.data;
   }
 
   public async restore(id: string): Promise<IApiResponse<IPermission>> {
-    const response = await apiClient.patch(`/permissions/restore/${id}`);
+    const response = await apiClient.patch(`/permissions/${id}/restore`);
     return response.data;
   }
 }
