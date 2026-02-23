@@ -10,6 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { IBusiness } from "@business/interfaces/business.interface";
 import { BusinessService } from "@business/services/business.service";
 import { cn } from "@lib/utils";
+import { useAuthStore } from "@auth/stores/auth.store";
 import { useSidebar } from "@components/ui/sidebar";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
@@ -17,9 +18,11 @@ export default function Business() {
   const [business, setBusiness] = useState<IBusiness | undefined>(undefined);
   const { open: sidebarIsOpen } = useSidebar();
   const { tryCatch: tryCatchBusiness } = useTryCatch();
+  const admin = useAuthStore.getState().admin;
 
   const fetchBusiness = useCallback(async () => {
-    const [response, error] = await tryCatchBusiness(BusinessService.findOne());
+    if (!admin) return;
+    const [response, error] = await tryCatchBusiness(BusinessService.findOne(admin?.businessId));
 
     if (error) {
       toast.error(error.message);
@@ -54,10 +57,12 @@ export default function Business() {
         <Card className={cn("col-span-1", sidebarIsOpen ? "md:col-span-1 lg:col-span-3" : "md:col-span-3")}>
           <span className="px-6">Card 3</span>
         </Card>
-        <PatientsCard
-          className={cn("col-span-1", sidebarIsOpen ? "md:col-span-1 lg:col-span-5" : "md:col-span-5")}
-          patients={business.users}
-        />
+        {business.users?.length > 0 && (
+          <PatientsCard
+            className={cn("col-span-1", sidebarIsOpen ? "md:col-span-1 lg:col-span-5" : "md:col-span-5")}
+            patients={business.users}
+          />
+        )}
       </div>
     </div>
   );
