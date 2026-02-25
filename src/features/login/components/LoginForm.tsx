@@ -78,7 +78,7 @@ export function LoginForm({ className, type }: IProps) {
           <form className="p-6 md:p-8 lg:p-10" onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
               <div className="mb-6 flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold md:text-3xl">App</h1>
+                <h1 className="text-2xl font-bold md:text-3xl">Calth</h1>
                 <p className="text-muted-foreground text-sm text-balance md:text-base">Ingresá al sistema</p>
               </div>
               <Controller
