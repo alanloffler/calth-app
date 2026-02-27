@@ -107,19 +107,6 @@ export function CreateForm() {
         </CardHeader>
         <CardContent className="flex-1">
           <form className="grid grid-cols-1 gap-6" id="create-permission" onSubmit={form.handleSubmit(onSubmit)}>
-            <FieldGroup className="grid grid-cols-5 gap-6">
-              <Controller
-                name="name"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field className="col-span-5 md:col-span-3" data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="name">Nombre</FieldLabel>
-                    <Input aria-invalid={fieldState.invalid} id="name" {...field} />
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                  </Field>
-                )}
-              />
-            </FieldGroup>
             <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Controller
                 name="category"
@@ -168,6 +155,19 @@ export function CreateForm() {
                     </Select>
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                     {unavailableActions && <FieldError errors={[{ message: "No hay acciones disponibles" }]} />}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+            <FieldGroup className="grid grid-cols-5 gap-6">
+              <Controller
+                name="name"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field className="col-span-5 md:col-span-3" data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="name">Nombre</FieldLabel>
+                    <Input aria-invalid={fieldState.invalid} id="name" {...field} />
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
