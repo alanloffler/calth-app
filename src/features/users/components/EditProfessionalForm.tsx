@@ -477,7 +477,7 @@ export function EditProfessionalForm({ userId }: IProps) {
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field className="col-span-12 md:col-span-6" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="startHour">Horario de inicio:</FieldLabel>
+                      <FieldLabel htmlFor="startHour">Horario de inicio</FieldLabel>
                       <Input
                         {...field}
                         aria-invalid={fieldState.invalid}
@@ -498,7 +498,7 @@ export function EditProfessionalForm({ userId }: IProps) {
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field className="col-span-12 md:col-span-6" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="endHour">Horario de fin:</FieldLabel>
+                      <FieldLabel htmlFor="endHour">Horario de fin</FieldLabel>
                       <Input
                         {...field}
                         aria-invalid={fieldState.invalid}
@@ -519,7 +519,7 @@ export function EditProfessionalForm({ userId }: IProps) {
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field className="col-span-12 md:col-span-6" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="dailyExceptionStart">Excepción desde (opcional):</FieldLabel>
+                      <FieldLabel htmlFor="dailyExceptionStart">Excepción desde (opcional)</FieldLabel>
                       <Input
                         {...field}
                         aria-invalid={fieldState.invalid}
@@ -540,7 +540,7 @@ export function EditProfessionalForm({ userId }: IProps) {
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field className="col-span-12 md:col-span-6" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="dailyExceptionEnd">Excepción hasta (opcional):</FieldLabel>
+                      <FieldLabel htmlFor="dailyExceptionEnd">Excepción hasta (opcional)</FieldLabel>
                       <Input
                         {...field}
                         aria-invalid={fieldState.invalid}
@@ -561,7 +561,7 @@ export function EditProfessionalForm({ userId }: IProps) {
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field className="col-span-12 md:col-span-4" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="slotDuration">Duración:</FieldLabel>
+                      <FieldLabel htmlFor="slotDuration">Duración</FieldLabel>
                       <Input
                         {...field}
                         aria-invalid={fieldState.invalid}
