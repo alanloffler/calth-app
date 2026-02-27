@@ -6,20 +6,24 @@ import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 import { Loader } from "@components/Loader";
-import { WorkingDays } from "@components/WorkingDays";
 
 import z from "zod";
+import { format } from "date-fns";
 import { toast } from "sonner";
 import { type MouseEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
+import { useMaskito } from "@maskito/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { UsersService } from "@users/services/users.service";
+import { dateMask } from "@core/masks/maskito-date";
+import { digitsMask } from "@core/masks/maskito-digits";
+import { numberMask } from "@core/masks/maskito-number";
 import { tryCatch } from "@core/utils/try-catch";
-import { updateProfessionalSchema } from "@users/schemas/update-professional.schema";
+import { updatePatientSchema } from "@users/schemas/update-patient.schema";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useDebounce } from "@core/hooks/useDebounce";
 import { usePermission } from "@permissions/hooks/usePermission";
@@ -48,8 +52,14 @@ export function EditPatientForm({ userId }: IProps) {
 
   const canUpdatePassword = usePermission(`${userRole}-update-password` as TPermission);
 
-  const form = useForm<z.infer<typeof updateProfessionalSchema>>({
-    resolver: zodResolver(updateProfessionalSchema),
+  const birthDayRef = useMaskito({ options: dateMask });
+  const icRef = useMaskito({ options: digitsMask });
+  const heightRef = useMaskito({ options: digitsMask });
+  const phoneRef = useMaskito({ options: digitsMask });
+  const weightRef = useMaskito({ options: numberMask });
+
+  const form = useForm<z.input<typeof updatePatientSchema>, unknown, z.output<typeof updatePatientSchema>>({
+    resolver: zodResolver(updatePatientSchema),
     defaultValues: {
       email: "",
       firstName: "",
@@ -59,15 +69,13 @@ export function EditPatientForm({ userId }: IProps) {
       phoneNumber: "",
       userName: "",
 
-      dailyExceptionEnd: "",
-      dailyExceptionStart: "",
-      endHour: "",
-      licenseId: "",
-      professionalPrefix: "",
-      slotDuration: "",
-      specialty: "",
-      startHour: "",
-      workingDays: [] as number[],
+      gender: "",
+      birthDay: "",
+      bloodType: "",
+      weight: "",
+      height: "",
+      emergencyContactName: "",
+      emergencyContactPhone: "",
     },
   });
 
@@ -98,8 +106,6 @@ export function EditPatientForm({ userId }: IProps) {
 
       if (user && user.statusCode === 200) {
         if (user.data) {
-          const _workingDays = user.data.professionalProfile?.workingDays.map(Number);
-
           form.reset({
             email: user.data.email,
             firstName: user.data.firstName,
@@ -109,15 +115,15 @@ export function EditPatientForm({ userId }: IProps) {
             phoneNumber: user.data.phoneNumber,
             userName: user.data.userName,
 
-            dailyExceptionEnd: user.data.professionalProfile?.dailyExceptionEnd ?? "",
-            dailyExceptionStart: user.data.professionalProfile?.dailyExceptionStart ?? "",
-            endHour: user.data.professionalProfile?.endHour,
-            licenseId: user.data.professionalProfile?.licenseId,
-            professionalPrefix: user.data.professionalProfile?.professionalPrefix,
-            slotDuration: user.data.professionalProfile?.slotDuration,
-            specialty: user.data.professionalProfile?.specialty,
-            startHour: user.data.professionalProfile?.startHour,
-            workingDays: _workingDays ?? [],
+            gender: user.data.patientProfile?.gender ?? "",
+            birthDay: user.data.patientProfile
+              ? format(new Date(user.data.patientProfile.birthDay), "dd/MM/yyyy")
+              : undefined,
+            bloodType: user.data.patientProfile?.bloodType,
+            weight: String(user.data.patientProfile?.weight),
+            height: String(user.data.patientProfile?.height),
+            emergencyContactName: user.data.patientProfile?.emergencyContactName,
+            emergencyContactPhone: user.data.patientProfile?.emergencyContactPhone,
           });
 
           setUserToUpdate(user.data);
@@ -133,7 +139,7 @@ export function EditPatientForm({ userId }: IProps) {
     setPasswordField(!passwordField);
   }
 
-  async function onSubmit(data: z.infer<typeof updateProfessionalSchema>): Promise<void> {
+  async function onSubmit(data: z.infer<typeof updatePatientSchema>): Promise<void> {
     if (emailError) {
       form.setError("email", { message: emailError });
       return;
@@ -294,9 +300,14 @@ export function EditPatientForm({ userId }: IProps) {
                         id="ic"
                         maxLength={9}
                         {...field}
+                        ref={(node) => {
+                          field.ref(node);
+                          icRef(node);
+                        }}
                         onChange={async (e) => {
-                          const value = e.target.value.replace(/\D/g, "");
-                          field.onChange(value);
+                          field.onChange(e);
+
+                          const value = e.target.value;
 
                           setIcError(null);
                           form.clearErrors("ic");
@@ -317,52 +328,40 @@ export function EditPatientForm({ userId }: IProps) {
                     </Field>
                   )}
                 />
-              </FieldGroup>
-            </div>
-            {/*<div className="flex flex-col gap-3 border-t pt-4">
-              <h2 className="text-muted-foreground text-base font-medium">Datos profesionales</h2>
-              <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <Controller
-                  name="licenseId"
+                  name="birthDay"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="licenseId">Nº de Matrícula</FieldLabel>
-                      <Input aria-invalid={fieldState.invalid} id="licenseId" maxLength={21} {...field} />
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                    </Field>
-                  )}
-                />
-                <Controller
-                  name="specialty"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="specialty">Especialidad</FieldLabel>
-                      <Input aria-invalid={fieldState.invalid} id="specialty" maxLength={21} {...field} />
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                    </Field>
-                  )}
-                />
-                <Controller
-                  name="professionalPrefix"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="professionalPrefix">Prefijo profesional</FieldLabel>
+                      <FieldLabel htmlFor="birthDay">Fecha de nacimiento</FieldLabel>
                       <Input
                         aria-invalid={fieldState.invalid}
-                        id="professionalPrefix"
-                        maxLength={21}
-                        placeholder="Ej. Dr."
+                        id="birthDay"
                         {...field}
+                        placeholder="dd/mm/aaaa"
+                        ref={(node) => {
+                          field.ref(node);
+                          birthDayRef(node);
+                        }}
                       />
                       {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                     </Field>
                   )}
                 />
+                {/* TODO: refactor to select */}
+                <Controller
+                  name="gender"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="gender">Género</FieldLabel>
+                      <Input aria-invalid={fieldState.invalid} id="gender" {...field} />
+                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                    </Field>
+                  )}
+                />
               </FieldGroup>
-            </div>*/}
+            </div>
             <div className="flex flex-col gap-3 border-t pt-4">
               <h2 className="text-muted-foreground text-base font-medium">Medios de contacto</h2>
               <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-12">
@@ -411,9 +410,9 @@ export function EditPatientForm({ userId }: IProps) {
                         aria-invalid={fieldState.invalid}
                         id="phone"
                         maxLength={11}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, "");
-                          field.onChange(value);
+                        ref={(node) => {
+                          field.ref(node);
+                          phoneRef(node);
                         }}
                       />
                       {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -462,116 +461,51 @@ export function EditPatientForm({ userId }: IProps) {
               <h2 className="text-muted-foreground text-base font-medium">Datos médicos</h2>
               <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-12">
                 <Controller
-                  name="workingDays"
+                  name="bloodType"
                   control={form.control}
                   render={({ field, fieldState }) => (
-                    <Field className="col-span-12" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="workingDays">Dias laborales</FieldLabel>
-                      <WorkingDays {...field} />
+                    <Field className="col-span-12 md:col-span-6" data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="startHour">Tipo de sangre</FieldLabel>
+                      <Input aria-invalid={fieldState.invalid} id="bloodType" maxLength={21} {...field} />
                       {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                     </Field>
                   )}
                 />
                 <Controller
-                  name="startHour"
+                  name="weight"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field className="col-span-12 md:col-span-6" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="startHour">Horario de inicio:</FieldLabel>
+                      <FieldLabel htmlFor="weight">Peso (Kg)</FieldLabel>
                       <Input
-                        {...field}
                         aria-invalid={fieldState.invalid}
-                        id="startHour"
-                        maxLength={5}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9:]/g, "");
-                          field.onChange(value);
+                        id="weight"
+                        maxLength={6}
+                        {...field}
+                        ref={(node) => {
+                          field.ref(node);
+                          weightRef(node);
                         }}
-                        placeholder="07:00"
                       />
                       {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                     </Field>
                   )}
                 />
                 <Controller
-                  name="endHour"
+                  name="height"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field className="col-span-12 md:col-span-6" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="endHour">Horario de fin:</FieldLabel>
+                      <FieldLabel htmlFor="height">Altura (Cm)</FieldLabel>
                       <Input
-                        {...field}
                         aria-invalid={fieldState.invalid}
-                        id="endHour"
-                        maxLength={5}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9:]/g, "");
-                          field.onChange(value);
-                        }}
-                        placeholder="20:00"
-                      />
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                    </Field>
-                  )}
-                />
-                <Controller
-                  name="dailyExceptionStart"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field className="col-span-12 md:col-span-6" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="dailyExceptionStart">Excepción desde (opcional):</FieldLabel>
-                      <Input
-                        {...field}
-                        aria-invalid={fieldState.invalid}
-                        id="dailyExceptionStart"
-                        maxLength={5}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9:]/g, "");
-                          field.onChange(value);
-                        }}
-                        placeholder="12:00"
-                      />
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                    </Field>
-                  )}
-                />
-                <Controller
-                  name="dailyExceptionEnd"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field className="col-span-12 md:col-span-6" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="dailyExceptionEnd">Excepción hasta (opcional):</FieldLabel>
-                      <Input
-                        {...field}
-                        aria-invalid={fieldState.invalid}
-                        id="dailyExceptionEnd"
-                        maxLength={5}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9:]/g, "");
-                          field.onChange(value);
-                        }}
-                        placeholder="13:00"
-                      />
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                    </Field>
-                  )}
-                />
-                <Controller
-                  name="slotDuration"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field className="col-span-12 md:col-span-4" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="slotDuration">Duración:</FieldLabel>
-                      <Input
-                        {...field}
-                        aria-invalid={fieldState.invalid}
-                        id="slotDuration"
+                        id="height"
                         maxLength={3}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, "");
-                          field.onChange(value);
+                        {...field}
+                        ref={(node) => {
+                          field.ref(node);
+                          heightRef(node);
                         }}
-                        placeholder="60"
                       />
                       {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                     </Field>
