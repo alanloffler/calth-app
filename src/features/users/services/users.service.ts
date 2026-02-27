@@ -5,6 +5,7 @@ import type { ICreatePatientForm } from "@users/interfaces/create-patient.interf
 import type { ICreateProfessionalForm } from "@users/interfaces/create-professional.interface";
 import type { IUser } from "@users/interfaces/user.interface";
 import type { TUserRole } from "@roles/interfaces/user-role.type";
+import { EUserRole } from "@roles/enums/user-role.enum";
 import { apiClient } from "@core/client/client";
 
 class UsersModuleService {
@@ -93,7 +94,12 @@ class UsersModuleService {
     type: TUserRole,
     data: Partial<ICreateProfessionalForm>,
   ): Promise<IApiResponse<IUser>> {
-    const payload = this.toProfessionalData(data);
+    let payload;
+    if (type === EUserRole.professional) {
+      payload = this.toProfessionalData(data);
+    } else {
+      payload = this.toPatientData(data);
+    }
 
     const response = await apiClient.patch(`/users/${id}/${type}`, payload);
     return response.data;
