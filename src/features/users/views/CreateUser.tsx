@@ -1,3 +1,4 @@
+import { CreateAdminForm } from "@users/components/CreateAdminForm";
 import { CreatePatientForm } from "@users/components/CreatePatientForm";
 import { CreateProfessionalForm } from "@users/components/CreateProfessionalForm";
 
@@ -11,7 +12,7 @@ export default function CreateUser() {
 
   return (
     <div className="flex w-full max-w-7xl flex-col gap-10 md:w-full xl:w-[80%]">
-      {userRole === EUserRole["admin"] && <div>Mostrar formulario de creacion de admin</div>}
+      {userRole === EUserRole["admin"] && <CreateAdminForm />}
       {userRole === EUserRole["patient"] && <CreatePatientForm />}
       {userRole === EUserRole["professional"] && <CreateProfessionalForm />}
     </div>
