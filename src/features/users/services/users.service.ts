@@ -1,6 +1,7 @@
 import { format, parse } from "date-fns";
 
 import type { IApiResponse } from "@core/interfaces/api-response.interface";
+import type { ICreateAdminForm } from "@users/interfaces/create-admin.interface";
 import type { ICreatePatientForm } from "@users/interfaces/create-patient.interface";
 import type { ICreateProfessionalForm } from "@users/interfaces/create-professional.interface";
 import type { IUser } from "@users/interfaces/user.interface";
@@ -17,6 +18,13 @@ class UsersModuleService {
     }
 
     return UsersModuleService.instance;
+  }
+
+  // Admins services
+  public async createAdmin(data: ICreateAdminForm): Promise<IApiResponse<IUser>> {
+    console.log("Data for admin creation: ", data);
+    const response = await apiClient.post("/users/admin", data);
+    return response.data;
   }
 
   // Professionals services
