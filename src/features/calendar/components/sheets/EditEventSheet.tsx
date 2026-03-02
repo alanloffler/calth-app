@@ -213,7 +213,7 @@ export function EditEventSheet({ event, onUpdateEvent, open, setOpen }: IProps) 
   return (
     <Sheet open={event !== null && open} onOpenChange={setOpen}>
       <SheetContent
-        className="sm:min-w-[620px]"
+        className="sm:min-w-155"
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           closeRef.current?.focus();
