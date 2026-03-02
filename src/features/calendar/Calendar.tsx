@@ -72,7 +72,7 @@ export default function Calendar() {
 
   const getProfessional = useCallback(
     async (id: string): Promise<void> => {
-      const [response, error] = await tryCatchProfessional(UsersService.findOne(id));
+      const [response, error] = await tryCatchProfessional(UsersService.findProfessional(id));
 
       if (error) {
         toast.error(error.message);
@@ -135,10 +135,13 @@ export default function Calendar() {
     [setSelectedDate, setSelectedView],
   );
 
-  const onSelectEvent = useCallback((event: Event) => {
-    setSelectedEvent(event as ICalendarEvent);
-    setOpenViewEventSheet(true);
-  }, [setSelectedEvent, setOpenViewEventSheet]);
+  const onSelectEvent = useCallback(
+    (event: Event) => {
+      setSelectedEvent(event as ICalendarEvent);
+      setOpenViewEventSheet(true);
+    },
+    [setSelectedEvent, setOpenViewEventSheet],
+  );
 
   useEffect(() => {
     fetchProfessionals();
