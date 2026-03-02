@@ -182,7 +182,7 @@ export function AddEvent({ onCreateEvent }: IProps) {
           </Button>
         </SheetTrigger>
       </Protected>
-      <SheetContent className="sm:min-w-[620px]">
+      <SheetContent className="sm:min-w-155">
         <SheetHeader className="pt-8">
           <SheetTitle className="text-lg">Agregar turno a la agenda</SheetTitle>
           <SheetDescription className="text-base">
