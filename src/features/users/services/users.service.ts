@@ -35,6 +35,11 @@ class UsersModuleService {
     return response.data;
   }
 
+  public async findProfessional(id: string): Promise<IApiResponse<IUser>> {
+    const response = await apiClient.get(`/users/${id}/professional/profile`);
+    return response.data;
+  }
+
   // Patients services
   public async createPatient(data: ICreatePatientForm): Promise<IApiResponse<IUser>> {
     const payload = this.toPatientData(data);
