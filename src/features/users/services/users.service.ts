@@ -74,11 +74,6 @@ class UsersModuleService {
     return response.data;
   }
 
-  public async findOne(id: string): Promise<IApiResponse<IUser>> {
-    const response = await apiClient.get(`/users/${id}`);
-    return response.data;
-  }
-
   public async findOneSoftRemoved(id: string): Promise<IApiResponse<IUser>> {
     const response = await apiClient.get(`/users/soft-remove/${id}`);
     return response.data;
