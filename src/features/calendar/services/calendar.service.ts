@@ -61,7 +61,7 @@ class CalendarModuleService {
   }
 
   public async updateStatus(eventId: string, status: TEventStatus): Promise<IApiResponse> {
-    const response = await apiClient.patch(`/events/${eventId}/status/`, { status });
+    const response = await apiClient.patch(`/events/${eventId}/status`, { status });
     return response.data;
   }
 
