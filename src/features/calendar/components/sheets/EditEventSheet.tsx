@@ -136,7 +136,7 @@ export function EditEventSheet({ event, onUpdateEvent, open, setOpen }: IProps) 
     }
 
     async function fetchProfessionalConfig() {
-      const [response, error] = await tryCatchProfessional(UsersService.findOne(professionalId));
+      const [response, error] = await tryCatchProfessional(UsersService.findProfessional(professionalId));
 
       if (error || !response?.data?.professionalProfile) {
         setProfessionalConfig(null);
