@@ -95,7 +95,7 @@ export function AddEvent({ onCreateEvent }: IProps) {
     }
 
     async function fetchProfessionalConfig() {
-      const [response, error] = await tryCatchProfessional(UsersService.findOne(professionalId));
+      const [response, error] = await tryCatchProfessional(UsersService.findProfessional(professionalId));
 
       if (error || !response?.data?.professionalProfile) {
         setProfessionalConfig(null);
