@@ -20,6 +20,7 @@ import type { IMedicalHistory } from "@medical-history/interfaces/medical-histor
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { cn } from "@lib/utils";
+import { formatIc } from "@core/formatters/ic.formatter";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
@@ -266,6 +267,11 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                 <li className="flex gap-3">
                   <span className="font-semibold">Paciente:</span>
                   <span>{`${selectedHistory.user.firstName} ${selectedHistory.user.lastName}`}</span>
+                  <Badge variant="ic">{formatIc(selectedHistory.user.ic)}</Badge>
+                </li>
+                <li className="flex gap-3">
+                  <span className="font-semibold">Profesional:</span>
+                  <span>{`${selectedHistory.professional.professionalProfile?.professionalPrefix} ${selectedHistory.professional.firstName} ${selectedHistory.professional.lastName}`}</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="font-semibold">Fecha de atención:</span>
