@@ -94,7 +94,7 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
                     <Button
                       variant="outline"
                       data-empty={!date}
-                      className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal"
+                      className="data-[empty=true]:text-muted-foreground w-70 justify-start text-left font-normal"
                     >
                       <CalendarIcon />
                       {date ? format(date, "P", { locale: es }) : <span>Seleccionar</span>}
