@@ -15,14 +15,14 @@ interface IProps {
 export function CreateHistorySheet({ user, onCreated, open, setOpen }: IProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent className="sm:min-w-120">
-        <SheetHeader className="pt-8">
+      <SheetContent className="h-full gap-0 sm:min-w-120">
+        <SheetHeader className="border-b pt-8">
           <SheetTitle className="text-lg">Agregar historia médica</SheetTitle>
           <SheetDescription className="text-base">
             Creación de historia para el paciente {user?.firstName} {user?.lastName}
           </SheetDescription>
         </SheetHeader>
-        <div className="flex flex-col gap-6 p-4">
+        <div className="flex h-full min-h-0 flex-col">
           <CreateHistoryForm user={user} onCreated={onCreated} setOpen={setOpen} />
         </div>
       </SheetContent>
