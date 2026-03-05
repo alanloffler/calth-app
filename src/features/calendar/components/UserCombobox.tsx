@@ -18,7 +18,7 @@ interface IProps {
   id?: string;
   onChange?: (value: string) => void;
   userType?: "patient" | "professional";
-  value?: string;
+  value?: string | null;
   width?: string;
 }
 
@@ -28,7 +28,7 @@ export function UserCombobox({
   id,
   onChange,
   userType = "patient",
-  value = "",
+  value = undefined,
   width,
 }: IProps) {
   const [error, setError] = useState<string | null>(null);
