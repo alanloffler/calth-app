@@ -42,19 +42,16 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
   const form = useForm<z.infer<typeof createHistorySchema>>({
     resolver: zodResolver(createHistorySchema),
     defaultValues: {
-      businessId: "",
+      businessId: user.businessId,
       comments: "",
       date: undefined,
       eventId: undefined,
       professionalId: "",
       reason: "",
       recipe: false,
-      userId: "",
+      userId: user.id,
     },
   });
-
-  form.setValue("userId", user.id);
-  form.setValue("businessId", user.businessId);
 
   function onSelectDate(date: Date | undefined) {
     if (!date) return;
@@ -86,8 +83,12 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
   }
 
   return (
-    <div className="flex flex-col gap-10">
-      <form className="grid grid-cols-1 gap-6" id="create-history" onSubmit={form.handleSubmit(onSubmit)}>
+    <div className="flex h-full flex-col">
+      <form
+        className="grid h-full grid-cols-1 gap-6 overflow-y-auto p-6"
+        id="create-history"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
         <FieldGroup className="grid grid-cols-1 gap-6">
           <Controller
             name="professionalId"
@@ -209,13 +210,15 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
           />
         </FieldGroup>
       </form>
-      <div className="flex items-center justify-end gap-4">
-        <Button variant="ghost" onClick={resetForm}>
-          Cancelar
-        </Button>
-        <Button disabled={!form.formState.isDirty} form="create-history" type="submit" variant="default">
-          {isSaving ? <Loader color="white" text="Guardando" /> : "Guardar"}
-        </Button>
+      <div className="bg-background shrink-0 border-t p-6">
+        <div className="flex items-center justify-end gap-4">
+          <Button variant="ghost" onClick={resetForm}>
+            Cancelar
+          </Button>
+          <Button disabled={!form.formState.isDirty} form="create-history" type="submit" variant="default">
+            {isSaving ? <Loader color="white" text="Guardando" /> : "Guardar"}
+          </Button>
+        </div>
       </div>
     </div>
   );
