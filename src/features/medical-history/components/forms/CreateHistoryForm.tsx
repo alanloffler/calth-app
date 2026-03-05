@@ -6,8 +6,10 @@ import { Checkbox } from "@components/ui/checkbox";
 import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
+import { Label } from "@components/ui/label";
 import { Loader } from "@components/Loader";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
 import { Textarea } from "@components/ui/textarea";
 
 import type z from "zod";
@@ -31,6 +33,7 @@ interface IProps {
 
 export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
   const [date, setDate] = useState<Date>();
+  const [dateType, setDateType] = useState<"manual" | "event">("manual");
   const [openCalendar, setOpenCalendar] = useState<boolean>(false);
   const { isLoading: isSaving, tryCatch: tryCatchCreateHistory } = useTryCatch();
 
@@ -89,30 +92,50 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="date">Fecha:</FieldLabel>
-                <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
-                  <PopoverTrigger className="w-60!" asChild onClick={() => setOpenCalendar(true)}>
-                    <Button
-                      variant="outline"
-                      data-empty={!date}
-                      className="data-[empty=true]:text-muted-foreground w-70 justify-start text-left font-normal"
-                    >
-                      <CalendarIcon />
-                      {date ? format(date, "P", { locale: es }) : <span>Seleccionar</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      locale={es}
-                      onSelect={(date) => {
-                        onSelectDate(date);
-                        setOpenCalendar(false);
-                      }}
-                      {...field}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <RadioGroup
+                  value={dateType}
+                  onValueChange={(value) => setDateType(value as "manual" | "event")}
+                  className="w-fit"
+                >
+                  <div className="flex items-center gap-3">
+                    <RadioGroupItem value="manual" id="manual" />
+                    <Label htmlFor="manual">Manual</Label>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <RadioGroupItem value="event" id="event" />
+                    <Label htmlFor="event">Relacionada con turno</Label>
+                  </div>
+                </RadioGroup>
+                <div className="flex pt-4">
+                  {dateType === "manual" ? (
+                    <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
+                      <PopoverTrigger className="w-60!" asChild onClick={() => setOpenCalendar(true)}>
+                        <Button
+                          variant="outline"
+                          data-empty={!date}
+                          className="data-[empty=true]:text-muted-foreground w-70 justify-start text-left font-normal"
+                        >
+                          <CalendarIcon />
+                          {date ? format(date, "P", { locale: es }) : <span>Seleccionar</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          locale={es}
+                          onSelect={(date) => {
+                            onSelectDate(date);
+                            setOpenCalendar(false);
+                          }}
+                          {...field}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    <div>event combobox</div>
+                  )}
+                </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
