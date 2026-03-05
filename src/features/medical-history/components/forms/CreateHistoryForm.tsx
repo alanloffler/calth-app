@@ -4,6 +4,7 @@ import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import { Checkbox } from "@components/ui/checkbox";
 import { Controller } from "react-hook-form";
+import { EventCombobox } from "@calendar/components/EventCombobox";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
@@ -11,6 +12,7 @@ import { Loader } from "@components/Loader";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
 import { Textarea } from "@components/ui/textarea";
+import { UserCombobox } from "@calendar/components/UserCombobox";
 
 import type z from "zod";
 import { es } from "date-fns/locale";
@@ -33,7 +35,7 @@ interface IProps {
 
 export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
   const [date, setDate] = useState<Date>();
-  const [dateType, setDateType] = useState<"manual" | "event">("manual");
+  const [dateType, setDateType] = useState<"manual" | "event">("event");
   const [openCalendar, setOpenCalendar] = useState<boolean>(false);
   const { isLoading: isSaving, tryCatch: tryCatchCreateHistory } = useTryCatch();
 
@@ -44,6 +46,7 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
       comments: "",
       date: undefined,
       eventId: undefined,
+      professionalId: "",
       reason: "",
       recipe: false,
       userId: "",
@@ -87,6 +90,22 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
       <form className="grid grid-cols-1 gap-6" id="create-history" onSubmit={form.handleSubmit(onSubmit)}>
         <FieldGroup className="grid grid-cols-1 gap-6">
           <Controller
+            name="professionalId"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field className="w-60" data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="professionalId">Profesional:</FieldLabel>
+                <UserCombobox
+                  aria-invalid={fieldState.invalid}
+                  id="professionalId"
+                  userType="professional"
+                  {...field}
+                />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
             name="date"
             control={form.control}
             render={({ field, fieldState }) => (
@@ -109,7 +128,12 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
                 <div className="flex pt-4">
                   {dateType === "manual" ? (
                     <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
-                      <PopoverTrigger className="w-60!" asChild onClick={() => setOpenCalendar(true)}>
+                      <PopoverTrigger
+                        aria-invalid={fieldState.invalid}
+                        className="w-60!"
+                        asChild
+                        onClick={() => setOpenCalendar(true)}
+                      >
                         <Button
                           variant="outline"
                           data-empty={!date}
@@ -133,7 +157,7 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
                       </PopoverContent>
                     </Popover>
                   ) : (
-                    <div>event combobox</div>
+                    <EventCombobox aria-invalid={fieldState.invalid} width="w-60" />
                   )}
                 </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
