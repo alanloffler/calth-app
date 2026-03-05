@@ -7,6 +7,7 @@ export const createHistorySchema = z.object({
   comments: z.string().min(3, "Mínimo 3 caracteres").max(1000, "Máximo 1000 caracteres").nonoptional(),
   date: z.date({ message: "La fecha es obligatoria" }),
   eventId: z.uuidv4({ message: "El id del usuario es obligatorio" }).nullish(),
+  professionalId: z.uuidv4({ message: "El profesional es obligatorio" }).nullish(),
   reason: z
     .string()
     .nonempty("El motivo de consulta es obligatorio")
