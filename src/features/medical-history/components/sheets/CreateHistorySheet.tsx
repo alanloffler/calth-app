@@ -15,7 +15,7 @@ interface IProps {
 export function CreateHistorySheet({ user, onCreated, open, setOpen }: IProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent className="sm:min-w-[480px]">
+      <SheetContent className="sm:min-w-120">
         <SheetHeader className="pt-8">
           <SheetTitle className="text-lg">Agregar historia médica</SheetTitle>
           <SheetDescription className="text-base">
