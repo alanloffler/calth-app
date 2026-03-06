@@ -16,13 +16,14 @@ import { UserCombobox } from "@calendar/components/UserCombobox";
 
 import type z from "zod";
 import { es } from "date-fns/locale";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
-import { useState, type Dispatch, type SetStateAction } from "react";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IUser } from "@users/interfaces/user.interface";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { createHistorySchema } from "@medical-history/schemas/create-history.schema";
@@ -34,9 +35,10 @@ interface IProps {
 }
 
 export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
-  const [date, setDate] = useState<Date>();
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const [dateType, setDateType] = useState<"manual" | "event">("event");
   const [openCalendar, setOpenCalendar] = useState<boolean>(false);
+  const [selectedEvent, setSelectedEvent] = useState<ICalendarEvent | undefined>(undefined);
   const { isLoading: isSaving, tryCatch: tryCatchCreateHistory } = useTryCatch();
 
   const form = useForm<z.infer<typeof createHistorySchema>>({
@@ -57,7 +59,9 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
     if (!date) return;
 
     setDate(date);
-    form.setValue("date", date);
+    if (dateType === "manual") {
+      form.setValue("date", date);
+    }
   }
 
   async function onSubmit(data: z.infer<typeof createHistorySchema>) {
@@ -81,6 +85,27 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
     form.reset();
     setOpen(false);
   }
+
+  function handleEventChange(event: ICalendarEvent): void {
+    setSelectedEvent(event);
+  }
+
+  useEffect(() => {
+    if (selectedEvent && dateType === "event") {
+      setDate(undefined);
+      form.setValue("eventId", selectedEvent.id);
+
+      const eventDate =
+        typeof selectedEvent.startDate === "string"
+          ? parseISO(selectedEvent.startDate)
+          : new Date(selectedEvent.startDate);
+      form.setValue("date", eventDate);
+      form.setValue("reason", selectedEvent.title);
+    } else {
+      setSelectedEvent(undefined);
+      form.setValue("reason", "");
+    }
+  }, [selectedEvent, dateType, form]);
 
   return (
     <div className="flex h-full flex-col">
@@ -158,7 +183,7 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
                       </PopoverContent>
                     </Popover>
                   ) : (
-                    <EventCombobox aria-invalid={fieldState.invalid} width="w-60" />
+                    <EventCombobox aria-invalid={fieldState.invalid} onChange={handleEventChange} width="w-60" />
                   )}
                 </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -171,7 +196,7 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="reason">Título:</FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="reason" {...field} />
+                <Input aria-invalid={fieldState.invalid} disabled={selectedEvent != undefined} id="reason" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
