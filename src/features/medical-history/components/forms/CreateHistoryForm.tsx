@@ -36,7 +36,7 @@ interface IProps {
 
 export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
   const [date, setDate] = useState<Date | undefined>(undefined);
-  const [dateType, setDateType] = useState<"manual" | "event">("event");
+  const [dateType, setDateType] = useState<"manual" | "event">("manual");
   const [openCalendar, setOpenCalendar] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<ICalendarEvent | undefined>(undefined);
   const { isLoading: isSaving, tryCatch: tryCatchCreateHistory } = useTryCatch();
@@ -54,6 +54,8 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
       userId: user.id,
     },
   });
+
+  const professionalId = form.watch("professionalId");
 
   function onSelectDate(date: Date | undefined) {
     if (!date) return;
@@ -183,7 +185,14 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
                       </PopoverContent>
                     </Popover>
                   ) : (
-                    <EventCombobox aria-invalid={fieldState.invalid} onChange={handleEventChange} width="w-60" />
+                    <EventCombobox
+                      aria-invalid={fieldState.invalid}
+                      disabled={!professionalId}
+                      onChange={handleEventChange}
+                      professionalId={professionalId}
+                      userId={user.id}
+                      width="w-60"
+                    />
                   )}
                 </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
