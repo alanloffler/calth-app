@@ -40,6 +40,14 @@ class CalendarModuleService {
     return response.data;
   }
 
+  public async findByBusinessProfessionalPatient(
+    professionalId: string,
+    patientId: string,
+  ): Promise<IApiResponse<ICalendarEvent[]>> {
+    const response = await apiClient.get(`events/patient/${patientId}?professional=${professionalId}`);
+    return response.data;
+  }
+
   public async findOne(id: string): Promise<IApiResponse<ICalendarEvent>> {
     const response = await apiClient.get(`/events/${id}`);
     const data = response.data;
