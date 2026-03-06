@@ -280,12 +280,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                 {selectedHistory.eventId && (
                   <li className="flex gap-3">
                     <span className="font-semibold">Evento:</span>
-                    <div className="flex items-center gap-1">
-                      <span>{selectedHistory.reason}</span>
-                      <span className="text-muted-foreground text-sm font-semibold">
-                        ({format(selectedHistory.date, "dd/MM/yy", { locale: es })})
-                      </span>
-                    </div>
+                    <Badge variant="id">{selectedHistory.eventId.split("-")[0]}</Badge>
                   </li>
                 )}
                 <li className="flex gap-3">
