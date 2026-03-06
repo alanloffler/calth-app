@@ -4,6 +4,7 @@ import { Button } from "@components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 
+import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
 
@@ -14,13 +15,25 @@ import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   "aria-invalid"?: boolean;
+  disabled?: boolean;
   id?: string;
   onChange?: (value: ICalendarEvent) => void;
+  professionalId: string;
+  userId: string;
   value?: string;
   width?: string;
 }
 
-export function EventCombobox({ "aria-invalid": ariaInvalid, id, onChange, value = "", width }: IProps) {
+export function EventCombobox({
+  "aria-invalid": ariaInvalid,
+  disabled = false,
+  id,
+  onChange,
+  professionalId,
+  userId,
+  value = "",
+  width,
+}: IProps) {
   const [error, setError] = useState<string | null>(null);
   const [events, setEvents] = useState<ICalendarEvent[] | undefined>(undefined);
   const [open, setOpen] = useState<boolean>(false);
@@ -28,7 +41,7 @@ export function EventCombobox({ "aria-invalid": ariaInvalid, id, onChange, value
   const { isLoading, tryCatch } = useTryCatch();
 
   const findUsers = useCallback(async () => {
-    const [response, error] = await tryCatch(CalendarService.findAllByBusiness(10));
+    const [response, error] = await tryCatch(CalendarService.findByBusinessProfessionalPatient(professionalId, userId));
 
     if (error) {
       setError("Error");
@@ -40,8 +53,9 @@ export function EventCombobox({ "aria-invalid": ariaInvalid, id, onChange, value
   }, [tryCatch, onChange]);
 
   useEffect(() => {
+    if (!professionalId) return;
     findUsers();
-  }, [findUsers]);
+  }, [findUsers, professionalId]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -53,8 +67,9 @@ export function EventCombobox({ "aria-invalid": ariaInvalid, id, onChange, value
             "font-normal disabled:opacity-100",
             value || error || isLoading ? "justify-between!" : "justify-end!",
             error || ariaInvalid ? "text-destructive border-destructive" : "",
+            disabled ? "opacity-50!" : "",
           )}
-          disabled={isLoading || error !== null}
+          disabled={isLoading || error !== null || disabled}
           id={id}
           role="combobox"
           variant="outline"
@@ -78,7 +93,7 @@ export function EventCombobox({ "aria-invalid": ariaInvalid, id, onChange, value
               {events?.map((event) => (
                 <CommandItem
                   key={event.id}
-                  keywords={[event.professional.firstName]}
+                  keywords={[event.title, format(event.startDate, "P", { locale: es })]}
                   onSelect={() => {
                     setSelectedEvent(event);
                     onChange?.(event);
