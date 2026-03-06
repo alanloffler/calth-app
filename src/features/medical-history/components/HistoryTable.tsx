@@ -275,8 +275,19 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                 </li>
                 <li className="flex gap-3">
                   <span className="font-semibold">Fecha de atención:</span>
-                  <span>{format(selectedHistory.createdAt, "P", { locale: es })}</span>
+                  <span>{format(selectedHistory.date, "P", { locale: es })}</span>
                 </li>
+                {selectedHistory.eventId && (
+                  <li className="flex gap-3">
+                    <span className="font-semibold">Evento:</span>
+                    <div className="flex items-center gap-1">
+                      <span>{selectedHistory.reason}</span>
+                      <span className="text-muted-foreground text-sm font-semibold">
+                        ({format(selectedHistory.date, "dd/MM/yy", { locale: es })})
+                      </span>
+                    </div>
+                  </li>
+                )}
                 <li className="flex gap-3">
                   <span className="font-semibold">Título:</span>
                   <p>{selectedHistory.reason}</p>
