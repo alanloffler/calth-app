@@ -6,6 +6,7 @@ import { Card } from "@components/ui/card";
 import { ConfirmDialog } from "@components/ConfirmDialog";
 import { DataTable } from "@components/data-table/DataTable";
 import { EditHistorySheet } from "@medical-history/components/sheets/EditHistorySheet";
+import { EventDetailsDialog } from "@calendar/components/EventDetailsDialog";
 import { Protected } from "@auth/components/Protected";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
@@ -31,6 +32,7 @@ interface IProps {
 
 export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
   const [openEditSheet, setOpenEditSheet] = useState<boolean>(false);
+  const [openEventDialog, setOpenEventDialog] = useState<boolean>(false);
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
@@ -280,7 +282,9 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                 {selectedHistory.eventId && (
                   <li className="flex gap-3">
                     <span className="font-semibold">Evento:</span>
-                    <Badge variant="id">{selectedHistory.eventId.split("-")[0]}</Badge>
+                    <button onClick={() => setOpenEventDialog(true)}>
+                      <Badge variant="id">{selectedHistory.eventId.split("-")[0]}</Badge>
+                    </button>
                   </li>
                 )}
                 <li className="flex gap-3">
@@ -390,6 +394,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
               </li>
             </ul>
           </ConfirmDialog>
+          <EventDetailsDialog eventId={selectedHistory.eventId} open={openEventDialog} setOpen={setOpenEventDialog} />
         </>
       )}
     </>
