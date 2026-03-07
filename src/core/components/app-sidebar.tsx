@@ -1,6 +1,7 @@
 import {
   Briefcase,
-  Calendar,
+  CalendarCheck,
+  CalendarDays,
   GalleryVerticalEnd,
   KeyRound,
   LayoutDashboard,
@@ -41,7 +42,13 @@ const data = {
     {
       title: "Agenda",
       url: "/calendar",
-      icon: Calendar,
+      icon: CalendarDays,
+      permission: "calendar-view" as TPermission,
+    },
+    {
+      title: "Turnos",
+      url: "/events",
+      icon: CalendarCheck,
       permission: "calendar-view" as TPermission,
     },
     {
