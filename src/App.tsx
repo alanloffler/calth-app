@@ -22,7 +22,7 @@ const CreateAdmin = lazy(() => import("./features/admin/views/CreateAdmin"));
 const EditAdmin = lazy(() => import("./features/admin/views/EditAdmin"));
 const ViewAdmin = lazy(() => import("./features/admin/views/ViewAdmin"));
 
-const Events = lazy(() => import("./features/events/Events"));
+const Events = lazy(() => import("./features/event/Events"));
 
 const Roles = lazy(() => import("./features/roles/Roles"));
 const CreateRole = lazy(() => import("./features/roles/views/CreateRole"));
