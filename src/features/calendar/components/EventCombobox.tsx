@@ -57,6 +57,12 @@ export function EventCombobox({
     findUsers();
   }, [findUsers, professionalId]);
 
+  useEffect(() => {
+    if (!events || !value) return;
+    const match = events.find((e) => e.id === value);
+    if (match) setSelectedEvent(match);
+  }, [events, value]);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild className={cn(width ? width : "w-full")}>
