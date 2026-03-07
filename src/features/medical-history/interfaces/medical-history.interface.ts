@@ -4,9 +4,9 @@ export interface IMedicalHistory extends IMedicalHistoryCreate {
   createdAt: Date;
   deletedAt: Date;
   id: string;
+  professional: IUser;
   updatedAt: Date;
   user: IUser;
-  professional: IUser;
 }
 
 export interface IMedicalHistoryCreate {
@@ -14,6 +14,7 @@ export interface IMedicalHistoryCreate {
   comments: string;
   date: Date;
   eventId?: string | null;
+  professionalId: string;
   reason: string;
   recipe: boolean;
   userId: string;
