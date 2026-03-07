@@ -22,6 +22,8 @@ const CreateAdmin = lazy(() => import("./features/admin/views/CreateAdmin"));
 const EditAdmin = lazy(() => import("./features/admin/views/EditAdmin"));
 const ViewAdmin = lazy(() => import("./features/admin/views/ViewAdmin"));
 
+const Events = lazy(() => import("./features/events/Events"));
+
 const Roles = lazy(() => import("./features/roles/Roles"));
 const CreateRole = lazy(() => import("./features/roles/views/CreateRole"));
 const EditRole = lazy(() => import("./features/roles/views/EditRole"));
@@ -106,6 +108,20 @@ const router = createBrowserRouter([
             }
           >
             <Calendar />
+          </Suspense>
+        ),
+      },
+      {
+        path: "events",
+        element: (
+          <Suspense
+            fallback={
+              <div className="relative h-full w-full">
+                <PageLoader className="-mt-8" />
+              </div>
+            }
+          >
+            <Events />
           </Suspense>
         ),
       },
