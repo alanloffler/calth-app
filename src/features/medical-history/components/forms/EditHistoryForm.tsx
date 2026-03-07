@@ -4,22 +4,26 @@ import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import { Checkbox } from "@components/ui/checkbox";
 import { Controller } from "react-hook-form";
+import { EventCombobox } from "@calendar/components/EventCombobox";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
+import { Label } from "@components/ui/label";
 import { Loader } from "@components/Loader";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
 import { Textarea } from "@components/ui/textarea";
 import { UserCombobox } from "@calendar/components/UserCombobox";
 
 import type z from "zod";
 import { es } from "date-fns/locale";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
-import { useState, type Dispatch, type SetStateAction } from "react";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IMedicalHistory } from "@medical-history/interfaces/medical-history.interface";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { createHistorySchema } from "@medical-history/schemas/create-history.schema";
@@ -32,7 +36,9 @@ interface IProps {
 
 export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
   const [date, setDate] = useState<Date | undefined>(history.date ? new Date(history.date) : undefined);
+  const [dateType, setDateType] = useState<"manual" | "event">(history.eventId ? "event" : "manual");
   const [openCalendar, setOpenCalendar] = useState<boolean>(false);
+  const [selectedEvent, setSelectedEvent] = useState<ICalendarEvent | undefined>(undefined);
   const { isLoading: isUpdating, tryCatch: tryCatchUpdateHistory } = useTryCatch();
 
   const form = useForm<z.infer<typeof createHistorySchema>>({
@@ -48,6 +54,8 @@ export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
       userId: history.userId,
     },
   });
+
+  const professionalId = form.watch("professionalId");
 
   function onSelectDate(date: Date | undefined) {
     if (!date) return;
@@ -78,6 +86,27 @@ export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
     setOpen(false);
   }
 
+  function handleEventChange(event: ICalendarEvent): void {
+    setSelectedEvent(event);
+  }
+
+  useEffect(() => {
+    if (selectedEvent && dateType === "event") {
+      setDate(undefined);
+      form.setValue("eventId", selectedEvent.id, { shouldDirty: true });
+
+      const eventDate =
+        typeof selectedEvent.startDate === "string"
+          ? parseISO(selectedEvent.startDate)
+          : new Date(selectedEvent.startDate);
+      form.setValue("date", eventDate, { shouldDirty: true });
+      form.setValue("reason", selectedEvent.title, { shouldDirty: true });
+    } else if (dateType === "manual") {
+      setSelectedEvent(undefined);
+      form.setValue("eventId", null, { shouldDirty: true });
+    }
+  }, [selectedEvent, dateType, form]);
+
   return (
     <div className="flex flex-col gap-10">
       <form className="grid grid-cols-1 gap-6" id="create-history" onSubmit={form.handleSubmit(onSubmit)}>
@@ -99,30 +128,63 @@ export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="date">Fecha:</FieldLabel>
-                <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
-                  <PopoverTrigger className="w-60!" asChild onClick={() => setOpenCalendar(true)}>
-                    <Button
-                      variant="outline"
-                      data-empty={!date}
-                      className="data-[empty=true]:text-muted-foreground w-70 justify-start text-left font-normal"
-                    >
-                      <CalendarIcon />
-                      {date ? format(date, "P", { locale: es }) : <span>Seleccionar</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      locale={es}
-                      onSelect={(date) => {
-                        onSelectDate(date);
-                        setOpenCalendar(false);
-                      }}
-                      {...field}
+                <RadioGroup
+                  value={dateType}
+                  onValueChange={(value) => setDateType(value as "manual" | "event")}
+                  className="w-fit"
+                >
+                  <div className="flex items-center gap-3">
+                    <RadioGroupItem value="manual" id="manual" />
+                    <Label htmlFor="manual">Manual</Label>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <RadioGroupItem value="event" id="event" />
+                    <Label htmlFor="event">Relacionada con turno</Label>
+                  </div>
+                </RadioGroup>
+                <div className="flex pt-4">
+                  {dateType === "manual" ? (
+                    <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
+                      <PopoverTrigger
+                        aria-invalid={fieldState.invalid}
+                        className="w-60!"
+                        asChild
+                        onClick={() => setOpenCalendar(true)}
+                      >
+                        <Button
+                          variant="outline"
+                          data-empty={!date}
+                          className="data-[empty=true]:text-muted-foreground w-70 justify-start text-left font-normal"
+                        >
+                          <CalendarIcon />
+                          {date ? format(date, "P", { locale: es }) : <span>Seleccionar</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          locale={es}
+                          onSelect={(date) => {
+                            onSelectDate(date);
+                            setOpenCalendar(false);
+                          }}
+                          {...field}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    <EventCombobox
+                      aria-invalid={fieldState.invalid}
+                      value={selectedEvent?.id ?? history.eventId ?? undefined}
+                      disabled={!professionalId}
+                      onChange={handleEventChange}
+                      professionalId={professionalId}
+                      userId={history.userId}
+                      width="w-60"
                     />
-                  </PopoverContent>
-                </Popover>
+                  )}
+                </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
@@ -133,7 +195,7 @@ export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="reason">Título:</FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="reason" {...field} />
+                <Input aria-invalid={fieldState.invalid} disabled={selectedEvent != undefined} id="reason" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
