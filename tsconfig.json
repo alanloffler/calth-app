@@ -2,11 +2,11 @@
   "files": [],
   "references": [
     {
-      "path": "./tsconfig.app.json"
+      "path": "./tsconfig.app.json",
     },
     {
-      "path": "./tsconfig.node.json"
-    }
+      "path": "./tsconfig.node.json",
+    },
   ],
   "compilerOptions": {
     "baseUrl": ".",
@@ -19,6 +19,7 @@
       "@components/*": ["./src/core/components/*"],
       "@core/*": ["./src/core/*"],
       "@dashboard/*": ["./src/features/dashboard/*"],
+      "@event/*": ["./src/features/event/*"],
       "@layouts/*": ["./src/features/layouts/*"],
       "@lib/*": ["./src/lib/*"],
       "@login/*": ["./src/features/login/*"],
@@ -27,7 +28,7 @@
       "@roles/*": ["./src/features/roles/*"],
       "@settings/*": ["./src/features/settings/*"],
       "@users/*": ["./src/features/users/*"],
-      "@/*": ["./src/*"]
-    }
-  }
+      "@/*": ["./src/*"],
+    },
+  },
 }
