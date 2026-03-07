@@ -54,6 +54,13 @@ const BREADCRUMB_ROUTES: BreadcrumbRoute[] = [
     ],
   },
   {
+    path: "/events",
+    paths: [
+      { label: "Inicio", url: "/dashboard" },
+      { label: "Turnos", url: null },
+    ],
+  },
+  {
     path: "/users/create",
     paths: [
       { label: "Inicio", url: "/dashboard" },
