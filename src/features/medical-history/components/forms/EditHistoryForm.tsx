@@ -9,6 +9,7 @@ import { Input } from "@components/ui/input";
 import { Loader } from "@components/Loader";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { Textarea } from "@components/ui/textarea";
+import { UserCombobox } from "@calendar/components/UserCombobox";
 
 import type z from "zod";
 import { es } from "date-fns/locale";
@@ -41,9 +42,10 @@ export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
       comments: history.comments,
       date: history.date ? new Date(history.date) : undefined,
       eventId: history.eventId,
+      professionalId: history.professionalId,
       reason: history.reason,
       recipe: history.recipe,
-      userId: history.user.id,
+      userId: history.userId,
     },
   });
 
@@ -81,6 +83,17 @@ export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
       <form className="grid grid-cols-1 gap-6" id="create-history" onSubmit={form.handleSubmit(onSubmit)}>
         <FieldGroup className="grid grid-cols-1 gap-6">
           <Controller
+            name="professionalId"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field className="w-60" data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="professional">Profesional:</FieldLabel>
+                <UserCombobox aria-invalid={fieldState.invalid} id="professional" userType="professional" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
             name="date"
             control={form.control}
             render={({ field, fieldState }) => (
@@ -91,7 +104,7 @@ export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
                     <Button
                       variant="outline"
                       data-empty={!date}
-                      className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal"
+                      className="data-[empty=true]:text-muted-foreground w-70 justify-start text-left font-normal"
                     >
                       <CalendarIcon />
                       {date ? format(date, "P", { locale: es }) : <span>Seleccionar</span>}
