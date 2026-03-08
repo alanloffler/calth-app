@@ -85,7 +85,7 @@ export default function Events() {
   return (
     <div>
       <Filters />
-      <DataTable columns={columns} data={events?.data} />
+      <DataTable columns={columns} data={events?.data} searchable={false} />
     </div>
   );
 }
