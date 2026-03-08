@@ -17,6 +17,7 @@ interface IProps {
   defaultSelected?: string;
   id?: string;
   onChange?: (value: string) => void;
+  placeholder?: string;
   userType?: "patient" | "professional";
   value?: string | null;
   width?: string;
@@ -27,6 +28,7 @@ export function UserCombobox({
   defaultSelected,
   id,
   onChange,
+  placeholder,
   userType = "patient",
   value = undefined,
   width,
@@ -70,7 +72,7 @@ export function UserCombobox({
           aria-invalid={ariaInvalid}
           className={cn(
             "font-normal disabled:opacity-100",
-            value || error || isLoading ? "justify-between!" : "justify-end!",
+            value || error || isLoading || placeholder ? "justify-between!" : "justify-end!",
             error || ariaInvalid ? "text-destructive border-destructive" : "",
           )}
           disabled={isLoading || error !== null}
@@ -80,7 +82,7 @@ export function UserCombobox({
         >
           {isLoading && "Cargando..."}
           {error && "Error"}
-          <span>{value ? getSelectedUser(value) : ""}</span>
+          <span className="truncate">{value ? getSelectedUser(value) : (placeholder ?? "")}</span>
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
