@@ -4,6 +4,7 @@ import { Button } from "@components/ui/button";
 import { DataTable } from "@components/data-table/DataTable";
 import { EventStatus } from "@calendar/components/ui/EventStatus";
 import { Filters } from "@event/components/Filters";
+import { PageHeader } from "@components/pages/PageHeader";
 import { SortableHeader } from "@components/data-table/SortableHeader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
@@ -88,6 +89,7 @@ export default function Events() {
 
   return (
     <div className="flex flex-col gap-8">
+      <PageHeader title="Turnos" subtitle="Módulo de visualización y administración de turnos" />
       <Filters filters={filters} setFilters={setFilters} />
       <DataTable columns={columns} data={events?.data} searchable={false} />
     </div>
