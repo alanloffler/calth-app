@@ -27,8 +27,9 @@ interface DataTableProps<TData, TValue> {
   data: TData[] | undefined;
   defaultPageSize?: number;
   defaultSorting?: SortingState;
-  pageSizes?: number[];
   loading?: boolean;
+  pageSizes?: number[];
+  searchable?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -38,8 +39,9 @@ export function DataTable<TData, TValue>({
   data,
   defaultPageSize = 5,
   defaultSorting = [],
-  pageSizes = [5, 10, 20, 50],
   loading,
+  pageSizes = [5, 10, 20, 50],
+  searchable = true,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -87,22 +89,24 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className={cn("overflow-hidden rounded-md border shadow-sm", className)}>
-      <div className="flex w-full items-center justify-end p-3">
-        <div className="relative">
-          <Search className="stroke-primary absolute top-1/2 left-5 h-4 w-4 -translate-x-1/2 -translate-y-1/2" />
-          <Input
-            value={globalFilter}
-            className="w-55 pl-9"
-            onChange={(e) => table.setGlobalFilter(String(e.target.value))}
-            placeholder="Buscar..."
-          />
-          <Activity mode={globalFilter ? "visible" : "hidden"}>
-            <button className="text-muted-foreground hover:text-foreground absolute top-1/2 -right-1.5 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full p-1 transition-colors duration-100">
-              <X className="h-4 w-4" onClick={handleClearSearch} />
-            </button>
-          </Activity>
+      {searchable && (
+        <div className="flex w-full items-center justify-end p-3">
+          <div className="relative">
+            <Search className="stroke-primary absolute top-1/2 left-5 h-4 w-4 -translate-x-1/2 -translate-y-1/2" />
+            <Input
+              value={globalFilter}
+              className="w-55 pl-9"
+              onChange={(e) => table.setGlobalFilter(String(e.target.value))}
+              placeholder="Buscar..."
+            />
+            <Activity mode={globalFilter ? "visible" : "hidden"}>
+              <button className="text-muted-foreground hover:text-foreground absolute top-1/2 -right-1.5 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full p-1 transition-colors duration-100">
+                <X className="h-4 w-4" onClick={handleClearSearch} />
+              </button>
+            </Activity>
+          </div>
         </div>
-      </div>
+      )}
       <div className="p-3">
         <Table className="dark:bg-muted">
           <TableHeader className="dark:bg-primary-foreground bg-neutral-100">
