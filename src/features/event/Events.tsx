@@ -11,8 +11,10 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { enUS, es } from "date-fns/locale";
 import { type Locale } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
+import type { IEventFilters } from "@event/interfaces/filters.interface";
 import { EventsService } from "@event/services/events.service";
 import { formatShortDateTime } from "@core/formatters/date.formatter";
 
@@ -26,6 +28,8 @@ const localeMap: Record<string, Locale> = {
 const LOCALE = "es";
 
 export default function Events() {
+  const [filters, setFilters] = useState<IEventFilters | undefined>(undefined);
+
   const { data: events } = useQuery({
     queryKey: ["events", LIMIT],
     queryFn: () => EventsService.findAllByBusiness(LIMIT),
@@ -67,7 +71,7 @@ export default function Events() {
     {
       id: "actions",
       minSize: 168,
-      cell: ({ row }) => (
+      cell: () => (
         <div className="flex justify-end gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -83,8 +87,8 @@ export default function Events() {
   ];
 
   return (
-    <div>
-      <Filters />
+    <div className="flex flex-col gap-8">
+      <Filters filters={filters} setFilters={setFilters} />
       <DataTable columns={columns} data={events?.data} searchable={false} />
     </div>
   );
