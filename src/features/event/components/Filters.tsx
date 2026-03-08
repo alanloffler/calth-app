@@ -37,7 +37,7 @@ export function Filters({ filters, setFilters }: IProps) {
   };
 
   return (
-    <Card className="bg-primary/5 flex flex-col items-center rounded-md p-3 lg:flex-row">
+    <Card className="flex flex-col items-center rounded-md p-3 lg:flex-row">
       <SlidersHorizontal className="hidden size-5 shrink-0 lg:block" />
       <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-col items-center gap-3 lg:flex-row">
