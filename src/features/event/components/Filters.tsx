@@ -4,6 +4,7 @@ import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import { Card } from "@components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
+import { SelectEventStatus } from "@event/components/ui/SelectEventStatus";
 import { UserCombobox } from "@calendar/components/UserCombobox";
 
 import { es } from "date-fns/locale";
@@ -22,6 +23,7 @@ export function Filters({ filters, setFilters }: IProps) {
   const [date, setDate] = useState<Date | undefined>(filters?.date);
   const [patientId, setPatientId] = useState<string | undefined>(filters?.patientId);
   const [professionalId, setProfessionalId] = useState<string | undefined>(filters?.professionalId);
+  const [status, setStatus] = useState<string | undefined>(filters?.status);
 
   useEffect(() => {
     setFilters((prev) => ({ ...prev, date, patientId, professionalId }));
@@ -81,6 +83,9 @@ export function Filters({ filters, setFilters }: IProps) {
           </div>
           <div className="w-full lg:w-50">
             <UserCombobox placeholder="Paciente" userType="patient" value={patientId} onChange={setPatientId} />
+          </div>
+          <div className="w-full lg:w-50">
+            <SelectEventStatus status={status} setStatus={setStatus} />
           </div>
           {hasFilters && (
             <Button className="text-foreground" size="sm" variant="link" onClick={handleClearFilters}>
