@@ -37,11 +37,11 @@ export function Filters({ filters, setFilters }: IProps) {
   };
 
   return (
-    <Card className="bg-primary/5 flex-row items-center rounded-md p-3">
-      <SlidersHorizontal className="size-5" />
-      <div className="flex w-full items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-50">
+    <Card className="bg-primary/5 flex flex-col items-center rounded-md p-3 lg:flex-row">
+      <SlidersHorizontal className="hidden size-5 shrink-0 lg:block" />
+      <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col items-center gap-3 lg:flex-row">
+          <div className="w-full lg:w-50">
             <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -71,7 +71,7 @@ export function Filters({ filters, setFilters }: IProps) {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="w-50">
+          <div className="w-full lg:w-50">
             <UserCombobox
               placeholder="Profesional"
               userType="professional"
@@ -79,7 +79,7 @@ export function Filters({ filters, setFilters }: IProps) {
               onChange={setProfessionalId}
             />
           </div>
-          <div className="w-50">
+          <div className="w-full lg:w-50">
             <UserCombobox placeholder="Paciente" userType="patient" value={patientId} onChange={setPatientId} />
           </div>
           {hasFilters && (
