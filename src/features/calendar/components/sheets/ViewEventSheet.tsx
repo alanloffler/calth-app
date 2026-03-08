@@ -82,7 +82,7 @@ export function ViewEventSheet() {
     <>
       <Sheet open={openViewEventSheet} onOpenChange={handleOpenChange}>
         <SheetTrigger asChild></SheetTrigger>
-        <SheetContent className="sm:min-w-[480px]" onOpenAutoFocus={(e) => e.preventDefault()}>
+        <SheetContent className="sm:min-w-120" onOpenAutoFocus={(e) => e.preventDefault()}>
           <SheetHeader className="pt-8">
             <SheetTitle className="text-lg">Detalles del turno</SheetTitle>
             <SheetDescription className="text-base">Detalles del turno seleccionado</SheetDescription>
