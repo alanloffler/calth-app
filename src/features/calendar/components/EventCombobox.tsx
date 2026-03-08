@@ -82,7 +82,9 @@ export function EventCombobox({
         >
           {isLoading && "Cargando..."}
           {error && "Error"}
-          <span>{selectedEvent ? `${format(selectedEvent.startDate, "P")} / ${selectedEvent.title}` : value}</span>
+          <span className="truncate">
+            {selectedEvent ? `${format(selectedEvent.startDate, "P")} / ${selectedEvent.title}` : value}
+          </span>
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
