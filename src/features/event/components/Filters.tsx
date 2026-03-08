@@ -27,11 +27,20 @@ export function Filters({ filters, setFilters }: IProps) {
     setFilters((prev) => ({ ...prev, date, patientId, professionalId }));
   }, [date, professionalId, patientId]);
 
+  const hasFilters = date || patientId || professionalId;
+
+  const handleClearFilters = () => {
+    setDate(undefined);
+    setPatientId(undefined);
+    setProfessionalId(undefined);
+    setFilters(undefined);
+  };
+
   return (
     <Card className="bg-primary/5 flex-row items-center rounded-md p-3">
       <SlidersHorizontal className="size-5" />
       <div className="flex w-full items-center justify-between">
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
           <div className="w-50">
             <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
@@ -73,6 +82,11 @@ export function Filters({ filters, setFilters }: IProps) {
           <div className="w-50">
             <UserCombobox placeholder="Paciente" userType="patient" value={patientId} onChange={setPatientId} />
           </div>
+          {hasFilters && (
+            <Button className="text-foreground" size="sm" variant="link" onClick={handleClearFilters}>
+              Borrar
+            </Button>
+          )}
         </div>
         <Button size="default" variant="default">
           Buscar
