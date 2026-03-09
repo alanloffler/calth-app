@@ -1,4 +1,4 @@
-import { Calendar as CalendarIcon, ChevronsUpDown, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
@@ -54,10 +54,9 @@ export function Filters({ filters, setFilters }: IProps) {
                 >
                   <div className="flex w-full min-w-0 items-center justify-between gap-2">
                     <div className="flex min-w-0 items-center gap-2">
-                      <CalendarIcon className="size-4 shrink-0" />
                       <span className="truncate">{date ? format(date, "P", { locale: es }) : "Fecha"}</span>
                     </div>
-                    <ChevronsUpDown className="shrink-0 opacity-50" />
+                    <ChevronDown className="shrink-0 opacity-50" />
                   </div>
                 </Button>
               </PopoverTrigger>
