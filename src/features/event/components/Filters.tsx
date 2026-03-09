@@ -43,6 +43,7 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
       professionalId: undefined,
       status: undefined,
     });
+    Promise.resolve().then(onSearch);
   };
 
   return (
