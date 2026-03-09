@@ -15,10 +15,11 @@ import type { IEventFilters } from "@event/interfaces/filters.interface";
 
 interface IProps {
   filters?: IEventFilters;
-  setFilters: Dispatch<SetStateAction<IEventFilters | undefined>>;
+  onSearch: () => void;
+  setFilters: Dispatch<SetStateAction<IEventFilters>>;
 }
 
-export function Filters({ filters, setFilters }: IProps) {
+export function Filters({ filters, onSearch, setFilters }: IProps) {
   const [calendarOpen, setCalendarOpen] = useState<boolean>(false);
   const [date, setDate] = useState<Date | undefined>(filters?.date);
   const [patientId, setPatientId] = useState<string | undefined>(filters?.patientId);
@@ -36,7 +37,12 @@ export function Filters({ filters, setFilters }: IProps) {
     setPatientId(undefined);
     setProfessionalId(undefined);
     setStatus(undefined);
-    setFilters(undefined);
+    setFilters({
+      date: undefined,
+      patientId: undefined,
+      professionalId: undefined,
+      status: undefined,
+    });
   };
 
   return (
@@ -94,7 +100,7 @@ export function Filters({ filters, setFilters }: IProps) {
               Borrar
             </Button>
           )}
-          <Button className="w-full sm:w-auto" size="default" variant="default">
+          <Button className="w-full sm:w-auto" size="default" variant="default" onClick={onSearch}>
             Buscar
           </Button>
         </div>
