@@ -1,4 +1,4 @@
-import { Calendar as CalendarIcon, ChevronDown, SlidersHorizontal } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronsUpDown, SlidersHorizontal } from "lucide-react";
 
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
@@ -26,24 +26,25 @@ export function Filters({ filters, setFilters }: IProps) {
   const [status, setStatus] = useState<string | undefined>(filters?.status);
 
   useEffect(() => {
-    setFilters((prev) => ({ ...prev, date, patientId, professionalId }));
-  }, [date, professionalId, patientId]);
+    setFilters((prev) => ({ ...prev, date, patientId, professionalId, status }));
+  }, [date, professionalId, patientId, status, setFilters]);
 
-  const hasFilters = date || patientId || professionalId;
+  const hasFilters = date || patientId || professionalId || status;
 
   const handleClearFilters = () => {
     setDate(undefined);
     setPatientId(undefined);
     setProfessionalId(undefined);
+    setStatus(undefined);
     setFilters(undefined);
   };
 
   return (
-    <Card className="flex flex-col items-center rounded-md p-3 lg:flex-row">
+    <Card className="flex-row items-center rounded-md p-3">
       <SlidersHorizontal className="hidden size-5 shrink-0 lg:block" />
-      <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-col items-center gap-3 lg:flex-row">
-          <div className="w-full lg:w-50">
+      <div className="flex w-full flex-col items-center justify-between gap-3 lg:flex-row">
+        <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:w-fit lg:grid-cols-4">
+          <div className="w-full min-w-30 xl:w-45 2xl:w-50">
             <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -51,12 +52,12 @@ export function Filters({ filters, setFilters }: IProps) {
                   id="date-picker-simple"
                   className="w-full justify-start px-3 py-2 font-normal"
                 >
-                  <div className="flex w-full items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <CalendarIcon className="size-4" />
-                      {date ? format(date, "P", { locale: es }) : "Fecha"}
+                  <div className="flex w-full min-w-0 items-center justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <CalendarIcon className="size-4 shrink-0" />
+                      <span className="truncate">{date ? format(date, "P", { locale: es }) : "Fecha"}</span>
                     </div>
-                    <ChevronDown className="opacity-50" />
+                    <ChevronsUpDown className="shrink-0 opacity-50" />
                   </div>
                 </Button>
               </PopoverTrigger>
@@ -73,7 +74,7 @@ export function Filters({ filters, setFilters }: IProps) {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="w-full lg:w-50">
+          <div className="w-full min-w-30 xl:w-45 2xl:w-50">
             <UserCombobox
               placeholder="Profesional"
               userType="professional"
@@ -81,21 +82,23 @@ export function Filters({ filters, setFilters }: IProps) {
               onChange={setProfessionalId}
             />
           </div>
-          <div className="w-full lg:w-50">
+          <div className="w-full min-w-30 xl:w-45 2xl:w-50">
             <UserCombobox placeholder="Paciente" userType="patient" value={patientId} onChange={setPatientId} />
           </div>
-          <div className="w-full lg:w-50">
+          <div className="w-full min-w-30 xl:w-45 2xl:w-50">
             <SelectEventStatus status={status} setStatus={setStatus} />
           </div>
+        </div>
+        <div className="flex w-full flex-col items-center justify-center gap-3 sm:w-fit sm:flex-row">
           {hasFilters && (
-            <Button className="text-foreground" size="sm" variant="link" onClick={handleClearFilters}>
+            <Button className="w-full sm:w-auto" size="sm" variant="link" onClick={handleClearFilters}>
               Borrar
             </Button>
           )}
+          <Button className="w-full sm:w-auto" size="default" variant="default">
+            Buscar
+          </Button>
         </div>
-        <Button size="default" variant="default">
-          Buscar
-        </Button>
       </div>
     </Card>
   );
