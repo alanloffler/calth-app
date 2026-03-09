@@ -5,6 +5,7 @@ import type { Dispatch, SetStateAction } from "react";
 
 import type { TEventStatus } from "@calendar/enums/event-status.enum";
 import { DEventStatus } from "@calendar/dictionaries/status.dictionary";
+import { cn } from "@lib/utils";
 
 interface IProps {
   status: string | undefined;
@@ -13,7 +14,10 @@ interface IProps {
 export function SelectEventStatus({ status, setStatus }: IProps) {
   return (
     <Select value={status || ""} onValueChange={(status) => setStatus(status as TEventStatus)}>
-      <SelectTrigger id="eventStatus" className="w-full data-select:pl-0 [&>span]:truncate">
+      <SelectTrigger
+        id="eventStatus"
+        className={cn("[&>span]:text-foreground w-full [&>span]:truncate [&>svg]:opacity-100", status && "pl-0")}
+      >
         <SelectValue placeholder="Estado" />
       </SelectTrigger>
       <SelectContent>
