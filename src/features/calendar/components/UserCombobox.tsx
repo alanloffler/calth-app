@@ -1,4 +1,4 @@
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 
 import { Button } from "@components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@components/ui/command";
@@ -83,7 +83,7 @@ export function UserCombobox({
           {isLoading && "Cargando..."}
           {error && "Error"}
           <span className="truncate">{value ? getSelectedUser(value) : (placeholder ?? "")}</span>
-          <ChevronsUpDown className="opacity-50" />
+          <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
