@@ -12,9 +12,9 @@ interface IProps {
 }
 export function SelectEventStatus({ status, setStatus }: IProps) {
   return (
-    <Select value={status} onValueChange={(status) => setStatus(status as TEventStatus)}>
-      <SelectTrigger id="eventStatus" className="">
-        <SelectValue placeholder="Estado" className="placeholder:text-foreground! opacity-100!" />
+    <Select value={status || ""} onValueChange={(status) => setStatus(status as TEventStatus)}>
+      <SelectTrigger id="eventStatus" className="w-full data-select:pl-0 [&>span]:truncate">
+        <SelectValue placeholder="Estado" />
       </SelectTrigger>
       <SelectContent>
         {Object.entries(DEventStatus)
