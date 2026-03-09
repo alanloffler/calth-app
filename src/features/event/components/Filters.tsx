@@ -46,6 +46,7 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
     Promise.resolve().then(onSearch);
   };
 
+  // TODO: reset each select/combobox selection -> fires new api call
   return (
     <Card className="flex-row items-center rounded-md p-3">
       <SlidersHorizontal className="hidden size-5 shrink-0 lg:block" />
