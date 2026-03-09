@@ -19,6 +19,8 @@ import type { IEventFilters } from "@event/interfaces/filters.interface";
 import { EventsService } from "@event/services/events.service";
 import { formatShortDateTime } from "@core/formatters/date.formatter";
 
+// TODO: implement real pagination with limit and pageIndex
+// set limit to the data table rows select
 const LIMIT = 10;
 
 const localeMap: Record<string, Locale> = {
