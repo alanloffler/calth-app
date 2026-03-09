@@ -29,11 +29,16 @@ const localeMap: Record<string, Locale> = {
 const LOCALE = "es";
 
 export default function Events() {
-  const [filters, setFilters] = useState<IEventFilters | undefined>(undefined);
+  const [filters, setFilters] = useState<IEventFilters>({
+    date: undefined,
+    patientId: undefined,
+    professionalId: undefined,
+    status: undefined,
+  });
 
-  const { data: events } = useQuery({
+  const { data: events, refetch } = useQuery({
     queryKey: ["events", LIMIT],
-    queryFn: () => EventsService.findAllByBusiness(LIMIT),
+    queryFn: () => EventsService.findEventsFiltered(filters, LIMIT),
   });
 
   const columns: ColumnDef<ICalendarEvent>[] = [
@@ -90,7 +95,7 @@ export default function Events() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader title="Turnos" subtitle="Módulo de visualización y administración de turnos" />
-      <Filters filters={filters} setFilters={setFilters} />
+      <Filters filters={filters} setFilters={setFilters} onSearch={() => refetch()} />
       <DataTable columns={columns} data={events?.data} searchable={false} />
     </div>
   );
