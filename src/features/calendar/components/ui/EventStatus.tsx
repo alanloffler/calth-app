@@ -29,8 +29,8 @@ export interface IEventStatus extends HTMLAttributes<HTMLDivElement>, VariantPro
 
 export function EventStatus({ size, variant, className, ...props }: IEventStatus) {
   return (
-    <div className={cn(statusVariants({ size, variant }), className)} {...props}>
-      {(variant && DEventStatus[variant]) || variant}
+    <div className={cn(statusVariants({ size, variant }), "min-w-0", className)} {...props}>
+      <span className="truncate">{(variant && DEventStatus[variant]) || variant}</span>
     </div>
   );
 }
