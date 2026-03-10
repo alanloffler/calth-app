@@ -1,9 +1,9 @@
 import { format } from "date-fns";
 
 import type { IApiResponse } from "@core/interfaces/api-response.interface";
-import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IEventFilters } from "@event/interfaces/filters.interface";
 import { apiClient } from "@core/client/client";
+import type { IPaginatedEvents } from "@event/interfaces/paginated-events.interface";
 
 class EventsModuleService {
   private static instance: EventsModuleService;
@@ -16,8 +16,12 @@ class EventsModuleService {
     return EventsModuleService.instance;
   }
 
-  public async findEventsFiltered(filters: IEventFilters, limit: number): Promise<IApiResponse<ICalendarEvent[]>> {
-    let queryParams = `limit=${limit}`;
+  public async findEventsFiltered(
+    filters: IEventFilters,
+    limit: number,
+    page: number = 1,
+  ): Promise<IApiResponse<IPaginatedEvents>> {
+    let queryParams = `limit=${limit}&page=${page}`;
 
     if (filters.date) {
       const formatted = format(filters.date, "yyyy-MM-dd");
