@@ -3,6 +3,7 @@ import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import { Card } from "@components/ui/card";
+import { ClearIconButton } from "@components/ui/ClearIconButton";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { SelectEventStatus } from "@event/components/ui/SelectEventStatus";
 import { UserCombobox } from "@calendar/components/UserCombobox";
@@ -30,6 +31,10 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
     setFilters((prev) => ({ ...prev, date, patientId, professionalId, status }));
   }, [date, professionalId, patientId, status, setFilters]);
 
+  useEffect(() => {
+    Promise.resolve().then(onSearch);
+  }, [onSearch]);
+
   const hasFilters = date || patientId || professionalId || status;
 
   const handleClearFilters = () => {
@@ -46,71 +51,77 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
     Promise.resolve().then(onSearch);
   };
 
-  // TODO: reset each select/combobox selection -> fires new api call
   return (
     <Card className="flex-row items-center rounded-md p-3">
       <SlidersHorizontal className="hidden size-5 shrink-0 lg:block" />
       <div className="flex w-full flex-col items-center justify-between gap-3 lg:flex-row">
         <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:w-fit lg:grid-cols-4">
-          <div className="w-full min-w-30 xl:w-45 2xl:w-50">
-            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  id="date-picker-simple"
-                  className="w-full justify-start px-3 py-2 font-normal"
-                >
-                  <div className="flex w-full min-w-0 items-center justify-between gap-2">
-                    <div className="flex min-w-0 items-center gap-2">
-                      <span className="truncate">{date ? format(date, "P", { locale: es }) : "Fecha"}</span>
+          {/* Date input */}
+          <div className="flex items-center gap-3">
+            <div className="w-full min-w-35 xl:w-45 2xl:w-50">
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date-picker-simple"
+                    className="w-full justify-start px-3 py-2 font-normal"
+                  >
+                    <div className="flex w-full min-w-0 items-center justify-between gap-2">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className="truncate">{date ? format(date, "P", { locale: es }) : "Fecha"}</span>
+                      </div>
+                      <ChevronDown className="shrink-0 opacity-50" />
                     </div>
-                    <ChevronDown className="shrink-0 opacity-50" />
-                  </div>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="center">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={(selectedDate) => {
-                    setDate(selectedDate);
-                    setCalendarOpen(false);
-                  }}
-                  defaultMonth={date}
-                />
-              </PopoverContent>
-            </Popover>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="center">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(selectedDate) => {
+                      setDate(selectedDate);
+                      setCalendarOpen(false);
+                    }}
+                    defaultMonth={date}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <ClearIconButton state={date} setState={setDate} />
           </div>
-          <div className="w-full min-w-30 xl:w-45 2xl:w-50">
-            <SelectEventStatus status={status} setStatus={setStatus} />
+          {/* Status input */}
+          <div className="flex items-center gap-3">
+            <div className="w-full min-w-35 xl:w-45 2xl:w-50">
+              <SelectEventStatus status={status} setStatus={setStatus} />
+            </div>
+            <ClearIconButton state={status} setState={setStatus} />
           </div>
-          <div className="w-full min-w-30 xl:w-45 2xl:w-50">
-            <UserCombobox
-              placeholder="Profesional"
-              userType="professional"
-              value={professionalId}
-              onChange={setProfessionalId}
-            />
+          {/* Professional input */}
+          <div className="flex items-center gap-3">
+            <div className="w-full min-w-35 xl:w-45 2xl:w-50">
+              <UserCombobox
+                placeholder="Profesional"
+                userType="professional"
+                value={professionalId}
+                onChange={setProfessionalId}
+              />
+            </div>
+            <ClearIconButton state={professionalId} setState={setProfessionalId} />
           </div>
-          <div className="w-full min-w-30 xl:w-45 2xl:w-50">
-            <UserCombobox placeholder="Paciente" userType="patient" value={patientId} onChange={setPatientId} />
+          {/* Patient input */}
+          <div className="flex items-center gap-3">
+            <div className="w-full min-w-35 xl:w-45 2xl:w-50">
+              <UserCombobox placeholder="Paciente" userType="patient" value={patientId} onChange={setPatientId} />
+            </div>
+            <ClearIconButton state={patientId} setState={setPatientId} />
           </div>
         </div>
         <div className="flex w-full flex-col items-center justify-center gap-3 sm:w-fit sm:flex-row">
           {hasFilters && (
-            <Button className="w-full sm:w-auto" size="sm" variant="link" onClick={handleClearFilters}>
-              Borrar
+            <Button className="w-full sm:w-auto" onClick={handleClearFilters} size="sm" variant="ghost">
+              Borrar todos
             </Button>
           )}
-          <Button
-            className="w-full sm:w-auto"
-            disabled={!hasFilters}
-            size="default"
-            variant="default"
-            onClick={onSearch}
-          >
-            Buscar
-          </Button>
         </div>
       </div>
     </Card>
