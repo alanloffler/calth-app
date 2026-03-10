@@ -32,7 +32,7 @@ interface DataTableProps<TData, TValue> {
   searchable?: boolean;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTablePaginated<TData, TValue>({
   className,
   columnVisibility,
   columns,
@@ -71,9 +71,11 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     globalFilterFn: "includesString",
+    manualPagination: true,
     onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
+    rowCount: 15,
     state: {
       columnVisibility: columnVisibility,
       globalFilter: globalFilter,
