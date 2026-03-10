@@ -1,7 +1,7 @@
 import { FileText } from "lucide-react";
 
 import { Button } from "@components/ui/button";
-import { DataTable } from "@components/data-table/DataTable";
+import { DataTablePaginated } from "@components/data-table/DataTablePaginated";
 import { EventStatus } from "@calendar/components/ui/EventStatus";
 import { Filters } from "@event/components/Filters";
 import { PageHeader } from "@components/pages/PageHeader";
@@ -19,9 +19,7 @@ import type { IEventFilters } from "@event/interfaces/filters.interface";
 import { EventsService } from "@event/services/events.service";
 import { formatShortDateTime } from "@core/formatters/date.formatter";
 
-// TODO: implement real pagination with limit and pageIndex
-// set limit to the data table rows select
-const LIMIT = 10;
+const LIMIT = 5;
 
 const localeMap: Record<string, Locale> = {
   en: enUS,
@@ -98,7 +96,7 @@ export default function Events() {
     <div className="flex flex-col gap-8">
       <PageHeader title="Turnos" subtitle="Módulo de visualización y administración de turnos" />
       <Filters filters={filters} setFilters={setFilters} onSearch={() => refetch()} />
-      <DataTable columns={columns} data={events?.data} searchable={false} />
+      <DataTablePaginated columns={columns} data={events?.data} searchable={false} />
     </div>
   );
 }
