@@ -82,6 +82,9 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
             </Popover>
           </div>
           <div className="w-full min-w-30 xl:w-45 2xl:w-50">
+            <SelectEventStatus status={status} setStatus={setStatus} />
+          </div>
+          <div className="w-full min-w-30 xl:w-45 2xl:w-50">
             <UserCombobox
               placeholder="Profesional"
               userType="professional"
@@ -92,9 +95,6 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
           <div className="w-full min-w-30 xl:w-45 2xl:w-50">
             <UserCombobox placeholder="Paciente" userType="patient" value={patientId} onChange={setPatientId} />
           </div>
-          <div className="w-full min-w-30 xl:w-45 2xl:w-50">
-            <SelectEventStatus status={status} setStatus={setStatus} />
-          </div>
         </div>
         <div className="flex w-full flex-col items-center justify-center gap-3 sm:w-fit sm:flex-row">
           {hasFilters && (
@@ -102,7 +102,13 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
               Borrar
             </Button>
           )}
-          <Button className="w-full sm:w-auto" size="default" variant="default" onClick={onSearch}>
+          <Button
+            className="w-full sm:w-auto"
+            disabled={!hasFilters}
+            size="default"
+            variant="default"
+            onClick={onSearch}
+          >
             Buscar
           </Button>
         </div>
