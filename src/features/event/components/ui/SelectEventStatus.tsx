@@ -1,7 +1,7 @@
 import { EventStatus } from "@calendar/components/ui/EventStatus";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 
-import type { Dispatch, SetStateAction } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 
 import type { TEventStatus } from "@calendar/enums/event-status.enum";
 import { DEventStatus } from "@calendar/dictionaries/status.dictionary";
@@ -11,6 +11,7 @@ interface IProps {
   status: string | undefined;
   setStatus: Dispatch<SetStateAction<string | undefined>>;
 }
+
 export function SelectEventStatus({ status, setStatus }: IProps) {
   return (
     <Select value={status || ""} onValueChange={(status) => setStatus(status as TEventStatus)}>
