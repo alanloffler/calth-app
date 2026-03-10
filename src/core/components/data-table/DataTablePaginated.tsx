@@ -11,7 +11,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   type PaginationState,
   type SortingState,
@@ -28,7 +27,10 @@ interface DataTableProps<TData, TValue> {
   defaultPageSize?: number;
   defaultSorting?: SortingState;
   loading?: boolean;
+  onPaginationChange?: (pagination: PaginationState) => void;
+  pagination?: PaginationState;
   pageSizes?: number[];
+  rowCount?: number;
   searchable?: boolean;
 }
 
@@ -40,7 +42,9 @@ export function DataTablePaginated<TData, TValue>({
   defaultPageSize = 5,
   defaultSorting = [],
   loading,
+  onPaginationChange,
   pageSizes = [5, 10, 20, 50],
+  rowCount,
   searchable = true,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = useState<PaginationState>({
@@ -68,14 +72,18 @@ export function DataTablePaginated<TData, TValue>({
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // getPaginationRowModel removed - use manualPagination for server-side
     getSortedRowModel: getSortedRowModel(),
     globalFilterFn: "includesString",
     manualPagination: true,
     onGlobalFilterChange: setGlobalFilter,
-    onPaginationChange: setPagination,
+    onPaginationChange: (updater) => {
+      const newPagination = typeof updater === "function" ? updater(pagination) : updater;
+      setPagination(newPagination);
+      onPaginationChange?.(newPagination);
+    },
     onSortingChange: setSorting,
-    rowCount: 15,
+    rowCount: rowCount ?? 0,
     state: {
       columnVisibility: columnVisibility,
       globalFilter: globalFilter,
