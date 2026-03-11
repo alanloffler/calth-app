@@ -164,7 +164,12 @@ export function DataTablePaginated<TData, TValue>({
             )}
           </TableBody>
         </Table>
-        {!loading && <Pagination table={table} pagination={pagination} pageSizes={pageSizes} />}
+        {!loading && (
+          <div className="flex items-center justify-between">
+            <div className="text-muted-foreground text-xs font-medium">{`Total: ${rowCount} turnos`}</div>
+            <Pagination table={table} pagination={pagination} pageSizes={pageSizes} />
+          </div>
+        )}
       </div>
     </div>
   );
