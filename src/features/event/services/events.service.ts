@@ -18,11 +18,10 @@ class EventsModuleService {
 
   public async findEventsFiltered(
     filters: IEventFilters,
-    limit: number,
+    limit: number = 5,
     page: number = 1,
   ): Promise<IApiResponse<IPaginatedEvents>> {
-    const pagePlus = page++;
-    let queryParams = `limit=${limit}&page=${pagePlus}`;
+    let queryParams = `limit=${limit}&page=${page}`;
 
     if (filters.date) {
       const formatted = format(filters.date, "yyyy-MM-dd");
