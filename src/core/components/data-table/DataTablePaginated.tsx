@@ -72,7 +72,6 @@ export function DataTablePaginated<TData, TValue>({
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // getPaginationRowModel removed - use manualPagination for server-side
     getSortedRowModel: getSortedRowModel(),
     globalFilterFn: "includesString",
     manualPagination: true,
@@ -165,9 +164,7 @@ export function DataTablePaginated<TData, TValue>({
             )}
           </TableBody>
         </Table>
-        {!loading && (
-          <Pagination table={table} setPagination={setPagination} pagination={pagination} pageSizes={pageSizes} />
-        )}
+        {!loading && <Pagination table={table} pagination={pagination} pageSizes={pageSizes} />}
       </div>
     </div>
   );
