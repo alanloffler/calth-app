@@ -8,7 +8,7 @@ import { PageHeader } from "@components/pages/PageHeader";
 import { SortableHeader } from "@components/data-table/SortableHeader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { enUS, es } from "date-fns/locale";
 import { type Locale } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
@@ -20,13 +20,12 @@ import { EventsService } from "@event/services/events.service";
 import { formatShortDateTime } from "@core/formatters/date.formatter";
 
 const LIMIT = 5;
+const LOCALE = "es";
 
 const localeMap: Record<string, Locale> = {
   en: enUS,
   es: es,
 };
-
-const LOCALE = "es";
 
 export default function Events() {
   const [filters, setFilters] = useState<IEventFilters>({
@@ -36,9 +35,14 @@ export default function Events() {
     status: undefined,
   });
 
-  const { data: events, refetch } = useQuery({
-    queryKey: ["events", LIMIT],
-    queryFn: () => EventsService.findEventsFiltered(filters, LIMIT),
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: LIMIT,
+  });
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["events", filters, pagination],
+    queryFn: () => EventsService.findEventsFiltered(filters, pagination.pageSize, pagination.pageIndex + 1),
   });
 
   const columns: ColumnDef<ICalendarEvent>[] = [
@@ -66,12 +70,14 @@ export default function Events() {
     {
       accessorKey: "professional.firstName",
       header: ({ column }) => <SortableHeader column={column}>Profesional</SortableHeader>,
+      accessorFn: (row) => row.professional?.firstName,
       cell: ({ row }) =>
         `${row.original.professional.professionalProfile?.professionalPrefix} ${row.original.professional.firstName} ${row.original.professional.lastName}`,
     },
     {
       accessorKey: "user.firstName",
       header: ({ column }) => <SortableHeader column={column}>Paciente</SortableHeader>,
+      accessorFn: (row) => row.user?.firstName,
       cell: ({ row }) => `${row.original.user.firstName} ${row.original.user.lastName}`,
     },
     {
@@ -96,7 +102,14 @@ export default function Events() {
     <div className="flex flex-col gap-8">
       <PageHeader title="Turnos" subtitle="Módulo de visualización y administración de turnos" />
       <Filters filters={filters} setFilters={setFilters} onSearch={() => refetch()} />
-      <DataTablePaginated columns={columns} data={events?.data} searchable={false} />
+      <DataTablePaginated
+        columns={columns}
+        data={data?.data?.data}
+        loading={isLoading}
+        onPaginationChange={setPagination}
+        rowCount={data?.data?.total}
+        searchable={false}
+      />
     </div>
   );
 }
