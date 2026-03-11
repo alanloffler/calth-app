@@ -19,6 +19,7 @@ import type { IEventFilters } from "@event/interfaces/filters.interface";
 import { EventsService } from "@event/services/events.service";
 import { formatShortDateTime } from "@core/formatters/date.formatter";
 
+// TODO: get from config
 const LIMIT = 5;
 const LOCALE = "es";
 
