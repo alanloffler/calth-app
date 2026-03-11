@@ -104,7 +104,7 @@ export default function Events() {
       <Filters filters={filters} setFilters={setFilters} onSearch={() => refetch()} />
       <DataTablePaginated
         columns={columns}
-        data={data?.data?.data}
+        data={data?.data?.result}
         loading={isLoading}
         onPaginationChange={setPagination}
         rowCount={data?.data?.total}
