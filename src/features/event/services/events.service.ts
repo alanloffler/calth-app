@@ -20,9 +20,14 @@ class EventsModuleService {
     filters: IEventFilters,
     limit: number = 5,
     page: number = 1,
+    sortBy?: string,
+    sortOrder?: "asc" | "desc",
   ): Promise<IApiResponse<IPaginatedEvents>> {
     let queryParams = `limit=${limit}&page=${page}`;
 
+    if (sortBy) {
+      queryParams += `&sortBy=${sortBy}&sortOrder=${sortOrder ?? "asc"}`;
+    }
     if (filters.date) {
       const formatted = format(filters.date, "yyyy-MM-dd");
       queryParams += `&date=${formatted}`;
