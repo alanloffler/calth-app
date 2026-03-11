@@ -28,6 +28,7 @@ interface DataTableProps<TData, TValue> {
   defaultSorting?: SortingState;
   loading?: boolean;
   onPaginationChange?: (pagination: PaginationState) => void;
+  onSortingChange?: (sorting: SortingState) => void;
   pagination?: PaginationState;
   pageSizes?: number[];
   rowCount?: number;
@@ -43,6 +44,7 @@ export function DataTablePaginated<TData, TValue>({
   defaultSorting = [],
   loading,
   onPaginationChange,
+  onSortingChange,
   pageSizes = [5, 10, 20, 50],
   rowCount,
   searchable = true,
@@ -81,7 +83,11 @@ export function DataTablePaginated<TData, TValue>({
       setPagination(newPagination);
       onPaginationChange?.(newPagination);
     },
-    onSortingChange: setSorting,
+    onSortingChange: (updater) => {
+      const newSorting = typeof updater === "function" ? updater(sorting) : updater;
+      setSorting(newSorting);
+      onSortingChange?.(newSorting);
+    },
     rowCount: rowCount ?? 0,
     state: {
       columnVisibility: columnVisibility,
