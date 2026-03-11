@@ -3,28 +3,23 @@ import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 
-import type { Dispatch, SetStateAction } from "react";
 import type { PaginationState, Table } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
 
 interface IProps {
   pageSizes: number[];
   pagination: PaginationState;
-  setPagination: Dispatch<SetStateAction<PaginationState>>;
   table: Table<any>;
 }
 
-export function Pagination({ pageSizes, pagination, setPagination, table }: IProps) {
+export function Pagination({ pageSizes, pagination, table }: IProps) {
   return (
     <section className={`dark:bg-muted flex items-center justify-end gap-2 p-5 md:gap-5`}>
-      <Select
-        value={`${table.getState().pagination.pageSize}`}
-        onValueChange={(e) => setPagination({ pageIndex: 0, pageSize: parseInt(e) })}
-      >
+      <Select value={`${table.getState().pagination.pageSize}`} onValueChange={(e) => table.setPageSize(parseInt(e))}>
         <SelectTrigger className="text-muted-foreground text-xs" size="default">
           <SelectValue placeholder={table.getState().pagination.pageSize} />
         </SelectTrigger>
-        <SelectContent className="w-[65px] min-w-px" onCloseAutoFocus={(e) => e.preventDefault()}>
+        <SelectContent className="w-16.25 min-w-px" onCloseAutoFocus={(e) => e.preventDefault()}>
           <SelectGroup className="[&_svg]:h-4 [&_svg]:w-4">
             {pageSizes.map((pageSize) => (
               <SelectItem key={pageSize} value={`${pageSize}`} className="justify-between text-xs">
