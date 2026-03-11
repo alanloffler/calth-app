@@ -13,7 +13,6 @@ function getErrorMessage(error: unknown): string {
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
-      if (error.message.includes("404")) return;
       toast.error(getErrorMessage(error));
     },
   }),
