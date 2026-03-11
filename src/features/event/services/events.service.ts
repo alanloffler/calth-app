@@ -21,7 +21,8 @@ class EventsModuleService {
     limit: number,
     page: number = 1,
   ): Promise<IApiResponse<IPaginatedEvents>> {
-    let queryParams = `limit=${limit}&page=${page}`;
+    const pagePlus = page++;
+    let queryParams = `limit=${limit}&page=${pagePlus}`;
 
     if (filters.date) {
       const formatted = format(filters.date, "yyyy-MM-dd");
