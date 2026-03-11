@@ -88,7 +88,7 @@ export function DataTablePaginated<TData, TValue>({
       setSorting(newSorting);
       onSortingChange?.(newSorting);
     },
-    rowCount: rowCount ?? 0,
+    rowCount: rowCount,
     state: {
       columnVisibility: columnVisibility,
       globalFilter: globalFilter,
@@ -170,12 +170,12 @@ export function DataTablePaginated<TData, TValue>({
             )}
           </TableBody>
         </Table>
-        {!loading && rowCount && rowCount > 0 && (
+        {rowCount && rowCount > 0 ? (
           <div className="flex items-center justify-between">
-            <div className="text-muted-foreground text-xs font-medium">{`Total: ${rowCount} turnos`}</div>
+            <div className="text-muted-foreground text-xs font-medium">{`Total: ${rowCount > 0 && rowCount} turnos`}</div>
             <Pagination table={table} pagination={pagination} pageSizes={pageSizes} />
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
