@@ -1,5 +1,6 @@
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
+import { cn } from "@lib/utils";
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import { Card } from "@components/ui/card";
@@ -13,6 +14,7 @@ import { format } from "date-fns";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 import type { IEventFilters } from "@event/interfaces/filters.interface";
+import { useSidebar } from "@components/ui/sidebar";
 
 interface IProps {
   filters?: IEventFilters;
@@ -26,6 +28,7 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
   const [patientId, setPatientId] = useState<string | undefined>(filters?.patientId);
   const [professionalId, setProfessionalId] = useState<string | undefined>(filters?.professionalId);
   const [status, setStatus] = useState<string | undefined>(filters?.status);
+  const { open } = useSidebar();
 
   useEffect(() => {
     setFilters((prev) => ({ ...prev, date, patientId, professionalId, status }));
@@ -55,7 +58,12 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
     <Card className="flex-row items-center rounded-md p-3">
       <SlidersHorizontal className="hidden size-5 shrink-0 lg:block" />
       <div className="flex w-full flex-col items-center justify-between gap-3 lg:flex-row">
-        <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:w-fit lg:grid-cols-4">
+        <div
+          className={cn(
+            "grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:w-fit lg:grid-cols-4",
+            open && "2xl:grid-cols-2",
+          )}
+        >
           {/* Date input */}
           <div className="flex items-center gap-3">
             <div className="w-full min-w-35 xl:w-45 2xl:w-50">
