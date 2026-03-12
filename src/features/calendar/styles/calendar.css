@@ -243,7 +243,7 @@
   --event-text: #d97706; /* amber-600 */
 }
 
-.event-status-attended {
+.event-status-present {
   --event-bg: #dcfce7; /* green-100 */
   --event-bg-hover: #bbf7d0; /* green-200 */
   --event-border: #bbf7d0; /* green-200 */
@@ -279,7 +279,7 @@
   --event-text: #fbbf24; /* amber-400 */
 }
 
-.dark .event-status-attended {
+.dark .event-status-present {
   --event-bg: #052e16; /* green-950 */
   --event-bg-hover: #14532d; /* green-900 */
   --event-border: #14532d; /* green-900 */
