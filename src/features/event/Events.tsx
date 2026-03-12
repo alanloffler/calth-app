@@ -20,7 +20,7 @@ import { EventsService } from "@event/services/events.service";
 import { formatShortDateTime } from "@core/formatters/date.formatter";
 
 // TODO: get from config
-const LIMIT = 5;
+const LIMIT = 10;
 const LOCALE = "es";
 
 const localeMap: Record<string, Locale> = {
@@ -119,6 +119,7 @@ export default function Events() {
       <DataTablePaginated
         columns={columns}
         data={data?.data?.result}
+        defaultPageSize={LIMIT}
         loading={isLoading}
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
