@@ -7,17 +7,19 @@ import { Filters } from "@event/components/Filters";
 import { PageHeader } from "@components/pages/PageHeader";
 import { SortableHeader } from "@components/data-table/SortableHeader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
+import { ViewEventSheet } from "@calendar/components/sheets/ViewEventSheet";
 
 import type { ColumnDef, PaginationState, SortingState } from "@tanstack/react-table";
 import { enUS, es } from "date-fns/locale";
 import { type Locale } from "date-fns";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IEventFilters } from "@event/interfaces/filters.interface";
 import { EventsService } from "@event/services/events.service";
 import { formatShortDateTime } from "@core/formatters/date.formatter";
+import { useEventStore } from "@calendar/stores/event.store";
 
 // TODO: get from config
 const LIMIT = 10;
@@ -43,6 +45,8 @@ export default function Events() {
 
   const [sorting, setSorting] = useState<SortingState>([]);
 
+  const { setSelectedEvent, setOpenViewEventSheet, refreshKey } = useEventStore();
+
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["events", filters, pagination, sorting],
     queryFn: () => {
@@ -56,6 +60,10 @@ export default function Events() {
       );
     },
   });
+
+  useEffect(() => {
+    refetch();
+  }, [refetch, refreshKey]);
 
   const handleSearch = useCallback(() => refetch(), [refetch]);
 
@@ -97,11 +105,19 @@ export default function Events() {
     {
       id: "actions",
       minSize: 168,
-      cell: () => (
+      cell: ({ row }) => (
         <div className="flex justify-end gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button className="hover:text-view" size="icon-sm" variant="outline">
+              <Button
+                className="hover:text-view"
+                size="icon-sm"
+                variant="outline"
+                onClick={() => {
+                  setSelectedEvent(row.original);
+                  setOpenViewEventSheet(true);
+                }}
+              >
                 <FileText />
               </Button>
             </TooltipTrigger>
@@ -113,19 +129,22 @@ export default function Events() {
   ];
 
   return (
-    <div className="flex flex-col gap-8">
-      <PageHeader title="Turnos" subtitle="Módulo de visualización y administración de turnos" />
-      <Filters filters={filters} setFilters={setFilters} onSearch={handleSearch} />
-      <DataTablePaginated
-        columns={columns}
-        data={data?.data?.result}
-        defaultPageSize={LIMIT}
-        loading={isLoading}
-        onPaginationChange={setPagination}
-        onSortingChange={setSorting}
-        rowCount={data?.data?.total}
-        searchable={false}
-      />
-    </div>
+    <>
+      <div className="flex flex-col gap-8">
+        <PageHeader title="Turnos" subtitle="Módulo de visualización y administración de turnos" />
+        <Filters filters={filters} setFilters={setFilters} onSearch={handleSearch} />
+        <DataTablePaginated
+          columns={columns}
+          data={data?.data?.result}
+          defaultPageSize={LIMIT}
+          loading={isLoading}
+          onPaginationChange={setPagination}
+          onSortingChange={setSorting}
+          rowCount={data?.data?.total}
+          searchable={false}
+        />
+      </div>
+      <ViewEventSheet />
+    </>
   );
 }
