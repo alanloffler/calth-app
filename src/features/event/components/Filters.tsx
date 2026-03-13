@@ -61,7 +61,7 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
         <div
           className={cn(
             "grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:w-fit lg:grid-cols-4",
-            open && "2xl:grid-cols-2",
+            open && "lg:grid-cols-3 xl:grid-cols-4",
           )}
         >
           {/* Date input */}
