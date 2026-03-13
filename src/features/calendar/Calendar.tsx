@@ -183,9 +183,9 @@ export default function Calendar() {
         </div>
         {errorNotification && <ErrorNotification message={errorMessage} tryAgain={false} />}
         {selectedProfessional && selectedProfessionalConfig && !errorNotification && (
-          <div className="flex h-full w-full flex-row gap-3">
+          <div className="flex h-full w-full flex-col gap-8 lg:flex-row lg:gap-3">
             <Schedule
-              className={cn("calendar w-[80%]", !canViewEvent && "[&_.rbc-event]:pointer-events-none")}
+              className={cn("calendar w-full lg:w-[80%]", !canViewEvent && "[&_.rbc-event]:pointer-events-none")}
               components={{
                 toolbar: (props: ToolbarProps<ICalendarEvent>) => (
                   <Toolbar
@@ -219,7 +219,7 @@ export default function Calendar() {
               view={selectedView}
               views={["month", "week", "day"]}
             />
-            <CalendarEventsList className="w-[20%]" professionalId={selectedProfessional.id} />
+            <CalendarEventsList className="w-full lg:w-[20%]" professionalId={selectedProfessional.id} />
           </div>
         )}
       </div>
