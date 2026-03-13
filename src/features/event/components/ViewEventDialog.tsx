@@ -41,8 +41,7 @@ export function ViewEventDialog({ open, setOpen }: IProps) {
           </div>
           <div className="flex gap-2">
             <span className="font-semibold">Horario:</span>
-            <span>{format(selectedEvent.startDate, "HH:mm", { locale: es })}</span>-
-            <span>{format(selectedEvent.endDate, "HH:mm", { locale: es })}</span> hs.
+            <span>{`${format(selectedEvent.startDate, "HH:mm", { locale: es })} - ${format(selectedEvent.endDate, "HH:mm", { locale: es })} hs.`}</span>
           </div>
           <div className="flex gap-2">
             <span className="font-semibold">Estado:</span>
