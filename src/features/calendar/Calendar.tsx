@@ -149,8 +149,10 @@ export default function Calendar() {
   }, [fetchProfessionals]);
 
   useEffect(() => {
-    refreshEvents();
-  }, [refreshEvents, refreshKey]);
+    if (selectedProfessional) {
+      refreshEvents();
+    }
+  }, [selectedProfessional, refreshKey, refreshEvents]);
 
   if (isLoadingEvents) return <PageLoader text="Cargando agenda" />;
 
@@ -160,9 +162,9 @@ export default function Calendar() {
         <div className="flex items-center gap-4">
           <Select
             disabled={!professionals}
-            defaultValue={selectedProfessional?.id}
+            value={selectedProfessional?.id || ""}
             onValueChange={(professionalId) => {
-              getProfessional(professionalId);
+              if (professionalId) getProfessional(professionalId);
             }}
           >
             <SelectTrigger className="min-w-60" id="professionals" size="lg">
