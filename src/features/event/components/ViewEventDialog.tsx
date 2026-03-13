@@ -28,7 +28,7 @@ export function ViewEventDialog({ open, setOpen }: IProps) {
           <div className="flex gap-2">
             <span className="font-semibold">Profesional:</span>
             <span>
-              {selectedEvent.professional.firstName} {selectedEvent.professional.lastName}
+              {`${selectedEvent.professional.professionalProfile?.professionalPrefix} ${selectedEvent.professional.firstName} ${selectedEvent.professional.lastName}`}
             </span>
           </div>
           <div className="flex gap-2">
