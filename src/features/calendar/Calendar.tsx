@@ -2,6 +2,7 @@ import "@calendar/styles/calendar.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { Calendar as Schedule } from "react-big-calendar";
+import { CalendarEventsList } from "@calendar/components/CalendarEventsList";
 import { ErrorNotification } from "@components/notifications/ErrorNotification";
 import { Loader } from "@components/Loader";
 import { PageLoader } from "@components/PageLoader";
@@ -26,7 +27,6 @@ import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { useEventStore } from "@calendar/stores/event.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useTryCatch } from "@core/hooks/useTryCatch";
-import { CalendarEventsList } from "./components/CalendarEventsList";
 
 const locales = { "es-AR": es };
 
