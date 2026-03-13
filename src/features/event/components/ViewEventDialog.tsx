@@ -49,8 +49,7 @@ export function ViewEventDialog({ open, setOpen }: IProps) {
           </div>
           <div className="flex gap-2">
             <span className="font-semibold">Creación:</span>
-            <span>{format(selectedEvent.createdAt, "PPPP", { locale: es })}</span> -
-            <span>{format(selectedEvent.createdAt, "HH:mm", { locale: es })}</span> hs.
+            <span>{`${format(selectedEvent.createdAt, "PPPP", { locale: es })} - ${format(selectedEvent.createdAt, "HH:mm", { locale: es })} hs.`}</span>
           </div>
         </div>
         <DialogFooter>
