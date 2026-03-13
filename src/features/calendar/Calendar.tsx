@@ -26,6 +26,7 @@ import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { useEventStore } from "@calendar/stores/event.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useTryCatch } from "@core/hooks/useTryCatch";
+import { CalendarEventsList } from "./components/CalendarEventsList";
 
 const locales = { "es-AR": es };
 
@@ -182,41 +183,44 @@ export default function Calendar() {
         </div>
         {errorNotification && <ErrorNotification message={errorMessage} tryAgain={false} />}
         {selectedProfessional && selectedProfessionalConfig && !errorNotification && (
-          <Schedule
-            className={cn("calendar", !canViewEvent && "[&_.rbc-event]:pointer-events-none")}
-            components={{
-              toolbar: (props: ToolbarProps<ICalendarEvent>) => (
-                <Toolbar
-                  {...props}
-                  calendarView={props.view as TView}
-                  currentDate={selectedDate}
-                  onCreateEvent={refreshEvents}
-                />
-              ),
-            }}
-            culture="es-AR"
-            date={selectedDate}
-            endAccessor="endDate"
-            events={events}
-            formats={{
-              eventTimeRangeFormat: (range) => format(range.start, "HH:mm"),
-            }}
-            key={selectedProfessional.id}
-            localizer={localizer}
-            max={selectedProfessionalConfig?.endHour}
-            messages={messages}
-            min={selectedProfessionalConfig?.startHour}
-            onNavigate={setSelectedDate}
-            onSelectEvent={onSelectEvent}
-            onView={onView}
-            slotPropGetter={slotPropGetter}
-            eventPropGetter={eventPropGetter}
-            startAccessor="startDate"
-            step={selectedProfessionalConfig?.step}
-            timeslots={selectedProfessionalConfig?.timeSlots}
-            view={selectedView}
-            views={["month", "week", "day"]}
-          />
+          <div className="flex h-full w-full flex-row gap-3">
+            <Schedule
+              className={cn("calendar w-[80%]", !canViewEvent && "[&_.rbc-event]:pointer-events-none")}
+              components={{
+                toolbar: (props: ToolbarProps<ICalendarEvent>) => (
+                  <Toolbar
+                    {...props}
+                    calendarView={props.view as TView}
+                    currentDate={selectedDate}
+                    onCreateEvent={refreshEvents}
+                  />
+                ),
+              }}
+              culture="es-AR"
+              date={selectedDate}
+              endAccessor="endDate"
+              events={events}
+              formats={{
+                eventTimeRangeFormat: (range) => format(range.start, "HH:mm"),
+              }}
+              key={selectedProfessional.id}
+              localizer={localizer}
+              max={selectedProfessionalConfig?.endHour}
+              messages={messages}
+              min={selectedProfessionalConfig?.startHour}
+              onNavigate={setSelectedDate}
+              onSelectEvent={onSelectEvent}
+              onView={onView}
+              slotPropGetter={slotPropGetter}
+              eventPropGetter={eventPropGetter}
+              startAccessor="startDate"
+              step={selectedProfessionalConfig?.step}
+              timeslots={selectedProfessionalConfig?.timeSlots}
+              view={selectedView}
+              views={["month", "week", "day"]}
+            />
+            <CalendarEventsList professionalId={selectedProfessional.id} />
+          </div>
         )}
       </div>
     </>
