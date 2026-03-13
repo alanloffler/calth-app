@@ -1,7 +1,10 @@
+import { es } from "date-fns/locale";
+import { useQuery } from "@tanstack/react-query";
+
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { EventsService } from "@event/services/events.service";
 import { cn } from "@lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { formatShortDate } from "@core/formatters/date.formatter";
 
 interface IProps {
   className?: string;
@@ -15,15 +18,22 @@ export function CalendarEventsList({ className, professionalId }: IProps) {
   });
 
   return (
-    <div className={cn("flex w-full flex-1 flex-col gap-2 rounded-lg border", className)}>
-      <h2>Lista de turnos</h2>
-      {events?.data?.result.map((event) => (
-        <EventItem key={event.id} event={event} />
-      ))}
+    <div className={cn("flex flex-col rounded-lg border", className)}>
+      <h2 className="bg-muted rounded-t-lg border-b px-2 py-2 text-sm font-semibold">Lista de turnos</h2>
+      <ul>
+        {events?.data?.result.map((event) => (
+          <EventItem key={event.id} event={event} />
+        ))}
+      </ul>
     </div>
   );
 }
 
 function EventItem({ event }: { event: ICalendarEvent }) {
-  return <div>{event.title}</div>;
+  return (
+    <li className="flex gap-2 border-b px-2 py-1 text-xs">
+      <span className="min-w-8.75">{formatShortDate(event.startDate, es)}</span>
+      <span className="truncate">{event.title}</span>
+    </li>
+  );
 }
