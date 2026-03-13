@@ -18,6 +18,11 @@ export function ViewEventDialog({ open, setOpen }: IProps) {
 
   if (!selectedEvent) return null;
 
+  function handleClose(): void {
+    setSelectedEvent(null);
+    setOpen(false);
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="gap-6 sm:min-w-120">
@@ -53,13 +58,7 @@ export function ViewEventDialog({ open, setOpen }: IProps) {
           </div>
         </div>
         <DialogFooter>
-          <Button
-            onClick={() => {
-              setSelectedEvent(null);
-              setOpen(false);
-            }}
-            variant="default"
-          >
+          <Button onClick={handleClose} variant="default">
             Cerrar
           </Button>
         </DialogFooter>
