@@ -1,11 +1,11 @@
 import { Button } from "@components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@components/ui/dialog";
+import { EventStatus } from "@calendar/components/ui/EventStatus";
 
 import type { Dispatch, SetStateAction } from "react";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 
-import { DEventStatus } from "@calendar/dictionaries/status.dictionary";
 import { useEventStore } from "@calendar/stores/event.store";
 
 interface IProps {
@@ -43,9 +43,9 @@ export function ViewEventDialog({ open, setOpen }: IProps) {
             <span className="font-semibold">Horario:</span>
             <span>{`${format(selectedEvent.startDate, "HH:mm", { locale: es })} - ${format(selectedEvent.endDate, "HH:mm", { locale: es })} hs.`}</span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <span className="font-semibold">Estado:</span>
-            <span>{DEventStatus[selectedEvent.status]}</span>
+            <EventStatus variant={selectedEvent.status} />
           </div>
           <div className="flex gap-2">
             <span className="font-semibold">Creación:</span>
