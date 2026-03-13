@@ -219,7 +219,7 @@ export default function Calendar() {
               view={selectedView}
               views={["month", "week", "day"]}
             />
-            <CalendarEventsList professionalId={selectedProfessional.id} />
+            <CalendarEventsList className="w-[20%]" professionalId={selectedProfessional.id} />
           </div>
         )}
       </div>
