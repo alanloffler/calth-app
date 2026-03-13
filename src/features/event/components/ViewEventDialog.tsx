@@ -1,11 +1,12 @@
-import { DEventStatus } from "@calendar/dictionaries/status.dictionary";
-import { useEventStore } from "@calendar/stores/event.store";
 import { Button } from "@components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@components/ui/dialog";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 
 import type { Dispatch, SetStateAction } from "react";
+import { es } from "date-fns/locale";
+import { format } from "date-fns";
+
+import { DEventStatus } from "@calendar/dictionaries/status.dictionary";
+import { useEventStore } from "@calendar/stores/event.store";
 
 interface IProps {
   open: boolean;
