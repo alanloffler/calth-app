@@ -3,6 +3,7 @@ import type { IUserEvent } from "@calendar/interfaces/user-event.interface";
 import type { TEventStatus } from "@calendar/enums/event-status.enum";
 
 export interface ICalendarEvent {
+  createdAt: Date;
   endDate: Date;
   id: string;
   professional: IProfessionalEvent;
