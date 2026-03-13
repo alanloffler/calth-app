@@ -214,6 +214,7 @@ export function EditEventSheet({ event, onUpdateEvent, open, setOpen }: IProps) 
     <Sheet open={event !== null && open} onOpenChange={setOpen}>
       <SheetContent
         className="sm:min-w-155"
+        hideOverlay={true}
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           closeRef.current?.focus();
