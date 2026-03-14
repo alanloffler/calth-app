@@ -168,6 +168,7 @@ export function HourGrid({ form, isInvalid, professionalConfig, takenSlots = [] 
             {afterSeparator.map((hour) => (
               <Button
                 className={getButtonClasses(hour)}
+                disabled={takenSlots.includes(hour)}
                 key={hour}
                 onClick={() => handleHourClick(hour)}
                 type="button"
