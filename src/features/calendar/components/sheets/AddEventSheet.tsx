@@ -16,7 +16,7 @@ import type z from "zod";
 import { addMinutes, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -37,6 +37,7 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
   const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
+  const monthRef = useRef<boolean>(false);
   const { isLoading: isSaving, tryCatch: tryCatchCreateEvent } = useTryCatch();
   const { selectedProfessional } = useCalendarStore();
   const { tryCatch: tryCatchDayEvents } = useTryCatch();
@@ -172,9 +173,11 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
     fetchDayEvents();
   }, [form, professionalId, startDate, tryCatchDayEvents]);
 
-  function handleMonthChange(month: Date): void {
-    setMonth(month);
-  }
+  useEffect(() => {
+    if (monthRef.current) return;
+    monthRef.current = true;
+    console.log(month);
+  }, [month]);
 
   return (
     <Sheet open={openSheet} onOpenChange={setOpenSheet}>
@@ -282,7 +285,7 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
                             locale={es}
                             mode="single"
                             month={month}
-                            onMonthChange={(mont) => handleMonthChange(mont)}
+                            onMonthChange={setMonth}
                             onSelect={(date) => {
                               field.onChange(date ? format(date, "yyyy-MM-dd'T'00:00:00XXX") : "");
                             }}
