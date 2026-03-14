@@ -16,6 +16,7 @@ interface IProps {
 }
 
 export function CalendarEventsList({ className, professionalId }: IProps) {
+  const [hasChanges, setHasChanges] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
   const { triggerRefresh } = useEventStore();
@@ -26,16 +27,17 @@ export function CalendarEventsList({ className, professionalId }: IProps) {
     enabled: !!professionalId,
   });
 
-  const handleEventChange = () => {
-    queryClient.invalidateQueries({ queryKey: ["events", professionalId] });
-    triggerRefresh();
-  };
-
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
-    if (!isOpen) {
-      handleEventChange();
+    if (!isOpen && hasChanges) {
+      queryClient.invalidateQueries({ queryKey: ["events", professionalId] });
+      triggerRefresh();
+      setHasChanges(false);
     }
+  };
+
+  const handleEventChange = () => {
+    setHasChanges(true);
   };
 
   return (
@@ -48,7 +50,7 @@ export function CalendarEventsList({ className, professionalId }: IProps) {
           ))}
         </ul>
       </div>
-      <ViewEventDialog open={open} setOpen={handleOpenChange} />
+      <ViewEventDialog open={open} setOpen={handleOpenChange} onEventChange={handleEventChange} />
     </>
   );
 }
