@@ -1,19 +1,23 @@
+import { CalendarCheck, Clock } from "lucide-react";
+
 import { Button } from "@components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@components/ui/dialog";
-import { EventStatus } from "@calendar/components/ui/EventStatus";
+import { UpdateStatus } from "@event/components/ui/UpdateStatus";
 
 import type { Dispatch, SetStateAction } from "react";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 
+import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { useEventStore } from "@calendar/stores/event.store";
 
 interface IProps {
   open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  setOpen: Dispatch<SetStateAction<boolean>> | ((open: boolean) => void);
+  onEventChange?: () => void;
 }
 
-export function ViewEventDialog({ open, setOpen }: IProps) {
+export function ViewEventDialog({ open, setOpen, onEventChange }: IProps) {
   const { selectedEvent, setSelectedEvent } = useEventStore();
 
   if (!selectedEvent) return null;
@@ -23,6 +27,11 @@ export function ViewEventDialog({ open, setOpen }: IProps) {
     setOpen(false);
   }
 
+  const handleEventChange = (updatedEvent: ICalendarEvent) => {
+    setSelectedEvent(updatedEvent);
+    onEventChange?.();
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="gap-6 sm:min-w-120">
@@ -30,6 +39,9 @@ export function ViewEventDialog({ open, setOpen }: IProps) {
           <DialogTitle>{selectedEvent.title}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-2">
+          <div>
+            <UpdateStatus event={selectedEvent} onEventChange={handleEventChange} />
+          </div>
           <div className="flex gap-2">
             <span className="font-semibold">Profesional:</span>
             <span>
@@ -40,17 +52,13 @@ export function ViewEventDialog({ open, setOpen }: IProps) {
             <span className="font-semibold">Paciente:</span>
             <span>{`${selectedEvent.user.firstName} ${selectedEvent.user.lastName}`}</span>
           </div>
-          <div className="flex gap-2">
-            <span className="font-semibold">Fecha:</span>
+          <div className="flex items-center gap-2">
+            <CalendarCheck className="size-5" />
             <span>{format(selectedEvent.startDate, "P", { locale: es })}</span>
           </div>
-          <div className="flex gap-2">
-            <span className="font-semibold">Horario:</span>
-            <span>{`${format(selectedEvent.startDate, "HH:mm", { locale: es })} - ${format(selectedEvent.endDate, "HH:mm", { locale: es })} hs.`}</span>
-          </div>
           <div className="flex items-center gap-2">
-            <span className="font-semibold">Estado:</span>
-            <EventStatus variant={selectedEvent.status} />
+            <Clock className="size-5" />
+            <span>{`${format(selectedEvent.startDate, "HH:mm", { locale: es })} - ${format(selectedEvent.endDate, "HH:mm", { locale: es })} hs.`}</span>
           </div>
           <div className="text-muted-foreground flex gap-2 pt-4 text-sm">
             <span>Creado el</span>
