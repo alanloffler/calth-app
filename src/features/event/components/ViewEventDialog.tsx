@@ -1,7 +1,14 @@
 import { CalendarCheck, Clock } from "lucide-react";
 
 import { Button } from "@components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@components/ui/dialog";
 import { UpdateStatus } from "@event/components/ui/UpdateStatus";
 
 import type { Dispatch, SetStateAction } from "react";
@@ -37,10 +44,11 @@ export function ViewEventDialog({ open, setOpen, onEventChange }: IProps) {
       <DialogContent className="gap-6 sm:min-w-120">
         <DialogHeader>
           <DialogTitle>{selectedEvent.title}</DialogTitle>
+          <DialogDescription className="sr-only"></DialogDescription>
         </DialogHeader>
         <div className="grid gap-2">
           <div>
-            <UpdateStatus event={selectedEvent} onEventChange={handleEventChange} />
+            <UpdateStatus event={selectedEvent} onEventChange={handleEventChange} size="md" />
           </div>
           <div className="flex gap-2">
             <span className="font-semibold">Profesional:</span>
