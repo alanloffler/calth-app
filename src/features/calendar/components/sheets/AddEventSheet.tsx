@@ -172,6 +172,10 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
     fetchDayEvents();
   }, [form, professionalId, startDate, tryCatchDayEvents]);
 
+  function handleMonthChange(month: Date): void {
+    setMonth(month);
+  }
+
   return (
     <Sheet open={openSheet} onOpenChange={setOpenSheet}>
       <Protected requiredPermission="events-create">
@@ -278,7 +282,7 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
                             locale={es}
                             mode="single"
                             month={month}
-                            onMonthChange={setMonth}
+                            onMonthChange={(mont) => handleMonthChange(mont)}
                             onSelect={(date) => {
                               field.onChange(date ? format(date, "yyyy-MM-dd'T'00:00:00XXX") : "");
                             }}
