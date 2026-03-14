@@ -1,7 +1,7 @@
 import { ViewEventDialog } from "@event/components/ViewEventDialog";
 
 import { es } from "date-fns/locale";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
@@ -17,12 +17,26 @@ interface IProps {
 
 export function CalendarEventsList({ className, professionalId }: IProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const queryClient = useQueryClient();
+  const { triggerRefresh } = useEventStore();
 
   const { data: events } = useQuery({
     queryKey: ["events", professionalId],
     queryFn: () => EventsService.findEventsFiltered({ professionalId }, 10),
     enabled: !!professionalId,
   });
+
+  const handleEventChange = () => {
+    queryClient.invalidateQueries({ queryKey: ["events", professionalId] });
+    triggerRefresh();
+  };
+
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      handleEventChange();
+    }
+  };
 
   return (
     <>
@@ -34,7 +48,7 @@ export function CalendarEventsList({ className, professionalId }: IProps) {
           ))}
         </ul>
       </div>
-      <ViewEventDialog open={open} setOpen={setOpen} />
+      <ViewEventDialog open={open} setOpen={handleOpenChange} />
     </>
   );
 }
@@ -49,11 +63,11 @@ function EventItem({
   const { setSelectedEvent } = useEventStore();
 
   const colors = {
-    absent: "bg-amber-600",
-    cancelled: "bg-red-600",
-    in_progress: "bg-fuchsia-600",
-    pending: "bg-neutral-600",
-    present: "bg-green-600",
+    absent: "bg-amber-400",
+    cancelled: "bg-red-400",
+    in_progress: "bg-fuchsia-400",
+    pending: "bg-neutral-400",
+    present: "bg-green-400",
   };
 
   return (
@@ -65,7 +79,7 @@ function EventItem({
           setOpen(true);
         }}
       >
-        <div className={cn("size-1.5 shrink-0 rounded-full", colors[event.status])}></div>
+        <div className={cn("size-2.5 shrink-0 rounded-full", colors[event.status])}></div>
         <span className="min-w-8.75">{formatShortDate(event.startDate, es)}</span>
         <span className="truncate">{event.title}</span>
       </button>
