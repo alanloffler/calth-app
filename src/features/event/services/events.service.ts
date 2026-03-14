@@ -1,9 +1,9 @@
-import { format } from "date-fns";
+import { endOfMonth, format, startOfMonth } from "date-fns";
 
 import type { IApiResponse } from "@core/interfaces/api-response.interface";
 import type { IEventFilters } from "@event/interfaces/filters.interface";
-import { apiClient } from "@core/client/client";
 import type { IPaginatedEvents } from "@event/interfaces/paginated-events.interface";
+import { apiClient } from "@core/client/client";
 
 class EventsModuleService {
   private static instance: EventsModuleService;
@@ -43,6 +43,20 @@ class EventsModuleService {
     }
 
     const path = `/events/filtered?${queryParams}`;
+
+    const response = await apiClient.get(path);
+    return response.data;
+  }
+
+  public async findUnavailableDays(professionalId: string, date?: Date) {
+    if (!date) return [];
+
+    const initialMonthDate = startOfMonth(date);
+    const endMonthDate = endOfMonth(date);
+    const fromDate = format(initialMonthDate, "yyyy-MM-dd");
+    const toDate = format(endMonthDate, "yyyy-MM-dd");
+
+    const path = `/events/unavailable/${professionalId}?fromDate=${fromDate}&toDate=${toDate}`;
 
     const response = await apiClient.get(path);
     return response.data;
