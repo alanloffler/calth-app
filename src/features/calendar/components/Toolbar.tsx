@@ -1,4 +1,4 @@
-import { AddEvent } from "@calendar/components/AddEvent";
+import { AddEventSheet } from "@calendar/components/sheets/AddEventSheet";
 import { DateHeader } from "@calendar/components/DateHeader";
 import { Navigation } from "@calendar/components/Navigation";
 
@@ -28,7 +28,7 @@ export function Toolbar(props: IProps) {
       <DateHeader calendarView={props.calendarView} currentDate={props.currentDate} />
       <div className="flex flex-col items-center gap-3 md:flex-row">
         <Navigation {...props} />
-        <AddEvent onCreateEvent={props.onCreateEvent} />
+        <AddEventSheet onCreateEvent={props.onCreateEvent} />
       </div>
     </div>
   );
