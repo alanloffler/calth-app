@@ -1,4 +1,4 @@
-import { CalendarCheck, Clock } from "lucide-react";
+import { BriefcaseMedical, CalendarCheck, Clock, User2 } from "lucide-react";
 
 import { Button } from "@components/ui/button";
 import {
@@ -50,22 +50,22 @@ export function ViewEventDialog({ open, setOpen, onEventChange }: IProps) {
           <div>
             <UpdateStatus event={selectedEvent} onEventChange={handleEventChange} size="md" />
           </div>
-          <div className="flex gap-2">
-            <span className="font-semibold">Profesional:</span>
+          <div className="flex items-center gap-3 pt-3">
+            <BriefcaseMedical className="size-5 shrink-0" />
             <span>
               {`${selectedEvent.professional.professionalProfile?.professionalPrefix} ${selectedEvent.professional.firstName} ${selectedEvent.professional.lastName}`}
             </span>
           </div>
-          <div className="flex gap-2">
-            <span className="font-semibold">Paciente:</span>
+          <div className="flex items-center gap-3">
+            <User2 className="size-5 shrink-0" />
             <span>{`${selectedEvent.user.firstName} ${selectedEvent.user.lastName}`}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <CalendarCheck className="size-5" />
+          <div className="flex items-center gap-3">
+            <CalendarCheck className="size-5 shrink-0" />
             <span>{format(selectedEvent.startDate, "P", { locale: es })}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Clock className="size-5" />
+          <div className="flex items-center gap-3">
+            <Clock className="size-5 shrink-0" />
             <span>{`${format(selectedEvent.startDate, "HH:mm", { locale: es })} - ${format(selectedEvent.endDate, "HH:mm", { locale: es })} hs.`}</span>
           </div>
           <div className="text-muted-foreground flex gap-2 pt-4 text-sm">
