@@ -1,7 +1,7 @@
 import { Plus } from "lucide-react";
 
 import { Button } from "@components/ui/button";
-import { Calendar } from "@components/ui/calendar";
+import { Calendar, CalendarDayButton } from "@components/ui/calendar";
 import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { HourGrid } from "@calendar/components/HourGrid";
@@ -16,16 +16,18 @@ import type z from "zod";
 import { addMinutes, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
+import { EventsService } from "@event/services/events.service";
 import { UsersService } from "@users/services/users.service";
 import { eventSchema } from "@calendar/schemas/event.schema";
 import { isDayAvailable, isHourSlotAvailable, parseCalendarConfig } from "@calendar/utils/calendar.utils";
 import { useCalendarStore } from "@calendar/stores/calendar.store";
+import { useQuery } from "@tanstack/react-query";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
@@ -37,7 +39,6 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
   const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
-  const monthRef = useRef<boolean>(false);
   const { isLoading: isSaving, tryCatch: tryCatchCreateEvent } = useTryCatch();
   const { selectedProfessional } = useCalendarStore();
   const { tryCatch: tryCatchDayEvents } = useTryCatch();
@@ -173,11 +174,20 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
     fetchDayEvents();
   }, [form, professionalId, startDate, tryCatchDayEvents]);
 
-  useEffect(() => {
-    if (monthRef.current) return;
-    monthRef.current = true;
-    console.log(month);
-  }, [month]);
+  const { data: unavailableDays } = useQuery({
+    queryKey: ["unavailableDays", professionalId, month],
+    queryFn: () => EventsService.findUnavailableDays(professionalId, month),
+    enabled: Boolean(professionalId && month),
+  });
+
+  const getUnavailableDaysArray = (data: { [key: number]: boolean } | undefined): number[] => {
+    if (!data) return [];
+    return Object.entries(data)
+      .filter(([, isUnavailable]) => isUnavailable)
+      .map(([day]) => parseInt(day));
+  };
+
+  const unavailable = getUnavailableDaysArray(unavailableDays?.data);
 
   return (
     <Sheet open={openSheet} onOpenChange={setOpenSheet}>
@@ -277,11 +287,39 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
                       >
                         <FieldLabel htmlFor="date">Fecha</FieldLabel>
                         <div className="flex-1">
+                          {/*disabled={(date) => {
+                            if (professionalConfig?.excludedDays?.includes(date.getDay())) return true;
+                            return unavailable.includes(date.getDate());
+                          }}*/}
                           <Calendar
                             aria-invalid={isDateInvalid}
                             className="aspect-square h-fit w-full"
                             disabled={[{ dayOfWeek: professionalConfig?.excludedDays as number[] }]}
+                            modifiers={{
+                              unavailable: (date) => {
+                                if (professionalConfig?.excludedDays?.includes(date.getDay())) return false;
+                                return unavailable.includes(date.getDate());
+                              },
+                            }}
+                            components={{
+                              DayButton: ({ day, modifiers, className, ...props }) => (
+                                <>
+                                  <CalendarDayButton
+                                    day={day}
+                                    modifiers={modifiers}
+                                    className={
+                                      modifiers.unavailable ? `${className} text-red-500! opacity-100!` : className
+                                    }
+                                    {...props}
+                                  />
+                                  {modifiers.unavailable && (
+                                    <span className="absolute right-2 bottom-2 flex size-2 rounded-full bg-red-500"></span>
+                                  )}
+                                </>
+                              ),
+                            }}
                             id="date"
+                            showOutsideDays={false}
                             locale={es}
                             mode="single"
                             month={month}
