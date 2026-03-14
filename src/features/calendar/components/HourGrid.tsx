@@ -157,11 +157,7 @@ export function HourGrid({ form, isInvalid, professionalConfig, takenSlots = [] 
             className={cn(
               "h-px w-full",
               isInvalid ? "bg-destructive" : "bg-gray-300",
-              gridCols === "grid-cols-2"
-                ? "max-w-[108px]"
-                : gridCols === "grid-cols-3"
-                  ? "max-w-[164px]"
-                  : "max-w-[220px]",
+              gridCols === "grid-cols-2" ? "max-w-27" : gridCols === "grid-cols-3" ? "max-w-41" : "max-w-55",
             )}
           />
           <div className={cn("grid gap-1", gridCols)}>
