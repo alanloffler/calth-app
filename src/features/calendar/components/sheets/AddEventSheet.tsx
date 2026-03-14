@@ -32,7 +32,7 @@ interface IProps {
   onCreateEvent: () => void;
 }
 
-export function AddEvent({ onCreateEvent }: IProps) {
+export function AddEventSheet({ onCreateEvent }: IProps) {
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
