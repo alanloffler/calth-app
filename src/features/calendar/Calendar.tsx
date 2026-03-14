@@ -58,6 +58,7 @@ export default function Calendar() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [errorNotification, setErrorNotification] = useState<boolean>(false);
   const [events, setEvents] = useState<ICalendarEvent[] | undefined>(undefined);
+  const [isReady, setIsReady] = useState<boolean>(false);
   const [professionals, setProfessionals] = useState<IUser[] | undefined>(undefined);
   const canViewEvent = usePermission("events-view");
   const { refreshKey, setSelectedEvent, setOpenViewEventSheet } = useEventStore();
@@ -92,6 +93,7 @@ export default function Calendar() {
 
         setSelectedProfessional(response.data);
         setSelectedProfessionalConfig(parseCalendarConfig(response.data.professionalProfile));
+        setIsReady(true);
       }
     },
     [setSelectedProfessional, setSelectedProfessionalConfig, tryCatchProfessional],
@@ -154,7 +156,7 @@ export default function Calendar() {
     }
   }, [selectedProfessional, refreshKey, refreshEvents]);
 
-  if (isLoadingEvents) return <PageLoader text="Cargando agenda" />;
+  if (!isReady || isLoadingEvents) return <PageLoader text="Cargando agenda" />;
 
   return (
     <>
