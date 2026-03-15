@@ -174,20 +174,20 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
     fetchDayEvents();
   }, [form, professionalId, startDate, tryCatchDayEvents]);
 
-  const { data: unavailableDays } = useQuery({
-    queryKey: ["unavailableDays", professionalId, month],
+  const { data: daysWithEvents } = useQuery({
+    queryKey: ["days-with-events", professionalId, month],
     queryFn: () => EventsService.findDaysWithEvents(professionalId, month),
     enabled: Boolean(professionalId && month),
   });
 
-  const getUnavailableDaysArray = (data: { [key: number]: boolean } | undefined): number[] => {
+  const getDaysWithEventsArray = (data: { [key: number]: boolean } | undefined): number[] => {
     if (!data) return [];
     return Object.entries(data)
-      .filter(([, isUnavailable]) => isUnavailable)
+      .filter(([, hasEvents]) => hasEvents)
       .map(([day]) => parseInt(day));
   };
 
-  const unavailable = getUnavailableDaysArray(unavailableDays?.data);
+  const withEvents = getDaysWithEventsArray(daysWithEvents?.data);
 
   return (
     <Sheet open={openSheet} onOpenChange={setOpenSheet}>
@@ -296,24 +296,20 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
                             className="aspect-square h-fit w-full"
                             disabled={[{ dayOfWeek: professionalConfig?.excludedDays as number[] }]}
                             modifiers={{
-                              unavailable: (date) => {
+                              withEvents: (date) => {
                                 if (professionalConfig?.excludedDays?.includes(date.getDay())) return false;
-                                return unavailable.includes(date.getDate());
+                                return withEvents.includes(date.getDate());
                               },
                             }}
                             components={{
-                              DayButton: ({ day, modifiers, className, ...props }) => (
+                              DayButton: ({ day, modifiers, ...props }) => (
                                 <>
-                                  <CalendarDayButton
-                                    day={day}
-                                    modifiers={modifiers}
-                                    className={
-                                      modifiers.unavailable ? `${className} text-red-500! opacity-100!` : className
-                                    }
-                                    {...props}
-                                  />
-                                  {modifiers.unavailable && (
-                                    <span className="absolute right-2 bottom-2 flex size-2 rounded-full bg-red-500"></span>
+                                  {/*className={
+                                    modifiers.withEvents ? `${className} text-red-500! opacity-100!` : className
+                                  }*/}
+                                  <CalendarDayButton day={day} modifiers={modifiers} {...props} />
+                                  {modifiers.withEvents && (
+                                    <span className="absolute right-2 bottom-2 flex size-1.5 rounded-full bg-green-400"></span>
                                   )}
                                 </>
                               ),
