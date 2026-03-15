@@ -48,7 +48,7 @@ class EventsModuleService {
     return response.data;
   }
 
-  public async findUnavailableDays(professionalId: string, date?: Date) {
+  public async findDaysWithEvents(professionalId: string, date?: Date) {
     if (!date) return [];
 
     const initialMonthDate = startOfMonth(date);
@@ -56,7 +56,7 @@ class EventsModuleService {
     const fromDate = format(initialMonthDate, "yyyy-MM-dd");
     const toDate = format(endMonthDate, "yyyy-MM-dd");
 
-    const path = `/events/unavailable/${professionalId}?fromDate=${fromDate}&toDate=${toDate}`;
+    const path = `/events/days-with-events/${professionalId}?fromDate=${fromDate}&toDate=${toDate}`;
 
     const response = await apiClient.get(path);
     return response.data;
