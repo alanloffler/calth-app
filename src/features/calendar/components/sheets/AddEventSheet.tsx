@@ -176,7 +176,7 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
 
   const { data: unavailableDays } = useQuery({
     queryKey: ["unavailableDays", professionalId, month],
-    queryFn: () => EventsService.findUnavailableDays(professionalId, month),
+    queryFn: () => EventsService.findDaysWithEvents(professionalId, month),
     enabled: Boolean(professionalId && month),
   });
 
