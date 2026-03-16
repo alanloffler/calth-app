@@ -28,6 +28,7 @@ import {
   parseCalendarConfig,
   getCalendarDateRange,
   getCalendarRangeFromDate,
+  formatDateToString,
 } from "@calendar/utils/calendar.utils";
 import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { useEventStore } from "@calendar/stores/event.store";
@@ -162,8 +163,8 @@ export default function Calendar() {
       if (!view) return;
 
       const { start, end } = getCalendarDateRange(range, view as "month" | "week" | "day");
-      const startDate = start.toISOString();
-      const endDate = end.toISOString();
+      const startDate = formatDateToString(start);
+      const endDate = formatDateToString(end);
 
       refreshEvents(startDate, endDate);
     },
@@ -177,8 +178,8 @@ export default function Calendar() {
   useEffect(() => {
     if (selectedProfessional && selectedDate && selectedView) {
       const { start, end } = getCalendarRangeFromDate(selectedDate, selectedView);
-      const startDate = start.toISOString();
-      const endDate = end.toISOString();
+      const startDate = formatDateToString(start);
+      const endDate = formatDateToString(end);
 
       refreshEvents(startDate, endDate);
     }
