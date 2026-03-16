@@ -12,7 +12,7 @@ import { Toolbar } from "@calendar/components/Toolbar";
 import type { Event, ToolbarProps, View } from "react-big-calendar";
 import { dateFnsLocalizer } from "react-big-calendar";
 import { es } from "date-fns/locale";
-import { format, parse, startOfWeek, getDay, endOfWeek, endOfDay } from "date-fns";
+import { format, parse, startOfWeek, getDay } from "date-fns";
 import { toast } from "sonner";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -22,7 +22,13 @@ import type { TView } from "@calendar/interfaces/calendar-view.type";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { UsersService } from "@users/services/users.service";
 import { cn } from "@lib/utils";
-import { createEventPropGetter, createSlotPropGetter, parseCalendarConfig } from "@calendar/utils/calendar.utils";
+import {
+  createEventPropGetter,
+  createSlotPropGetter,
+  parseCalendarConfig,
+  getCalendarDateRange,
+  getCalendarRangeFromDate,
+} from "@calendar/utils/calendar.utils";
 import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { useEventStore } from "@calendar/stores/event.store";
 import { usePermission } from "@permissions/hooks/usePermission";
@@ -113,22 +119,27 @@ export default function Calendar() {
     }
   }, [getProfessional, tryCatchProfessionals]);
 
-  const refreshEvents = useCallback(async () => {
-    if (!selectedProfessional) return;
+  const refreshEvents = useCallback(
+    async (startDate?: string, endDate?: string) => {
+      if (!selectedProfessional) return;
 
-    const [response, error] = await tryCatchEvents(CalendarService.findAll(selectedProfessional.id));
+      const [response, error] = await tryCatchEvents(
+        CalendarService.findAll(selectedProfessional.id, startDate, endDate),
+      );
 
-    if (error) {
-      toast.error(error.message);
-      setErrorMessage(error.message);
-      setErrorNotification(true);
-      return;
-    }
+      if (error) {
+        toast.error(error.message);
+        setErrorMessage(error.message);
+        setErrorNotification(true);
+        return;
+      }
 
-    if (response && response?.statusCode === 200) {
-      setEvents(response.data);
-    }
-  }, [selectedProfessional, tryCatchEvents]);
+      if (response && response?.statusCode === 200) {
+        setEvents(response.data);
+      }
+    },
+    [selectedProfessional, tryCatchEvents],
+  );
 
   const onView = useCallback(
     (view: View) => {
@@ -146,49 +157,32 @@ export default function Calendar() {
     [setSelectedEvent, setOpenViewEventSheet],
   );
 
-  // TODO: get range on calendar load to make API calls as pagination
-  // will only fetch for view and range selected
-  const onRangeChange = useCallback((range: any, view?: string) => {
-    let start: Date;
-    let end: Date;
+  const onRangeChange = useCallback(
+    (range: { start: Date; end: Date } | Date[], view?: string) => {
+      if (!view) return;
 
-    switch (view) {
-      case "month":
-        console.log("switch view is month");
-        start = startOfWeek(range.start, { locale: es, weekStartsOn: 1 });
-        end = endOfWeek(range.end, { locale: es, weekStartsOn: 1 });
-        break;
+      const { start, end } = getCalendarDateRange(range, view as "month" | "week" | "day");
+      const startDate = start.toISOString();
+      const endDate = end.toISOString();
 
-      case "week":
-        console.log("switch view is week");
-        start = range[0];
-        end = endOfWeek(range[6], { locale: es, weekStartsOn: 1 });
-        break;
-
-      case "day":
-        console.log("switch view is day");
-        console.log(range);
-        start = range[0];
-        end = endOfDay(range[0]);
-        break;
-
-      default:
-        return;
-    }
-
-    console.log("Start", start);
-    console.log("End", end);
-  }, []);
+      refreshEvents(startDate, endDate);
+    },
+    [refreshEvents],
+  );
 
   useEffect(() => {
     fetchProfessionals();
   }, [fetchProfessionals]);
 
   useEffect(() => {
-    if (selectedProfessional) {
-      refreshEvents();
+    if (selectedProfessional && selectedDate && selectedView) {
+      const { start, end } = getCalendarRangeFromDate(selectedDate, selectedView);
+      const startDate = start.toISOString();
+      const endDate = end.toISOString();
+
+      refreshEvents(startDate, endDate);
     }
-  }, [selectedProfessional, refreshKey, refreshEvents]);
+  }, [selectedProfessional, refreshKey, refreshEvents, selectedDate, selectedView]);
 
   if (!isReady || isLoadingEvents) return <PageLoader text="Cargando agenda" />;
 
