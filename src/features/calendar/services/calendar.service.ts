@@ -22,8 +22,18 @@ class CalendarModuleService {
     return response.data;
   }
 
-  public async findAll(professionalId: string): Promise<IApiResponse<ICalendarEvent[]>> {
-    const response = await apiClient.get(`events/professional/${professionalId}`);
+  public async findAll(
+    professionalId: string,
+    startDate?: string,
+    endDate?: string,
+  ): Promise<IApiResponse<ICalendarEvent[]>> {
+    const params = new URLSearchParams();
+    if (startDate) params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
+
+    const query = params.toString() ? `?${params.toString()}` : "";
+    const response = await apiClient.get(`events/professional/${professionalId}${query}`);
+
     const data = response.data;
     if (!data.data) return data;
 
