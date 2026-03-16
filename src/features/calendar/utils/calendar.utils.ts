@@ -1,8 +1,20 @@
-import { endOfDay, endOfWeek, endOfMonth, startOfWeek, startOfMonth, startOfDay } from "date-fns";
+import { endOfDay, endOfWeek, endOfMonth, startOfWeek, startOfMonth, format } from "date-fns";
 import { es } from "date-fns/locale";
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IProfessionalProfile } from "@users/interfaces/professional-profile.interface";
+
+function toUTCMidnight(date: Date): Date {
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0));
+}
+
+function toUTCEndOfDay(date: Date): Date {
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999));
+}
+
+export function formatDateToString(date: Date): string {
+  return format(date, "yyyy-MM-dd'T'HH:mm:ssxxx");
+}
 
 export function parseCalendarConfig(profile: IProfessionalProfile): ICalendarConfig {
   let dailyExceptionStart = undefined;
@@ -163,8 +175,8 @@ export function getCalendarRangeFromDate(
       };
     case "day":
       return {
-        start: startOfDay(date),
-        end: endOfDay(date),
+        start: toUTCMidnight(date),
+        end: toUTCEndOfDay(date),
       };
   }
 }
