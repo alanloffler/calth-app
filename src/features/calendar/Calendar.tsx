@@ -12,7 +12,7 @@ import { Toolbar } from "@calendar/components/Toolbar";
 import type { Event, ToolbarProps, View } from "react-big-calendar";
 import { dateFnsLocalizer } from "react-big-calendar";
 import { es } from "date-fns/locale";
-import { format, parse, startOfWeek, getDay } from "date-fns";
+import { format, parse, startOfWeek, getDay, endOfWeek, endOfDay } from "date-fns";
 import { toast } from "sonner";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -33,7 +33,7 @@ const locales = { "es-AR": es };
 const localizer = dateFnsLocalizer({
   format,
   parse,
-  startOfWeek,
+  startOfWeek: (date: Date) => startOfWeek(date, { locale: es, weekStartsOn: 1 }),
   getDay,
   locales,
 });
@@ -146,6 +146,40 @@ export default function Calendar() {
     [setSelectedEvent, setOpenViewEventSheet],
   );
 
+  // TODO: get range on calendar load to make API calls as pagination
+  // will only fetch for view and range selected
+  const onRangeChange = useCallback((range: any, view?: string) => {
+    let start: Date;
+    let end: Date;
+
+    switch (view) {
+      case "month":
+        console.log("switch view is month");
+        start = startOfWeek(range.start, { locale: es, weekStartsOn: 1 });
+        end = endOfWeek(range.end, { locale: es, weekStartsOn: 1 });
+        break;
+
+      case "week":
+        console.log("switch view is week");
+        start = range[0];
+        end = endOfWeek(range[6], { locale: es, weekStartsOn: 1 });
+        break;
+
+      case "day":
+        console.log("switch view is day");
+        console.log(range);
+        start = range[0];
+        end = endOfDay(range[0]);
+        break;
+
+      default:
+        return;
+    }
+
+    console.log("Start", start);
+    console.log("End", end);
+  }, []);
+
   useEffect(() => {
     fetchProfessionals();
   }, [fetchProfessionals]);
@@ -214,6 +248,7 @@ export default function Calendar() {
               min={selectedProfessionalConfig?.startHour}
               onNavigate={setSelectedDate}
               onSelectEvent={onSelectEvent}
+              onRangeChange={onRangeChange}
               onView={onView}
               slotPropGetter={slotPropGetter}
               eventPropGetter={eventPropGetter}
