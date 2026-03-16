@@ -1,3 +1,5 @@
+import { endOfDay, endOfWeek, endOfMonth, startOfWeek, startOfMonth, startOfDay } from "date-fns";
+import { es } from "date-fns/locale";
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IProfessionalProfile } from "@users/interfaces/professional-profile.interface";
@@ -113,4 +115,56 @@ export function isHourSlotAvailable(date: Date, config: ICalendarConfig): boolea
   }
 
   return true;
+}
+
+export function getCalendarDateRange(
+  range: { start: Date; end: Date } | Date[],
+  view: "month" | "week" | "day",
+): { start: Date; end: Date } {
+  switch (view) {
+    case "month": {
+      const { start, end } = range as { start: Date; end: Date };
+      return {
+        start: startOfWeek(start, { locale: es, weekStartsOn: 1 }),
+        end: endOfWeek(end, { locale: es, weekStartsOn: 1 }),
+      };
+    }
+    case "week": {
+      const dates = range as Date[];
+      return {
+        start: dates[0],
+        end: endOfWeek(dates[6], { locale: es, weekStartsOn: 1 }),
+      };
+    }
+    case "day": {
+      const dates = range as Date[];
+      return {
+        start: dates[0],
+        end: endOfDay(dates[0]),
+      };
+    }
+  }
+}
+
+export function getCalendarRangeFromDate(
+  date: Date,
+  view: "month" | "week" | "day",
+): { start: Date; end: Date } {
+  switch (view) {
+    case "month":
+      return {
+        start: startOfWeek(startOfMonth(date), { locale: es, weekStartsOn: 1 }),
+        end: endOfWeek(endOfMonth(date), { locale: es, weekStartsOn: 1 }),
+      };
+    case "week":
+      return {
+        start: startOfWeek(date, { locale: es, weekStartsOn: 1 }),
+        end: endOfWeek(date, { locale: es, weekStartsOn: 1 }),
+      };
+    case "day":
+      return {
+        start: startOfDay(date),
+        end: endOfDay(date),
+      };
+  }
 }
