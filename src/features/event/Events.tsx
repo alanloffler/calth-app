@@ -10,9 +10,11 @@ import { SortableHeader } from "@components/data-table/SortableHeader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 import { ViewEventSheet } from "@calendar/components/sheets/ViewEventSheet";
 
+import axios from "axios";
 import type { ColumnDef, PaginationState, SortingState } from "@tanstack/react-table";
 import { enUS, es } from "date-fns/locale";
 import { format, type Locale } from "date-fns";
+import { toast } from "sonner";
 import { useCallback, useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -33,22 +35,15 @@ const localeMap: Record<string, Locale> = {
 };
 
 export default function Events() {
-  const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
-
   const [filters, setFilters] = useState<IEventFilters>({
     date: undefined,
     patientId: undefined,
     professionalId: undefined,
     status: undefined,
   });
-
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: LIMIT,
-  });
-
+  const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: LIMIT });
   const [sorting, setSorting] = useState<SortingState>([]);
-
   const { selectedEvent, setSelectedEvent, setOpenViewEventSheet, refreshKey } = useEventStore();
 
   const { data, isLoading, refetch } = useQuery({
@@ -150,8 +145,17 @@ export default function Events() {
 
   const { mutate: removeHardEvent, isPending: isRemoving } = useMutation({
     mutationFn: (id: string) => EventsService.removeHard(id),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
+      toast.success(response.message);
+    },
+    onError: (error) => {
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.message ?? "Error desconocido";
+        toast.error(message);
+      }
+    },
+    onSettled: () => {
       setOpenRemoveHardDialog(false);
       setSelectedEvent(null);
     },
