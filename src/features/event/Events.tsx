@@ -1,6 +1,7 @@
 import { FileText, Trash2 } from "lucide-react";
 
 import { Button } from "@components/ui/button";
+import { ConfirmDialog } from "@components/ConfirmDialog";
 import { DataTablePaginated } from "@components/data-table/DataTablePaginated";
 import { EventStatus } from "@calendar/components/ui/EventStatus";
 import { Filters } from "@event/components/Filters";
@@ -11,14 +12,15 @@ import { ViewEventSheet } from "@calendar/components/sheets/ViewEventSheet";
 
 import type { ColumnDef, PaginationState, SortingState } from "@tanstack/react-table";
 import { enUS, es } from "date-fns/locale";
-import { type Locale } from "date-fns";
+import { format, type Locale } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IEventFilters } from "@event/interfaces/filters.interface";
 import { EventsService } from "@event/services/events.service";
 import { formatShortDateTime } from "@core/formatters/date.formatter";
+import { queryClient } from "@core/lib/query-client";
 import { useEventStore } from "@calendar/stores/event.store";
 
 // TODO: get from config
@@ -31,6 +33,8 @@ const localeMap: Record<string, Locale> = {
 };
 
 export default function Events() {
+  const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
+
   const [filters, setFilters] = useState<IEventFilters>({
     date: undefined,
     patientId: undefined,
@@ -45,7 +49,7 @@ export default function Events() {
 
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const { setSelectedEvent, setOpenViewEventSheet, refreshKey } = useEventStore();
+  const { selectedEvent, setSelectedEvent, setOpenViewEventSheet, refreshKey } = useEventStore();
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["events", filters, pagination, sorting],
@@ -131,6 +135,7 @@ export default function Events() {
                 variant="outline"
                 onClick={() => {
                   setSelectedEvent(row.original);
+                  setOpenRemoveHardDialog(true);
                 }}
               >
                 <Trash2 />
@@ -142,6 +147,15 @@ export default function Events() {
       ),
     },
   ];
+
+  const { mutate: removeHardEvent, isPending: isRemoving } = useMutation({
+    mutationFn: (id: string) => EventsService.removeHard(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      setOpenRemoveHardDialog(false);
+      setSelectedEvent(null);
+    },
+  });
 
   return (
     <>
@@ -160,6 +174,42 @@ export default function Events() {
         />
       </div>
       <ViewEventSheet />
+      <ConfirmDialog
+        title="Eliminar turno"
+        description="¿Seguro que querés eliminar este turno?"
+        alertMessage="El turno será eliminado de la base de datos. Esta acción es irreversible."
+        callback={() => selectedEvent && removeHardEvent(selectedEvent.id)}
+        loader={isRemoving}
+        open={openRemoveHardDialog}
+        setOpen={setOpenRemoveHardDialog}
+        showAlert
+        variant="destructive"
+      >
+        {selectedEvent && (
+          <ul className="flex flex-col gap-1">
+            <li className="flex items-center gap-2">
+              <span className="font-semibold">Profesional:</span>
+              {`${selectedEvent.professional.professionalProfile?.professionalPrefix} ${selectedEvent.professional.firstName} ${selectedEvent.professional.lastName}`}
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="font-semibold">Paciente:</span>
+              {`${selectedEvent.user.firstName} ${selectedEvent.user.lastName}`}
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="font-semibold">Título:</span>
+              {selectedEvent.title}
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="font-semibold">Fecha:</span>
+              {format(selectedEvent.startDate, "P", { locale: es })}
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="font-semibold">Horario:</span>
+              {`${format(selectedEvent.startDate, "HH:mm", { locale: es })} - ${format(selectedEvent.endDate, "HH:mm", { locale: es })} hs.`}
+            </li>
+          </ul>
+        )}
+      </ConfirmDialog>
     </>
   );
 }
