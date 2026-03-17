@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { FileText, Trash2 } from "lucide-react";
 
 import { Button } from "@components/ui/button";
 import { DataTablePaginated } from "@components/data-table/DataTablePaginated";
@@ -122,6 +122,21 @@ export default function Events() {
               </Button>
             </TooltipTrigger>
             <TooltipContent>Ver detalles</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className="hover:text-delete"
+                size="icon-sm"
+                variant="outline"
+                onClick={() => {
+                  setSelectedEvent(row.original);
+                }}
+              >
+                <Trash2 />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Eliminar</TooltipContent>
           </Tooltip>
         </div>
       ),
