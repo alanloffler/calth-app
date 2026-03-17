@@ -61,6 +61,12 @@ class EventsModuleService {
     const response = await apiClient.get(path);
     return response.data;
   }
+
+  public async removeHard(id: string): Promise<IApiResponse<void>> {
+    const path = `/events/${id}`;
+    const response = await apiClient.delete(path);
+    return response.data;
+  }
 }
 
 export const EventsService = EventsModuleService.getInstance();
