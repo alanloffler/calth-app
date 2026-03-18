@@ -1,8 +1,11 @@
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { Button } from "@components/ui/button";
 import { ViewEventDialog } from "@event/components/ViewEventDialog";
 
 import { es } from "date-fns/locale";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { EventsService } from "@event/services/events.service";
@@ -16,16 +19,25 @@ interface IProps {
 }
 
 export function CalendarEventsList({ className, professionalId }: IProps) {
+  const [limit, setLimit] = useState<number>(10);
+  const [pageIndex, setPageIndex] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
   const [hasChanges, setHasChanges] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
   const { triggerRefresh } = useEventStore();
 
   const { data: events } = useQuery({
-    queryKey: ["events", "professional-list", professionalId],
-    queryFn: () => EventsService.findEventsFiltered({ professionalId }, 10),
+    queryKey: ["events", "professional-list", professionalId, pageIndex, limit],
+    queryFn: () => EventsService.findEventsFiltered({ professionalId }, limit, pageIndex),
     enabled: !!professionalId,
   });
+
+  useEffect(() => {
+    if (events?.data) {
+      setTotal(events.data.total);
+    }
+  }, [events]);
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
@@ -42,26 +54,38 @@ export function CalendarEventsList({ className, professionalId }: IProps) {
 
   return (
     <>
-      <div className={cn("flex flex-col rounded-lg border", className)}>
+      <div className={cn("flex h-fit flex-col rounded-lg border", className)}>
         <h2 className="bg-muted rounded-t-lg border-b px-2 py-2 text-sm font-semibold">Lista de turnos</h2>
         <ul>
           {events?.data?.result.map((event) => (
             <EventItem key={event.id} event={event} setOpen={setOpen} />
           ))}
         </ul>
+        <div className="flex items-center justify-end gap-2 p-2">
+          <Button
+            disabled={pageIndex < 2}
+            onClick={() => setPageIndex((prev) => prev - 1)}
+            size="icon-sm"
+            variant="secondary"
+          >
+            <ChevronLeft />
+          </Button>
+          <Button
+            disabled={pageIndex >= total / limit}
+            onClick={() => setPageIndex((prev) => prev + 1)}
+            size="icon-sm"
+            variant="secondary"
+          >
+            <ChevronRight />
+          </Button>
+        </div>
       </div>
       <ViewEventDialog open={open} setOpen={handleOpenChange} onEventChange={handleEventChange} />
     </>
   );
 }
 
-function EventItem({
-  event,
-  setOpen,
-}: {
-  event: ICalendarEvent;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+function EventItem({ event, setOpen }: { event: ICalendarEvent; setOpen: Dispatch<SetStateAction<boolean>> }) {
   const { setSelectedEvent } = useEventStore();
 
   const colors = {
