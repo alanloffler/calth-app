@@ -16,7 +16,6 @@ import { useSidebar } from "@components/ui/sidebar";
 interface IProps extends ToolbarProps<ICalendarEvent> {
   calendarView: TView;
   currentDate: Date;
-  onCreateEvent: () => void;
 }
 
 export function Toolbar(props: IProps) {
