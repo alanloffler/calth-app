@@ -56,29 +56,31 @@ export function CalendarEventsList({ className, professionalId }: IProps) {
     <>
       <div className={cn("flex h-fit flex-col rounded-lg border", className)}>
         <h2 className="bg-muted rounded-t-lg border-b px-2 py-2 text-sm font-semibold">Lista de turnos</h2>
-        <ul>
+        <ul className="min-h-62.5">
           {events?.data?.result.map((event) => (
             <EventItem key={event.id} event={event} setOpen={setOpen} />
           ))}
         </ul>
-        <div className="flex items-center justify-end gap-2 p-2">
-          <Button
-            disabled={pageIndex < 2}
-            onClick={() => setPageIndex((prev) => prev - 1)}
-            size="icon-sm"
-            variant="secondary"
-          >
-            <ChevronLeft />
-          </Button>
-          <Button
-            disabled={pageIndex >= total / limit}
-            onClick={() => setPageIndex((prev) => prev + 1)}
-            size="icon-sm"
-            variant="secondary"
-          >
-            <ChevronRight />
-          </Button>
-        </div>
+        {events?.data?.total && events.data.total > limit && (
+          <div className="flex items-center justify-end gap-2 p-2">
+            <Button
+              disabled={pageIndex < 2}
+              onClick={() => setPageIndex((prev) => prev - 1)}
+              size="icon-sm"
+              variant="secondary"
+            >
+              <ChevronLeft />
+            </Button>
+            <Button
+              disabled={pageIndex >= total / limit}
+              onClick={() => setPageIndex((prev) => prev + 1)}
+              size="icon-sm"
+              variant="secondary"
+            >
+              <ChevronRight />
+            </Button>
+          </div>
+        )}
       </div>
       <ViewEventDialog open={open} setOpen={handleOpenChange} onEventChange={handleEventChange} />
     </>
