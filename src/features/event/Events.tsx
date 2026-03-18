@@ -16,7 +16,7 @@ import type { ColumnDef, PaginationState, SortingState } from "@tanstack/react-t
 import { enUS, es } from "date-fns/locale";
 import { format, type Locale } from "date-fns";
 import { toast } from "sonner";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
@@ -45,10 +45,10 @@ export default function Events() {
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: LIMIT });
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { selectedEvent, setSelectedEvent, setOpenViewEventSheet, refreshKey } = useEventStore();
+  const { selectedEvent, setSelectedEvent, setOpenCreateEventSheet, setOpenViewEventSheet } = useEventStore();
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["events", filters, pagination, sorting],
+    queryKey: ["events", "list", filters, pagination, sorting],
     queryFn: () => {
       const sort = sorting[0];
       return EventsService.findEventsFiltered(
@@ -60,10 +60,6 @@ export default function Events() {
       );
     },
   });
-
-  useEffect(() => {
-    refetch();
-  }, [refetch, refreshKey]);
 
   const handleSearch = useCallback(() => refetch(), [refetch]);
 
@@ -169,7 +165,7 @@ export default function Events() {
       <div className="flex flex-col gap-8">
         <PageHeader title="Turnos" subtitle="Módulo de visualización y administración de turnos">
           <Protected requiredPermission="events-create">
-            <Button size="lg" variant="default" onClick={() => console.log("open global sheet create event")}>
+            <Button size="lg" variant="default" onClick={() => setOpenCreateEventSheet(true)}>
               Crear turno
             </Button>
           </Protected>
