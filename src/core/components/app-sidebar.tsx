@@ -24,12 +24,13 @@ import { NavUser } from "@components/nav-user";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@components/ui/sidebar";
 import { TeamSwitcher } from "@components/team-switcher";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSidebar } from "@components/ui/sidebar";
 
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { cn } from "@lib/utils";
 import { useAuthStore } from "@auth/stores/auth.store";
+import { useEventStore } from "@calendar/stores/event.store";
 
 const data = {
   teams: {
@@ -136,45 +137,6 @@ const data = {
       permission: "settings-view" as TPermission,
     },
   ],
-  navActions: [
-    {
-      name: "Crear turno",
-      type: "action" as const,
-      onClick: () => console.log("Open create event sheet"),
-      icon: Plus,
-      permission: "events-create" as TPermission,
-    },
-    {
-      name: "Crear paciente",
-      type: "link" as const,
-      url: "/users/create",
-      icon: Plus,
-      permission: "patient-create" as TPermission,
-      state: { role: "patient" },
-    },
-    {
-      name: "Crear profesional",
-      type: "link" as const,
-      url: "/users/create",
-      icon: Plus,
-      permission: "professional-create" as TPermission,
-      state: { role: "professional" },
-    },
-    {
-      name: "Crear rol",
-      type: "link" as const,
-      url: "/roles/create",
-      icon: ShieldPlus,
-      permission: "roles-create" as TPermission,
-    },
-    {
-      name: "Crear permiso",
-      type: "link" as const,
-      url: "/permissions/create",
-      icon: KeyRoundPlus,
-      permission: "permissions-create" as TPermission,
-    },
-  ] satisfies INavAction[],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -190,6 +152,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [hasScroll, setHasScroll] = useState(false);
   const { openMobile } = useSidebar();
+  const { setOpenCreateEventSheet } = useEventStore();
 
   useEffect(() => {
     const checkScroll = () => {
@@ -218,6 +181,51 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     };
   }, [adminPermissions, openMobile]);
 
+  const handleOpenCreateEventSheet = useCallback(() => setOpenCreateEventSheet(true), [setOpenCreateEventSheet]);
+
+  const navActions = useMemo<INavAction[]>(
+    () => [
+      {
+        name: "Crear turno",
+        type: "action" as const,
+        onClick: handleOpenCreateEventSheet,
+        icon: Plus,
+        permission: "events-create" as TPermission,
+      },
+      {
+        name: "Crear paciente",
+        type: "link" as const,
+        url: "/users/create",
+        icon: Plus,
+        permission: "patient-create" as TPermission,
+        state: { role: "patient" },
+      },
+      {
+        name: "Crear profesional",
+        type: "link" as const,
+        url: "/users/create",
+        icon: Plus,
+        permission: "professional-create" as TPermission,
+        state: { role: "professional" },
+      },
+      {
+        name: "Crear rol",
+        type: "link" as const,
+        url: "/roles/create",
+        icon: ShieldPlus,
+        permission: "roles-create" as TPermission,
+      },
+      {
+        name: "Crear permiso",
+        type: "link" as const,
+        url: "/permissions/create",
+        icon: KeyRoundPlus,
+        permission: "permissions-create" as TPermission,
+      },
+    ],
+    [handleOpenCreateEventSheet],
+  );
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -231,7 +239,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         key={adminPermissions}
       >
         <NavMain items={data.navMain} />
-        <NavActions items={data.navActions} />
+        <NavActions items={navActions} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
