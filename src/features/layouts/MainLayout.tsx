@@ -1,6 +1,6 @@
-import { AddEventSheet } from "@calendar/components/sheets/AddEventSheet";
 import { AppSidebar } from "@components/app-sidebar";
 import { BackButton } from "@components/ui/BackButton";
+import { CreateEventSheet } from "@calendar/components/sheets/CreateEventSheet";
 import { HeaderBreadcrumb } from "@components/Breadcrumb";
 import { ModeToggle } from "@components/mode-toggle";
 import { Outlet } from "react-router";
@@ -30,7 +30,7 @@ export function MainLayout() {
           </div>
         </SidebarInset>
       </SidebarProvider>
-      <AddEventSheet onCreateEvent={() => console.log("todo callback")} />
+      <CreateEventSheet onCreateEvent={() => console.log("todo callback")} />
       <ViewEventSheet />
     </>
   );
