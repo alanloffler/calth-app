@@ -22,7 +22,7 @@ export function CalendarEventsList({ className, professionalId }: IProps) {
   const { triggerRefresh } = useEventStore();
 
   const { data: events } = useQuery({
-    queryKey: ["events", professionalId],
+    queryKey: ["events", "professional-list", professionalId],
     queryFn: () => EventsService.findEventsFiltered({ professionalId }, 10),
     enabled: !!professionalId,
   });
@@ -30,7 +30,7 @@ export function CalendarEventsList({ className, professionalId }: IProps) {
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen && hasChanges) {
-      queryClient.invalidateQueries({ queryKey: ["events", professionalId] });
+      queryClient.invalidateQueries({ queryKey: ["events", "professional-list", professionalId] });
       triggerRefresh();
       setHasChanges(false);
     }
