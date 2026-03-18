@@ -36,7 +36,7 @@ interface IProps {
   onCreateEvent: () => void;
 }
 
-export function AddEventSheet({ onCreateEvent }: IProps) {
+export function CreateEventSheet({ onCreateEvent }: IProps) {
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
