@@ -1,5 +1,3 @@
-import { Plus } from "lucide-react";
-
 import { Button } from "@components/ui/button";
 import { Calendar, CalendarDayButton } from "@components/ui/calendar";
 import { Controller } from "react-hook-form";
@@ -7,9 +5,8 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field"
 import { HourGrid } from "@calendar/components/HourGrid";
 import { Input } from "@components/ui/input";
 import { Loader } from "@components/Loader";
-import { Protected } from "@auth/components/Protected";
 import { ScrollArea } from "@components/ui/scroll-area";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@components/ui/sheet";
 import { UserCombobox } from "@calendar/components/UserCombobox";
 
 import type z from "zod";
@@ -32,11 +29,7 @@ import { useEventStore } from "@calendar/stores/event.store";
 import { useQuery } from "@tanstack/react-query";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
-interface IProps {
-  onCreateEvent: () => void;
-}
-
-export function CreateEventSheet({ onCreateEvent }: IProps) {
+export function CreateEventSheet() {
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
@@ -78,7 +71,6 @@ export function CreateEventSheet({ onCreateEvent }: IProps) {
       toast.success("Turno creado exitosamente");
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["events"] });
-      onCreateEvent();
     }
   }
 
@@ -194,14 +186,6 @@ export function CreateEventSheet({ onCreateEvent }: IProps) {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <Protected requiredPermission="events-create">
-        <SheetTrigger asChild>
-          <Button className="w-full md:w-auto">
-            <Plus className="h-4 w-4" />
-            Turno
-          </Button>
-        </SheetTrigger>
-      </Protected>
       <SheetContent className="sm:min-w-155">
         <SheetHeader className="pt-8">
           <SheetTitle className="text-lg">Agregar turno a la agenda</SheetTitle>
