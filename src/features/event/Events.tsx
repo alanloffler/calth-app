@@ -9,7 +9,6 @@ import { PageHeader } from "@components/pages/PageHeader";
 import { Protected } from "@auth/components/Protected";
 import { SortableHeader } from "@components/data-table/SortableHeader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
-import { ViewEventSheet } from "@calendar/components/sheets/ViewEventSheet";
 
 import axios from "axios";
 import type { ColumnDef, PaginationState, SortingState } from "@tanstack/react-table";
@@ -182,7 +181,6 @@ export default function Events() {
           searchable={false}
         />
       </div>
-      <ViewEventSheet />
       <ConfirmDialog
         title="Eliminar turno"
         description="¿Seguro que querés eliminar este turno?"
