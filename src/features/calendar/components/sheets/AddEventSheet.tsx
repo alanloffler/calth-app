@@ -26,7 +26,9 @@ import { EventsService } from "@event/services/events.service";
 import { UsersService } from "@users/services/users.service";
 import { eventSchema } from "@calendar/schemas/event.schema";
 import { isDayAvailable, isHourSlotAvailable, parseCalendarConfig } from "@calendar/utils/calendar.utils";
+import { queryClient } from "@core/lib/query-client";
 import { useCalendarStore } from "@calendar/stores/calendar.store";
+import { useEventStore } from "@calendar/stores/event.store";
 import { useQuery } from "@tanstack/react-query";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
@@ -36,10 +38,10 @@ interface IProps {
 
 export function AddEventSheet({ onCreateEvent }: IProps) {
   const [month, setMonth] = useState<Date | undefined>(new Date());
-  const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
   const { isLoading: isSaving, tryCatch: tryCatchCreateEvent } = useTryCatch();
+  const { openCreateEventSheet: open, setOpenCreateEventSheet: setOpen } = useEventStore();
   const { selectedProfessional } = useCalendarStore();
   const { tryCatch: tryCatchDayEvents } = useTryCatch();
   const { tryCatch: tryCatchProfessional } = useTryCatch();
@@ -74,7 +76,8 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
 
     if (response && response.statusCode === 201) {
       toast.success("Turno creado exitosamente");
-      setOpenSheet(false);
+      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["events"] });
       onCreateEvent();
     }
   }
@@ -85,10 +88,10 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
   });
 
   useEffect(() => {
-    if (openSheet === false) {
+    if (open === false) {
       form.reset();
     }
-  }, [form, openSheet]);
+  }, [form, open]);
 
   useEffect(() => {
     if (!professionalId) {
@@ -190,7 +193,7 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
   const withEvents = getDaysWithEventsArray(daysWithEvents?.data);
 
   return (
-    <Sheet open={openSheet} onOpenChange={setOpenSheet}>
+    <Sheet open={open} onOpenChange={setOpen}>
       <Protected requiredPermission="events-create">
         <SheetTrigger asChild>
           <Button className="w-full md:w-auto">
@@ -366,7 +369,7 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
                 onClick={() => {
                   form.clearErrors();
                   form.reset();
-                  setOpenSheet(false);
+                  setOpen(false);
                 }}
               >
                 Cancelar
