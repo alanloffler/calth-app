@@ -1,3 +1,4 @@
+import { AddEventSheet } from "@calendar/components/sheets/AddEventSheet";
 import { AppSidebar } from "@components/app-sidebar";
 import { BackButton } from "@components/ui/BackButton";
 import { HeaderBreadcrumb } from "@components/Breadcrumb";
@@ -29,6 +30,7 @@ export function MainLayout() {
           </div>
         </SidebarInset>
       </SidebarProvider>
+      <AddEventSheet onCreateEvent={() => console.log("todo callback")} />
       <ViewEventSheet />
     </>
   );
