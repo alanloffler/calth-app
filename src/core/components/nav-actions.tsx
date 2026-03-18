@@ -30,13 +30,24 @@ interface IProps {
   items: INavAction[];
 }
 
-interface INavAction {
+interface INavActionBase {
   icon: LucideIcon | ComponentType<SVGProps<SVGSVGElement>>;
   name: string;
   permission: TPermission | TPermission[];
   state?: { [key: string]: string };
+}
+
+interface INavActionLink extends INavActionBase {
+  type: "link";
   url: string;
 }
+
+export interface INavActionButton extends INavActionBase {
+  type: "action";
+  onClick: () => void;
+}
+
+export type INavAction = INavActionLink | INavActionButton;
 
 export function NavActions({ items }: IProps) {
   // const { isMobile } = useSidebar();
@@ -52,12 +63,19 @@ export function NavActions({ items }: IProps) {
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
             <Protected requiredPermission={item.permission}>
-              <SidebarMenuButton asChild isActive={isActive(item.url, item.state)}>
-                <Link to={item.url} state={item.state}>
+              {item.type === "link" ? (
+                <SidebarMenuButton asChild isActive={isActive(item.url, item.state)}>
+                  <Link to={item.url} state={item.state}>
+                    {showMenuIcons && <item.icon />}
+                    <span>{item.name}</span>
+                  </Link>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton onClick={item.onClick}>
                   {showMenuIcons && <item.icon />}
                   <span>{item.name}</span>
-                </Link>
-              </SidebarMenuButton>
+                </SidebarMenuButton>
+              )}
             </Protected>
             {/* <DropdownMenu> */}
             {/*   <DropdownMenuTrigger asChild> */}
