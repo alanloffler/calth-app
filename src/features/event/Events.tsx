@@ -164,7 +164,11 @@ export default function Events() {
   return (
     <>
       <div className="flex flex-col gap-8">
-        <PageHeader title="Turnos" subtitle="Módulo de visualización y administración de turnos" />
+        <PageHeader title="Turnos" subtitle="Módulo de visualización y administración de turnos">
+          <Button size="lg" variant="default" onClick={() => console.log("open global sheet create event")}>
+            Crear turno
+          </Button>
+        </PageHeader>
         <Filters filters={filters} setFilters={setFilters} onSearch={handleSearch} />
         <DataTablePaginated
           columns={columns}
