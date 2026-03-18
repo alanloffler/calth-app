@@ -290,10 +290,6 @@ export function AddEventSheet({ onCreateEvent }: IProps) {
                       >
                         <FieldLabel htmlFor="date">Fecha</FieldLabel>
                         <div className="flex-1">
-                          {/*disabled={(date) => {
-                            if (professionalConfig?.excludedDays?.includes(date.getDay())) return true;
-                            return unavailable.includes(date.getDate());
-                          }}*/}
                           <Calendar
                             aria-invalid={isDateInvalid}
                             className="aspect-square h-fit w-full"
