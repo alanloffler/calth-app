@@ -18,7 +18,7 @@ import {
 import { KeyRoundPlus } from "@components/icons/KeyRoundPlus";
 import { Patients } from "@components/icons/Patients";
 
-import { NavActions } from "@components/nav-actions";
+import { NavActions, type INavAction } from "@components/nav-actions";
 import { NavMain } from "@components/nav-main";
 import { NavUser } from "@components/nav-user";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@components/ui/sidebar";
@@ -138,7 +138,15 @@ const data = {
   ],
   navActions: [
     {
+      name: "Crear turno",
+      type: "action" as const,
+      onClick: () => console.log("Open create event sheet"),
+      icon: Plus,
+      permission: "events-create" as TPermission,
+    },
+    {
       name: "Crear paciente",
+      type: "link" as const,
       url: "/users/create",
       icon: Plus,
       permission: "patient-create" as TPermission,
@@ -146,6 +154,7 @@ const data = {
     },
     {
       name: "Crear profesional",
+      type: "link" as const,
       url: "/users/create",
       icon: Plus,
       permission: "professional-create" as TPermission,
@@ -153,17 +162,19 @@ const data = {
     },
     {
       name: "Crear rol",
+      type: "link" as const,
       url: "/roles/create",
       icon: ShieldPlus,
       permission: "roles-create" as TPermission,
     },
     {
       name: "Crear permiso",
+      type: "link" as const,
       url: "/permissions/create",
       icon: KeyRoundPlus,
       permission: "permissions-create" as TPermission,
     },
-  ],
+  ] satisfies INavAction[],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
