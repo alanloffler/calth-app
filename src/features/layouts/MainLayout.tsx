@@ -27,11 +27,11 @@ export function MainLayout() {
           </header>
           <div className="flex flex-1 flex-col overflow-y-auto p-8">
             <Outlet />
+            <CreateEventSheet />
+            <ViewEventSheet />
           </div>
         </SidebarInset>
       </SidebarProvider>
-      <CreateEventSheet onCreateEvent={() => console.log("todo callback")} />
-      <ViewEventSheet />
     </>
   );
 }
