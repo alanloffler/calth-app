@@ -6,6 +6,7 @@ import { DataTablePaginated } from "@components/data-table/DataTablePaginated";
 import { EventStatus } from "@calendar/components/ui/EventStatus";
 import { Filters } from "@event/components/Filters";
 import { PageHeader } from "@components/pages/PageHeader";
+import { Protected } from "@auth/components/Protected";
 import { SortableHeader } from "@components/data-table/SortableHeader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 import { ViewEventSheet } from "@calendar/components/sheets/ViewEventSheet";
@@ -122,22 +123,24 @@ export default function Events() {
             </TooltipTrigger>
             <TooltipContent>Ver detalles</TooltipContent>
           </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                className="hover:text-delete"
-                size="icon-sm"
-                variant="outline"
-                onClick={() => {
-                  setSelectedEvent(row.original);
-                  setOpenRemoveHardDialog(true);
-                }}
-              >
-                <Trash2 />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Eliminar</TooltipContent>
-          </Tooltip>
+          <Protected requiredPermission="events-delete-hard">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  className="hover:text-delete"
+                  size="icon-sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedEvent(row.original);
+                    setOpenRemoveHardDialog(true);
+                  }}
+                >
+                  <Trash2 />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Eliminar</TooltipContent>
+            </Tooltip>
+          </Protected>
         </div>
       ),
     },
