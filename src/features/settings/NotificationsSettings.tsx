@@ -113,13 +113,13 @@ export default function NotificationsSettings() {
                     "Guardar"
                   )}
                 </Button>
-                {!canEditSettings && <LockKeyhole className="text-muted-foreground mt-2 h-3.5 w-3.5" />}
+                {!canEditSettings && <LockKeyhole className="text-muted-foreground mt-2 h-3.5 w-3.5 shrink-0" />}
                 <button
                   className="mt-1 p-1 transition-colors duration-150 hover:text-sky-500"
                   onClick={(e) => togglePasswordField(e)}
                   type="button"
                 >
-                  {passwordField ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+                  {passwordField ? <Eye className="size-5 shrink-0" /> : <EyeOff className="size-5 shrink-0" />}
                 </button>
               </form>
             )}
@@ -158,7 +158,7 @@ export default function NotificationsSettings() {
                     "Guardar"
                   )}
                 </Button>
-                {!canEditSettings && <LockKeyhole className="text-muted-foreground mt-2 h-3.5 w-3.5" />}
+                {!canEditSettings && <LockKeyhole className="text-muted-foreground mt-2 h-3.5 w-3.5 shrink-0" />}
               </form>
             )}
           </CardContent>
