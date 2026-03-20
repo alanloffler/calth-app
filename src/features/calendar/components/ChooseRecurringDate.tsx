@@ -12,26 +12,29 @@ import {
 import { FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 
+import { addMinutes, format } from "date-fns";
 import { es } from "date-fns/locale";
-import { format } from "date-fns";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 
 import { EventsService } from "@event/services/events.service";
 import { tryCatch } from "@core/utils/try-catch";
+import { Minus, Plus } from "lucide-react";
 
 interface IProps {
   disabled: boolean;
   selectedDate: string;
+  slotDuration: number | undefined;
 }
 
-export function ChooseRecurringDate({ disabled, selectedDate }: IProps) {
-  const [days, setDays] = useState<number>(0);
+export function ChooseRecurringDate({ disabled, selectedDate, slotDuration }: IProps) {
+  const [days, setDays] = useState<number>(2);
   const [display, setDisplay] = useState<boolean>(false);
   const [openRecurringDialog, setOpenRecurringDialog] = useState<boolean>(false);
 
   function handleChecked(checked: boolean) {
     setDisplay(checked);
+    setDays(2);
   }
 
   async function handleCheckAvailability(): Promise<void> {
@@ -54,7 +57,7 @@ export function ChooseRecurringDate({ disabled, selectedDate }: IProps) {
         <div className="flex items-center gap-3">
           <Checkbox
             checked={display}
-            disabled={disabled}
+            disabled={disabled || !slotDuration}
             id="recurring"
             name="recurring"
             onCheckedChange={() => handleChecked(!display)}
@@ -63,13 +66,37 @@ export function ChooseRecurringDate({ disabled, selectedDate }: IProps) {
         </div>
         <Activity mode={display && !disabled ? "visible" : "hidden"}>
           <div className="flex items-center gap-3">
-            <Input
-              className="max-w-25"
-              onChange={(e) => setDays(Number(e.target.value))}
-              placeholder="Dias"
-              type="number"
-              value={days}
-            />
+            <div className="flex items-center gap-2">
+              <Button
+                disabled={days <= 2}
+                onClick={() => setDays((prev) => prev - 1)}
+                size="icon-sm"
+                type="button"
+                variant="secondary"
+              >
+                <Minus />
+              </Button>
+              <Input
+                className="max-w-15 appearance-none text-center"
+                defaultValue={"2"}
+                inputMode="numeric"
+                maxLength={2}
+                onChange={(e) => (e.target.value !== "" ? setDays(Number(e.target.value)) : setDays(2))}
+                readOnly
+                value={days}
+              />
+              <Button
+                disabled={days >= 10}
+                onClick={() => {
+                  setDays((prev) => prev + 1);
+                }}
+                size="icon-sm"
+                type="button"
+                variant="secondary"
+              >
+                <Plus />
+              </Button>
+            </div>
             <Button disabled={days === 0} onClick={handleCheckAvailability} type="button" size="sm" variant="secondary">
               Comprobar disponibilidad
             </Button>
@@ -82,19 +109,25 @@ export function ChooseRecurringDate({ disabled, selectedDate }: IProps) {
             <DialogTitle>Detalles del turno recurrente</DialogTitle>
             <DialogDescription className="sr-only"></DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-2">
-            <p>Van a ser creados {days} turnos recurrentes en el mismo día y horario.</p>
-            <ul className="flex flex-col gap-2">
-              <li className="flex gap-2">
-                <span className="font-semibold">Día:</span>
-                <span>{format(selectedDate, "EEEE", { locale: es })}</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">Horario:</span>
-                <span>{format(selectedDate, "HH:mm", { locale: es })}</span>
-              </li>
-            </ul>
-          </div>
+          {slotDuration && (
+            <div className="flex flex-col gap-2">
+              <p>Van a ser creados {days} turnos recurrentes en el mismo día y horario.</p>
+              <ul className="flex flex-col gap-2">
+                <li className="flex gap-2">
+                  <span className="font-semibold">Día:</span>
+                  <span>{format(selectedDate, "EEEE", { locale: es })}</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="font-semibold">Horario:</span>
+                  <span>
+                    {format(selectedDate, "HH:mm", { locale: es })} -{" "}
+                    {addMinutes(selectedDate, slotDuration).getHours()}:
+                    {addMinutes(selectedDate, slotDuration).getMinutes()} hs.
+                  </span>
+                </li>
+              </ul>
+            </div>
+          )}
           <DialogFooter>
             <Button onClick={() => setOpenRecurringDialog(false)} type="button" size="sm" variant="secondary">
               Cancelar
