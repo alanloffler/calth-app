@@ -67,6 +67,11 @@ class EventsModuleService {
     const response = await apiClient.delete(path);
     return response.data;
   }
+
+  public async checkRecurringAvailability(days: number): Promise<IApiResponse<boolean>> {
+    console.log(`Days: ${days}`);
+    return { data: false, message: "Unavailable days for recurring event", statusCode: 200 };
+  }
 }
 
 export const EventsService = EventsModuleService.getInstance();
