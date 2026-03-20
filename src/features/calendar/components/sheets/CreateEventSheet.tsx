@@ -336,6 +336,7 @@ export function CreateEventSheet() {
             <FieldGroup>
               <ChooseRecurringDate
                 selectedDate={startDate}
+                slotDuration={professionalConfig?.step}
                 disabled={new Date(form.getValues().startDate).getHours() < 1}
               />
             </FieldGroup>
