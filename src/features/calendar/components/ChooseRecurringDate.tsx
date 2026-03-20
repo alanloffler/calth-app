@@ -1,3 +1,5 @@
+import { Minus, Plus } from "lucide-react";
+
 import { Activity } from "react";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
@@ -18,8 +20,8 @@ import { toast } from "sonner";
 import { useEffect, useState } from "react";
 
 import { EventsService } from "@event/services/events.service";
+import { cn } from "@lib/utils";
 import { tryCatch } from "@core/utils/try-catch";
-import { Minus, Plus } from "lucide-react";
 
 interface IProps {
   disabled: boolean;
@@ -53,9 +55,13 @@ export function ChooseRecurringDate({ disabled, selectedDate, slotDuration }: IP
     if (disabled) handleChecked(false);
   }, [disabled]);
 
+  useEffect(() => {
+    setRecurringDays(undefined);
+  }, [selectedDate]);
+
   return (
     <>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
           <Checkbox
             checked={display}
@@ -103,6 +109,11 @@ export function ChooseRecurringDate({ disabled, selectedDate, slotDuration }: IP
               Comprobar disponibilidad
             </Button>
           </div>
+          {recurringDays && recurringDays.length === 0 && (
+            <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
+              No hay {days} turnos recurrentes disponibles, elegí otra fecha u horario
+            </div>
+          )}
         </Activity>
       </div>
       <Dialog open={openRecurringDialog} onOpenChange={setOpenRecurringDialog}>
@@ -131,13 +142,15 @@ export function ChooseRecurringDate({ disabled, selectedDate, slotDuration }: IP
                   <span className="font-semibold">Recurrencia:</span>
                   <span>{days} turnos</span>
                 </li>
-                <li className="flex gap-2">
+                <li className={cn("flex gap-2", !recurringDays || recurringDays.length === 0 ? "items-center" : "")}>
                   <span className="font-semibold">Detalles:</span>
                   <ul className="flex flex-col gap-1">
                     {recurringDays && recurringDays.length > 0 ? (
                       recurringDays.map((d) => <li>{format(d.date, "PPPP", { locale: es })}</li>)
                     ) : (
-                      <li>No hay turnos disponibles</li>
+                      <li className="rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
+                        No hay {days} turnos recurrentes disponibles
+                      </li>
                     )}
                   </ul>
                 </li>
