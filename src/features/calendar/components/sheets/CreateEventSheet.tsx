@@ -1,5 +1,6 @@
 import { Button } from "@components/ui/button";
 import { Calendar, CalendarDayButton } from "@components/ui/calendar";
+import { ChooseRecurringDate } from "@calendar/components/ChooseRecurringDate";
 import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { HourGrid } from "@calendar/components/HourGrid";
@@ -331,6 +332,9 @@ export function CreateEventSheet() {
                   );
                 }}
               />
+            </FieldGroup>
+            <FieldGroup>
+              <ChooseRecurringDate />
             </FieldGroup>
             <div className="flex flex-col justify-center gap-4 pt-8 md:flex-row md:justify-end">
               <Button
