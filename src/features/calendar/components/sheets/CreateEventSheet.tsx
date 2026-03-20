@@ -334,7 +334,7 @@ export function CreateEventSheet() {
               />
             </FieldGroup>
             <FieldGroup>
-              <ChooseRecurringDate />
+              <ChooseRecurringDate disabled={new Date(form.getValues().startDate).getHours() < 1} />
             </FieldGroup>
             <div className="flex flex-col justify-center gap-4 pt-8 md:flex-row md:justify-end">
               <Button
