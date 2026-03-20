@@ -31,6 +31,7 @@ export function ChooseRecurringDate({ disabled, selectedDate, slotDuration }: IP
   const [days, setDays] = useState<number>(2);
   const [display, setDisplay] = useState<boolean>(false);
   const [openRecurringDialog, setOpenRecurringDialog] = useState<boolean>(false);
+  const [recurringDays, setRecurringDays] = useState<{ date: string }[] | undefined>(undefined);
 
   function handleChecked(checked: boolean) {
     setDisplay(checked);
@@ -44,6 +45,7 @@ export function ChooseRecurringDate({ disabled, selectedDate, slotDuration }: IP
     }
     if (response && response.statusCode === 200) {
       setOpenRecurringDialog(true);
+      setRecurringDays(response.data);
     }
   }
 
@@ -125,12 +127,29 @@ export function ChooseRecurringDate({ disabled, selectedDate, slotDuration }: IP
                     {addMinutes(selectedDate, slotDuration).getMinutes()} hs.
                   </span>
                 </li>
+                <li className="flex gap-2">
+                  <span className="font-semibold">Recurrencia:</span>
+                  <span>{days} turnos</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="font-semibold">Detalles:</span>
+                  <ul className="flex flex-col gap-1">
+                    {recurringDays && recurringDays.length > 0 ? (
+                      recurringDays.map((d) => <li>{format(d.date, "PPPP", { locale: es })}</li>)
+                    ) : (
+                      <li>No hay turnos disponibles</li>
+                    )}
+                  </ul>
+                </li>
               </ul>
             </div>
           )}
           <DialogFooter>
-            <Button onClick={() => setOpenRecurringDialog(false)} type="button" size="sm" variant="secondary">
+            <Button onClick={() => setOpenRecurringDialog(false)} type="button" size="default" variant="secondary">
               Cancelar
+            </Button>
+            <Button onClick={() => setOpenRecurringDialog(false)} type="button" size="default" variant="default">
+              Continuar
             </Button>
           </DialogFooter>
         </DialogContent>
