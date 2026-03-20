@@ -1,10 +1,14 @@
-import { Activity, useEffect } from "react";
+import { Activity } from "react";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
 import { FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 
-import { useState } from "react";
+import { toast } from "sonner";
+import { useEffect, useState } from "react";
+
+import { EventsService } from "@event/services/events.service";
+import { tryCatch } from "@core/utils/try-catch";
 
 interface IProps {
   disabled: boolean;
@@ -18,8 +22,14 @@ export function ChooseRecurringDate({ disabled }: IProps) {
     setDisplay(checked);
   }
 
-  function handleCheckAvailability(): void {
-    console.log(`Days: ${days}`);
+  async function handleCheckAvailability(): Promise<void> {
+    const [response, error] = await tryCatch(EventsService.checkRecurringAvailability(days));
+    if (error) {
+      toast.error(error.message);
+    }
+    if (response && response.statusCode === 200) {
+      toast.success(response.message);
+    }
   }
 
   useEffect(() => {
