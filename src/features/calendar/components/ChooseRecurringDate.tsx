@@ -28,6 +28,7 @@ interface IProps {
   error?: string;
   onActiveChange: (active: boolean) => void;
   onConfirm: (dates: string[], count: number) => void;
+  professionalId: string;
   recurringDays: { date: string }[] | undefined;
   selectedDate: string;
   setRecurringDays: Dispatch<SetStateAction<{ date: string }[] | undefined>>;
@@ -39,6 +40,7 @@ export function ChooseRecurringDate({
   error,
   onActiveChange,
   onConfirm,
+  professionalId,
   recurringDays,
   selectedDate,
   setRecurringDays,
@@ -58,7 +60,9 @@ export function ChooseRecurringDate({
   );
 
   async function handleCheckAvailability(): Promise<void> {
-    const [response, error] = await tryCatch(EventsService.checkRecurringAvailability(selectedDate, days));
+    const [response, error] = await tryCatch(
+      EventsService.checkRecurringAvailability(professionalId, selectedDate, days),
+    );
     if (error) {
       toast.error(error.message);
     }
