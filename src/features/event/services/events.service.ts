@@ -68,8 +68,12 @@ class EventsModuleService {
     return response.data;
   }
 
-  public async checkRecurringAvailability(startDate: string, days: number): Promise<IApiResponse<{ date: string }[]>> {
-    const path = `/events/check-recurring?startDate=${startDate}&days=${days}`;
+  public async checkRecurringAvailability(
+    professionalId: string,
+    startDate: string,
+    days: number,
+  ): Promise<IApiResponse<{ date: string }[]>> {
+    const path = `/events/check-recurring?professionalId=${professionalId}&startDate=${startDate}&days=${days}`;
     const response = await apiClient.get(path);
     return response.data;
   }
