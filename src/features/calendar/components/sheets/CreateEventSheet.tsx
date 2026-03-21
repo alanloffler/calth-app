@@ -23,7 +23,7 @@ import { CalendarService } from "@calendar/services/calendar.service";
 import { EventsService } from "@event/services/events.service";
 import { UsersService } from "@users/services/users.service";
 import { eventSchema } from "@calendar/schemas/event.schema";
-import { isDayAvailable, isHourSlotAvailable, parseCalendarConfig } from "@calendar/utils/calendar.utils";
+import { isDayAvailable, parseCalendarConfig } from "@calendar/utils/calendar.utils";
 import { queryClient } from "@core/lib/query-client";
 import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { useEventStore } from "@calendar/stores/event.store";
@@ -92,40 +92,23 @@ export function CreateEventSheet() {
       return;
     }
 
+    // Reset immediately to avoid an intermediate render where the selected
+    // date is disabled by the incoming professional's config.
+    form.setValue("startDate", "");
+    setProfessionalConfig(null);
+
     async function fetchProfessionalConfig() {
       const [response, error] = await tryCatchProfessional(UsersService.findProfessional(professionalId));
 
       if (error || !response?.data?.professionalProfile) {
-        setProfessionalConfig(null);
         return;
       }
 
       const config = parseCalendarConfig(response.data.professionalProfile);
       setProfessionalConfig(config);
 
-      const currentStartDate = form.getValues("startDate");
-
-      if (!currentStartDate) {
-        if (isDayAvailable(new Date(), config.excludedDays)) {
-          form.setValue("startDate", format(new Date(), "yyyy-MM-dd'T'00:00:00XXX"));
-        }
-        return;
-      }
-
-      const selectedDate = parseISO(currentStartDate);
-
-      if (!isDayAvailable(selectedDate, config.excludedDays)) {
-        if (isDayAvailable(new Date(), config.excludedDays)) {
-          form.setValue("startDate", format(new Date(), "yyyy-MM-dd'T'00:00:00XXX"));
-        } else {
-          form.setValue("startDate", "");
-        }
-        return;
-      }
-
-      if (!isHourSlotAvailable(selectedDate, config)) {
-        selectedDate.setHours(0, 0, 0, 0);
-        form.setValue("startDate", format(selectedDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
+      if (isDayAvailable(new Date(), config.excludedDays)) {
+        form.setValue("startDate", format(new Date(), "yyyy-MM-dd'T'00:00:00XXX"));
       }
     }
 
@@ -278,7 +261,7 @@ export function CreateEventSheet() {
                           <Calendar
                             aria-invalid={isDateInvalid}
                             className="aspect-square h-fit w-full"
-                            disabled={[{ dayOfWeek: professionalConfig?.excludedDays as number[] }]}
+                            disabled={professionalConfig ? [{ dayOfWeek: professionalConfig.excludedDays }] : []}
                             modifiers={{
                               withEvents: (date) => {
                                 if (professionalConfig?.excludedDays?.includes(date.getDay())) return false;
@@ -337,7 +320,7 @@ export function CreateEventSheet() {
               <ChooseRecurringDate
                 selectedDate={startDate}
                 slotDuration={professionalConfig?.step}
-                disabled={new Date(form.getValues().startDate).getHours() < 1}
+                disabled={!startDate || new Date(startDate).getHours() < 1}
               />
             </FieldGroup>
             <div className="flex flex-col justify-center gap-4 pt-8 md:flex-row md:justify-end">
