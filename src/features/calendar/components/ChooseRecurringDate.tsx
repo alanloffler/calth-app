@@ -17,7 +17,7 @@ import { Input } from "@components/ui/input";
 import { addMinutes, format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 
 import { EventsService } from "@event/services/events.service";
 import { cn } from "@lib/utils";
@@ -25,15 +25,16 @@ import { tryCatch } from "@core/utils/try-catch";
 
 interface IProps {
   disabled: boolean;
+  recurringDays: { date: string }[] | undefined;
   selectedDate: string;
+  setRecurringDays: Dispatch<SetStateAction<{ date: string }[] | undefined>>;
   slotDuration: number | undefined;
 }
 
-export function ChooseRecurringDate({ disabled, selectedDate, slotDuration }: IProps) {
+export function ChooseRecurringDate({ disabled, recurringDays, selectedDate, setRecurringDays, slotDuration }: IProps) {
   const [days, setDays] = useState<number>(2);
   const [display, setDisplay] = useState<boolean>(false);
   const [openRecurringDialog, setOpenRecurringDialog] = useState<boolean>(false);
-  const [recurringDays, setRecurringDays] = useState<{ date: string }[] | undefined>(undefined);
 
   function handleChecked(checked: boolean) {
     setDisplay(checked);
@@ -58,7 +59,7 @@ export function ChooseRecurringDate({ disabled, selectedDate, slotDuration }: IP
   useEffect(() => {
     setRecurringDays(undefined);
     setOpenRecurringDialog(false);
-  }, [selectedDate]);
+  }, [selectedDate, setRecurringDays]);
 
   return (
     <>
