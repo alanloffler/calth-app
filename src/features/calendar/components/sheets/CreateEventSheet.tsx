@@ -31,6 +31,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function CreateEventSheet() {
+  const [isRecurringActive, setIsRecurringActive] = useState(false);
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [recurringDays, setRecurringDays] = useState<{ date: string }[] | undefined>(undefined);
@@ -48,6 +49,8 @@ export function CreateEventSheet() {
       startDate: format(new Date(), "yyyy-MM-dd'T'00:00:00XXX"),
       title: "",
       userId: "",
+      recurringDates: undefined,
+      recurringCount: undefined,
     },
   });
 
@@ -84,6 +87,7 @@ export function CreateEventSheet() {
   useEffect(() => {
     if (open === false) {
       form.reset();
+      setIsRecurringActive(false);
     }
   }, [form, open]);
 
@@ -118,6 +122,26 @@ export function CreateEventSheet() {
     control: form.control,
     name: "startDate",
   });
+
+  const recurringDates = useWatch({ control: form.control, name: "recurringDates" });
+
+  function handleRecurringConfirm(dates: string[], count: number) {
+    form.setValue("recurringDates", dates, { shouldDirty: true, shouldValidate: true });
+    form.setValue("recurringCount", count, { shouldDirty: true, shouldValidate: true });
+  }
+
+  function handleRecurringActiveChange(active: boolean) {
+    setIsRecurringActive(active);
+    if (!active) {
+      form.setValue("recurringCount", undefined);
+      form.setValue("recurringDates", undefined, { shouldValidate: true });
+    }
+  }
+
+  useEffect(() => {
+    form.setValue("recurringCount", undefined);
+    form.setValue("recurringDates", undefined);
+  }, [startDate, form]);
 
   useEffect(() => {
     if (!startDate || !professionalId) {
@@ -318,6 +342,9 @@ export function CreateEventSheet() {
             <FieldGroup>
               <ChooseRecurringDate
                 disabled={!startDate || new Date(startDate).getHours() < 1}
+                error={form.formState.errors.recurringDates?.message}
+                onActiveChange={handleRecurringActiveChange}
+                onConfirm={handleRecurringConfirm}
                 recurringDays={recurringDays}
                 selectedDate={startDate}
                 setRecurringDays={setRecurringDays}
@@ -327,7 +354,11 @@ export function CreateEventSheet() {
             <div className="flex flex-col justify-center gap-4 pt-8 md:flex-row md:justify-end">
               <Button
                 className="md:order-2"
-                disabled={!form.formState.isDirty}
+                disabled={
+                  !form.formState.isDirty ||
+                  (isRecurringActive && !recurringDates?.length) ||
+                  !!form.formState.errors.recurringDates
+                }
                 form="create-event"
                 type="submit"
                 variant="default"
