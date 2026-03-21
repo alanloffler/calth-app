@@ -1,6 +1,7 @@
 import { Minus, Plus } from "lucide-react";
 
 import { Activity, useCallback } from "react";
+import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
 import {
@@ -28,9 +29,9 @@ interface IProps {
   onActiveChange: (active: boolean) => void;
   onConfirm: (dates: string[], count: number) => void;
   professionalId: string;
-  recurringDays: { date: string }[] | undefined;
+  recurringDays: { date: string; available: boolean }[] | undefined;
   selectedDate: string;
-  setRecurringDays: Dispatch<SetStateAction<{ date: string }[] | undefined>>;
+  setRecurringDays: Dispatch<SetStateAction<{ date: string; available: boolean }[] | undefined>>;
   slotDuration: number | undefined;
 }
 
@@ -68,13 +69,15 @@ export function ChooseRecurringDate({
       setIsFetchingError(true);
     }
     if (response && response.statusCode === 200 && response.data) {
+      setRecurringDays(response.data);
+
       const isNotAvailable = response.data.some((d) => d.available === false);
       if (isNotAvailable) {
         setIsNotAvailableError(true);
         return;
       }
+
       setOpenRecurringDialog(true);
-      setRecurringDays(response.data);
     }
   }
 
@@ -144,8 +147,20 @@ export function ChooseRecurringDate({
           </div>
           {(recurringDays && recurringDays.length === 0) ||
             (isNotAvailableError && (
-              <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
-                No hay {days} turnos recurrentes disponibles, elegí otra fecha u horario
+              <div className="flex flex-col gap-3">
+                <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
+                  No hay {days} turnos recurrentes disponibles, elegí otra fecha u horario
+                </div>
+                <ul className="flex flex-col gap-1">
+                  {recurringDays?.map((d) => (
+                    <li className="flex items-center gap-3" key={d.date}>
+                      <Badge size="small" variant={d.available ? "green" : "gray"}>
+                        {d.available ? "Disponible" : "Ocupado"}
+                      </Badge>
+                      <span className="text-sm">{format(d.date, "PPPP", { locale: es })}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           {isFetchingError && (
