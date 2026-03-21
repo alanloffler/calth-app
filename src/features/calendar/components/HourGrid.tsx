@@ -120,7 +120,7 @@ export function HourGrid({ form, isInvalid, professionalConfig, takenSlots = [] 
   const afterSeparator = separatorIndex > 0 ? slots.slice(separatorIndex) : [];
 
   const totalSlots = beforeSeparator.length + afterSeparator.length;
-  const gridCols = totalSlots < 21 ? "grid-cols-2" : totalSlots < 34 ? "grid-cols-3" : "grid-cols-4";
+  const gridCols = totalSlots < 21 ? "grid-cols-3" : totalSlots < 34 ? "grid-cols-4" : "grid-cols-5";
 
   function getButtonClasses(hour: string) {
     const isTaken = takenSlots.includes(hour);
@@ -136,7 +136,7 @@ export function HourGrid({ form, isInvalid, professionalConfig, takenSlots = [] 
   }
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-start gap-3">
       <div className={cn("grid gap-1", gridCols)}>
         {beforeSeparator.map((hour) => (
           <Button
@@ -157,7 +157,7 @@ export function HourGrid({ form, isInvalid, professionalConfig, takenSlots = [] 
             className={cn(
               "h-px w-full",
               isInvalid ? "bg-destructive" : "bg-gray-300",
-              gridCols === "grid-cols-2" ? "max-w-27" : gridCols === "grid-cols-3" ? "max-w-41" : "max-w-55",
+              gridCols === "grid-cols-3" ? "max-w-27" : gridCols === "grid-cols-4" ? "max-w-41" : "max-w-55",
             )}
           />
           <div className={cn("grid gap-1", gridCols)}>
