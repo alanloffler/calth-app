@@ -168,7 +168,7 @@ export function ChooseRecurringDate({
                   <span className="font-semibold">Detalles:</span>
                   <ul className="flex flex-col gap-1">
                     {recurringDays && recurringDays.length > 0 ? (
-                      recurringDays.map((d) => <li>{format(d.date, "PPPP", { locale: es })}</li>)
+                      recurringDays.map((d) => <li key={d.date}>{format(d.date, "PPPP", { locale: es })}</li>)
                     ) : (
                       <li className="rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
                         No hay {days} turnos recurrentes disponibles
