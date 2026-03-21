@@ -70,8 +70,8 @@ class EventsModuleService {
 
   public async checkRecurringAvailability(days: number): Promise<IApiResponse<{ date: string }[]>> {
     console.log(`Days: ${days}`);
-    const recurringDays = [{ date: "2026-03-20T07:00:00-03:00" }, { date: "2026-03-27T07:00:00-03:00" }];
-    return { data: [], message: "Unavailable days for recurring event", statusCode: 200 };
+    const recurringDays = [{ date: "2026-03-24T11:00:00-03:00" }, { date: "2026-03-31T11:00:00-03:00" }];
+    return { data: recurringDays, message: "Unavailable days for recurring event", statusCode: 200 };
   }
 }
 
