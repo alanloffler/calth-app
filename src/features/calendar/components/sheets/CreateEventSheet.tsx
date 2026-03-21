@@ -348,6 +348,7 @@ export function CreateEventSheet() {
                 error={form.formState.errors.recurringDates?.message}
                 onActiveChange={handleRecurringActiveChange}
                 onConfirm={handleRecurringConfirm}
+                professionalId={professionalId}
                 recurringDays={recurringDays}
                 selectedDate={startDate}
                 setRecurringDays={setRecurringDays}
