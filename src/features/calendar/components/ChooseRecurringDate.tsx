@@ -97,6 +97,7 @@ export function ChooseRecurringDate({
         <div className="flex items-center gap-3">
           <Checkbox
             checked={display}
+            className="size-4.5"
             disabled={disabled || !slotDuration}
             id="recurring"
             name="recurring"
