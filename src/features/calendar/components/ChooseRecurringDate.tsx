@@ -58,7 +58,7 @@ export function ChooseRecurringDate({
   );
 
   async function handleCheckAvailability(): Promise<void> {
-    const [response, error] = await tryCatch(EventsService.checkRecurringAvailability(days));
+    const [response, error] = await tryCatch(EventsService.checkRecurringAvailability(selectedDate, days));
     if (error) {
       toast.error(error.message);
     }
