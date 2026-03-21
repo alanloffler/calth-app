@@ -286,7 +286,7 @@ export function CreateEventSheet() {
                         <div className="flex-1">
                           <Calendar
                             aria-invalid={isDateInvalid}
-                            className="aspect-square h-fit w-full"
+                            className="aspect-square h-fit w-full max-w-75"
                             disabled={professionalConfig ? [{ dayOfWeek: professionalConfig.excludedDays }] : []}
                             modifiers={{
                               withEvents: (date) => {
