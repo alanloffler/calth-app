@@ -33,6 +33,7 @@ import { useTryCatch } from "@core/hooks/useTryCatch";
 export function CreateEventSheet() {
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
+  const [recurringDays, setRecurringDays] = useState<{ date: string }[] | undefined>(undefined);
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
   const { isLoading: isSaving, tryCatch: tryCatchCreateEvent } = useTryCatch();
   const { openCreateEventSheet: open, setOpenCreateEventSheet: setOpen } = useEventStore();
@@ -92,8 +93,6 @@ export function CreateEventSheet() {
       return;
     }
 
-    // Reset immediately to avoid an intermediate render where the selected
-    // date is disabled by the incoming professional's config.
     form.setValue("startDate", "");
     setProfessionalConfig(null);
 
@@ -318,9 +317,11 @@ export function CreateEventSheet() {
             </FieldGroup>
             <FieldGroup>
               <ChooseRecurringDate
-                selectedDate={startDate}
-                slotDuration={professionalConfig?.step}
                 disabled={!startDate || new Date(startDate).getHours() < 1}
+                recurringDays={recurringDays}
+                selectedDate={startDate}
+                setRecurringDays={setRecurringDays}
+                slotDuration={professionalConfig?.step}
               />
             </FieldGroup>
             <div className="flex flex-col justify-center gap-4 pt-8 md:flex-row md:justify-end">
