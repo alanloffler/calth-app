@@ -188,19 +188,30 @@ export function ChooseRecurringDate({
                   <span className="font-semibold">Horario:</span>
                   <span>
                     {format(selectedDate, "HH:mm", { locale: es })} -{" "}
-                    {addMinutes(selectedDate, slotDuration).getHours()}:
-                    {addMinutes(selectedDate, slotDuration).getMinutes()} hs.
+                    {format(addMinutes(selectedDate, slotDuration), "HH:mm", { locale: es })} hs.
                   </span>
                 </li>
                 <li className="flex gap-2">
                   <span className="font-semibold">Recurrencia:</span>
                   <span>{days} turnos</span>
                 </li>
-                <li className={cn("flex gap-2", !recurringDays || recurringDays.length === 0 ? "items-center" : "")}>
+                <li
+                  className={cn(
+                    "flex flex-col gap-1",
+                    !recurringDays || recurringDays.length === 0 ? "items-center" : "",
+                  )}
+                >
                   <span className="font-semibold">Detalles:</span>
-                  <ul className="flex flex-col gap-1">
+                  <ul className="flex flex-col gap-1 pl-2">
                     {recurringDays && recurringDays.length > 0 ? (
-                      recurringDays.map((d) => <li key={d.date}>{format(d.date, "PPPP", { locale: es })}</li>)
+                      recurringDays.map((d, idx) => (
+                        <li className="flex items-center gap-2" key={d.date}>
+                          <Badge className="uppercase" size="small" variant="ic">
+                            Turno {idx + 1}
+                          </Badge>
+                          <span> {format(d.date, "PPPP", { locale: es })}</span>
+                        </li>
+                      ))
                     ) : (
                       <li className="rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
                         No hay {days} turnos recurrentes disponibles
