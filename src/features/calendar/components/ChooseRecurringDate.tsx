@@ -1,6 +1,6 @@
 import { Minus, Plus } from "lucide-react";
 
-import { Activity } from "react";
+import { Activity, useCallback } from "react";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
 import {
@@ -25,21 +25,37 @@ import { tryCatch } from "@core/utils/try-catch";
 
 interface IProps {
   disabled: boolean;
+  error?: string;
+  onActiveChange: (active: boolean) => void;
+  onConfirm: (dates: string[], count: number) => void;
   recurringDays: { date: string }[] | undefined;
   selectedDate: string;
   setRecurringDays: Dispatch<SetStateAction<{ date: string }[] | undefined>>;
   slotDuration: number | undefined;
 }
 
-export function ChooseRecurringDate({ disabled, recurringDays, selectedDate, setRecurringDays, slotDuration }: IProps) {
+export function ChooseRecurringDate({
+  disabled,
+  error,
+  onActiveChange,
+  onConfirm,
+  recurringDays,
+  selectedDate,
+  setRecurringDays,
+  slotDuration,
+}: IProps) {
   const [days, setDays] = useState<number>(2);
   const [display, setDisplay] = useState<boolean>(false);
   const [openRecurringDialog, setOpenRecurringDialog] = useState<boolean>(false);
 
-  function handleChecked(checked: boolean) {
-    setDisplay(checked);
-    setDays(2);
-  }
+  const handleChecked = useCallback(
+    (checked: boolean): void => {
+      setDisplay(checked);
+      setDays(2);
+      onActiveChange(checked);
+    },
+    [onActiveChange],
+  );
 
   async function handleCheckAvailability(): Promise<void> {
     const [response, error] = await tryCatch(EventsService.checkRecurringAvailability(days));
@@ -54,7 +70,7 @@ export function ChooseRecurringDate({ disabled, recurringDays, selectedDate, set
 
   useEffect(() => {
     if (disabled) handleChecked(false);
-  }, [disabled]);
+  }, [disabled, handleChecked]);
 
   useEffect(() => {
     setRecurringDays(undefined);
@@ -74,6 +90,11 @@ export function ChooseRecurringDate({ disabled, recurringDays, selectedDate, set
           />
           <FieldLabel htmlFor="recurring">Recurrente</FieldLabel>
         </div>
+        {error && (
+          <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
+            {error}
+          </div>
+        )}
         <Activity mode={display && !disabled ? "visible" : "hidden"}>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
@@ -162,7 +183,20 @@ export function ChooseRecurringDate({ disabled, recurringDays, selectedDate, set
             <Button onClick={() => setOpenRecurringDialog(false)} type="button" size="default" variant="secondary">
               Cancelar
             </Button>
-            <Button onClick={() => setOpenRecurringDialog(false)} type="button" size="default" variant="default">
+            <Button
+              onClick={() => {
+                if (recurringDays && recurringDays.length > 0) {
+                  onConfirm(
+                    recurringDays.map((d) => d.date),
+                    days,
+                  );
+                }
+                setOpenRecurringDialog(false);
+              }}
+              type="button"
+              size="default"
+              variant="default"
+            >
               Continuar
             </Button>
           </DialogFooter>
