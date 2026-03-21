@@ -16,7 +16,6 @@ import { Input } from "@components/ui/input";
 
 import { addMinutes, format } from "date-fns";
 import { es } from "date-fns/locale";
-import { toast } from "sonner";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 
 import { EventsService } from "@event/services/events.service";
@@ -48,6 +47,8 @@ export function ChooseRecurringDate({
 }: IProps) {
   const [days, setDays] = useState<number>(2);
   const [display, setDisplay] = useState<boolean>(false);
+  const [isNotAvailableError, setIsNotAvailableError] = useState<boolean>(false);
+  const [isFetchingError, setIsFetchingError] = useState<boolean>(false);
   const [openRecurringDialog, setOpenRecurringDialog] = useState<boolean>(false);
 
   const handleChecked = useCallback(
@@ -64,9 +65,14 @@ export function ChooseRecurringDate({
       EventsService.checkRecurringAvailability(professionalId, selectedDate, days),
     );
     if (error) {
-      toast.error(error.message);
+      setIsFetchingError(true);
     }
-    if (response && response.statusCode === 200) {
+    if (response && response.statusCode === 200 && response.data) {
+      const isNotAvailable = response.data.some((d) => d.available === false);
+      if (isNotAvailable) {
+        setIsNotAvailableError(true);
+        return;
+      }
       setOpenRecurringDialog(true);
       setRecurringDays(response.data);
     }
@@ -79,6 +85,7 @@ export function ChooseRecurringDate({
   useEffect(() => {
     setRecurringDays(undefined);
     setOpenRecurringDialog(false);
+    setIsNotAvailableError(false);
   }, [selectedDate, setRecurringDays]);
 
   return (
@@ -135,9 +142,15 @@ export function ChooseRecurringDate({
               Comprobar disponibilidad
             </Button>
           </div>
-          {recurringDays && recurringDays.length === 0 && (
+          {(recurringDays && recurringDays.length === 0) ||
+            (isNotAvailableError && (
+              <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
+                No hay {days} turnos recurrentes disponibles, elegí otra fecha u horario
+              </div>
+            ))}
+          {isFetchingError && (
             <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
-              No hay {days} turnos recurrentes disponibles, elegí otra fecha u horario
+              Error al buscar recurrencia para el turno
             </div>
           )}
         </Activity>
