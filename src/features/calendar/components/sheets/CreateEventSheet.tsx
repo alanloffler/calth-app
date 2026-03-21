@@ -14,7 +14,7 @@ import type z from "zod";
 import { addMinutes, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -130,13 +130,16 @@ export function CreateEventSheet() {
     form.setValue("recurringCount", count, { shouldDirty: true, shouldValidate: true });
   }
 
-  function handleRecurringActiveChange(active: boolean) {
-    setIsRecurringActive(active);
-    if (!active) {
-      form.setValue("recurringCount", undefined);
-      form.setValue("recurringDates", undefined, { shouldValidate: true });
-    }
-  }
+  const handleRecurringActiveChange = useCallback(
+    (active: boolean) => {
+      setIsRecurringActive(active);
+      if (!active) {
+        form.setValue("recurringCount", undefined);
+        form.setValue("recurringDates", undefined, { shouldValidate: true });
+      }
+    },
+    [form],
+  );
 
   useEffect(() => {
     form.setValue("recurringCount", undefined);
