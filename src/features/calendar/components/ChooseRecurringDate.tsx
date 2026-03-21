@@ -57,6 +57,7 @@ export function ChooseRecurringDate({ disabled, selectedDate, slotDuration }: IP
 
   useEffect(() => {
     setRecurringDays(undefined);
+    setOpenRecurringDialog(false);
   }, [selectedDate]);
 
   return (
@@ -86,7 +87,6 @@ export function ChooseRecurringDate({ disabled, selectedDate, slotDuration }: IP
               </Button>
               <Input
                 className="max-w-15 appearance-none text-center"
-                defaultValue={"2"}
                 inputMode="numeric"
                 maxLength={2}
                 onChange={(e) => (e.target.value !== "" ? setDays(Number(e.target.value)) : setDays(2))}
@@ -122,7 +122,7 @@ export function ChooseRecurringDate({ disabled, selectedDate, slotDuration }: IP
             <DialogTitle>Detalles del turno recurrente</DialogTitle>
             <DialogDescription className="sr-only"></DialogDescription>
           </DialogHeader>
-          {slotDuration && (
+          {slotDuration && selectedDate && (
             <div className="flex flex-col gap-2">
               <p>Van a ser creados {days} turnos recurrentes en el mismo día y horario.</p>
               <ul className="flex flex-col gap-2">
