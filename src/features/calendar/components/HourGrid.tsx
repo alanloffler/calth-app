@@ -136,7 +136,7 @@ export function HourGrid({ form, isInvalid, professionalConfig, takenSlots = [] 
   }
 
   return (
-    <div className="flex flex-col items-start gap-3">
+    <div className="flex flex-col items-start gap-3 rounded-md border p-3 shadow-xs">
       <div className={cn("grid gap-1", gridCols)}>
         {beforeSeparator.map((hour) => (
           <Button
