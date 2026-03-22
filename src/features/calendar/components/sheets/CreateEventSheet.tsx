@@ -126,8 +126,8 @@ export function CreateEventSheet() {
   const recurringDates = useWatch({ control: form.control, name: "recurringDates" });
 
   function handleRecurringConfirm(dates: string[], count: number) {
+    form.setValue("recurringCount", count, { shouldDirty: true });
     form.setValue("recurringDates", dates, { shouldDirty: true, shouldValidate: true });
-    form.setValue("recurringCount", count, { shouldDirty: true, shouldValidate: true });
   }
 
   const handleRecurringActiveChange = useCallback(
