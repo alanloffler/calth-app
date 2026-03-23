@@ -202,8 +202,8 @@ export default function Calendar() {
         {selectedProfessional && selectedProfessionalConfig && !errorNotification && (
           <div className="relative flex h-full w-full flex-col gap-8 lg:flex-row lg:gap-3">
             {isLoadingEvents && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-white/60">
-                <Loader text="Cargando eventos" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-white/30">
+                <PageLoader text="Cargando turnos" />
               </div>
             )}
             <Schedule
