@@ -38,12 +38,16 @@ export function ViewEventSheet() {
     triggerRefresh,
   } = useEventStore();
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
+  const [hasChanges, setHasChanges] = useState<boolean>(false);
   const { isLoading: isRemoving, tryCatch: tryCatchRemoveEvent } = useTryCatch();
   const hasPermissions = usePermission(["events-delete-hard", "events-update", "events-notify"], "some");
 
   function handleOpenChange(isOpen: boolean): void {
     setOpenViewEventSheet(isOpen);
-    if (!isOpen && event) triggerRefresh();
+    if (!isOpen) {
+      if (hasChanges) triggerRefresh();
+      setHasChanges(false);
+    }
   }
 
   function removeEventDialog(): void {
@@ -74,7 +78,12 @@ export function ViewEventSheet() {
   function handleUpdateEvent(updatedEvent: ICalendarEvent): void {
     setSelectedEvent(updatedEvent);
     setOpenEditEventSheet(false);
-    triggerRefresh();
+    setHasChanges(true);
+  }
+
+  function handleStatusChange(updatedEvent: ICalendarEvent): void {
+    setSelectedEvent(updatedEvent);
+    setHasChanges(true);
   }
 
   if (!event) return null;
@@ -197,7 +206,7 @@ export function ViewEventSheet() {
             <div className="flex items-center gap-2">
               <Protected requiredPermission="events-update">
                 <span className="text-sm font-medium">Cambiar estado:</span>
-                <UpdateEventStatus event={event} onEventChange={setSelectedEvent} />
+                <UpdateEventStatus event={event} onEventChange={handleStatusChange} />
               </Protected>
             </div>
           </div>
