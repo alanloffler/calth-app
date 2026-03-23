@@ -62,6 +62,8 @@ export function ChooseRecurringDate({
   );
 
   async function handleCheckAvailability(): Promise<void> {
+    setIsNotAvailableError(false);
+    setIsFetchingError(false);
     const [response, error] = await tryCatch(
       EventsService.checkRecurringAvailability(professionalId, selectedDate, days),
     );
