@@ -169,7 +169,7 @@ export default function Calendar() {
     fetchProfessionals();
   }, [fetchProfessionals]);
 
-  if (!isReady || isLoadingEvents) return <PageLoader text="Cargando agenda" />;
+  if (!isReady) return <PageLoader text="Cargando agenda" />;
 
   return (
     <>
@@ -200,9 +200,18 @@ export default function Calendar() {
         </div>
         {errorNotification && <ErrorNotification message={errorMessage} tryAgain={false} />}
         {selectedProfessional && selectedProfessionalConfig && !errorNotification && (
-          <div className="flex h-full w-full flex-col gap-8 lg:flex-row lg:gap-3">
+          <div className="relative flex h-full w-full flex-col gap-8 lg:flex-row lg:gap-3">
+            {isLoadingEvents && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-white/60">
+                <Loader text="Cargando eventos" />
+              </div>
+            )}
             <Schedule
-              className={cn("calendar w-full lg:w-[80%]", !canViewEvent && "[&_.rbc-event]:pointer-events-none")}
+              className={cn(
+                "calendar w-full lg:w-[80%]",
+                !canViewEvent && "[&_.rbc-event]:pointer-events-none",
+                isLoadingEvents && "pointer-events-none opacity-50",
+              )}
               components={{
                 toolbar: (props: ToolbarProps<ICalendarEvent>) => (
                   <Toolbar {...props} calendarView={props.view as TView} currentDate={selectedDate} />
