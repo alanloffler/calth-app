@@ -27,7 +27,6 @@ import {
   createEventPropGetter,
   createSlotPropGetter,
   parseCalendarConfig,
-  getCalendarDateRange,
   getCalendarRangeFromDate,
   formatDateToString,
 } from "@calendar/utils/calendar.utils";
@@ -35,11 +34,6 @@ import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { useEventStore } from "@calendar/stores/event.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useTryCatch } from "@core/hooks/useTryCatch";
-
-interface IDateRange {
-  startDate: string;
-  endDate: string;
-}
 
 const locales = { "es-AR": es };
 
@@ -67,6 +61,11 @@ const messages = {
   showMore: (total: number) => `${total} más`,
 };
 
+interface IDateRange {
+  startDate: string;
+  endDate: string;
+}
+
 export default function Calendar() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [errorNotification, setErrorNotification] = useState<boolean>(false);
@@ -80,10 +79,10 @@ export default function Calendar() {
   const { selectedProfessional, selectedProfessionalConfig, setSelectedProfessional, setSelectedProfessionalConfig } =
     useCalendarStore();
 
-  const [dateRange, setDateRange] = useState<IDateRange>(() => {
+  const dateRange = useMemo<IDateRange>(() => {
     const { start, end } = getCalendarRangeFromDate(selectedDate, selectedView);
     return { startDate: formatDateToString(start), endDate: formatDateToString(end) };
-  });
+  }, [selectedDate, selectedView]);
 
   const {
     data: events,
@@ -166,13 +165,6 @@ export default function Calendar() {
     [setSelectedEvent, setOpenViewEventSheet],
   );
 
-  const onRangeChange = useCallback((range: { start: Date; end: Date } | Date[], view?: string) => {
-    if (!view) return;
-
-    const { start, end } = getCalendarDateRange(range, view as "month" | "week" | "day");
-    setDateRange({ startDate: formatDateToString(start), endDate: formatDateToString(end) });
-  }, []);
-
   useEffect(() => {
     fetchProfessionals();
   }, [fetchProfessionals]);
@@ -230,7 +222,6 @@ export default function Calendar() {
               min={selectedProfessionalConfig?.startHour}
               onNavigate={setSelectedDate}
               onSelectEvent={onSelectEvent}
-              onRangeChange={onRangeChange}
               onView={onView}
               slotPropGetter={slotPropGetter}
               eventPropGetter={eventPropGetter}
