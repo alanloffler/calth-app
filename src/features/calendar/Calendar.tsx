@@ -86,7 +86,7 @@ export default function Calendar() {
 
   const {
     data: events,
-    isFetching: isLoadingEvents,
+    isLoading: isLoadingEvents,
     isError: isEventsError,
     error: eventsError,
   } = useQuery({
