@@ -60,6 +60,8 @@ export function CreateEventSheet() {
     const startDate = parseISO(data.startDate);
     const endDate = addMinutes(startDate, professionalConfig.step);
 
+    delete data.recurringCount;
+
     const transformedData = {
       ...data,
       endDate: format(endDate, "yyyy-MM-dd'T'HH:mm:ssXXX"),
