@@ -8,6 +8,7 @@ export interface ICalendarEvent {
   id: string;
   professional: IProfessionalEvent;
   professionalId: string;
+  recurrentId: string;
   startDate: Date;
   status: TEventStatus;
   title: string;
