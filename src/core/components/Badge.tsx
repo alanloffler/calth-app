@@ -7,6 +7,7 @@ const badgeVariants = cva("inline-flex items-center justify-center font-medium u
       normal: "px-3 py-1.5 text-xs rounded-sm",
       small: "px-2 py-1 text-[10px] rounded-sm",
       large: "px-4 py-2 text-base rounded-md",
+      icon: "px-1 text-xs rounded-xs size-4",
     },
     variant: {
       cyan: "bg-cyan-100 text-cyan-600",
@@ -16,6 +17,7 @@ const badgeVariants = cva("inline-flex items-center justify-center font-medium u
       green: "bg-green-100 text-green-600 ",
       red: "bg-red-100 text-red-600",
       role: "dark:bg-indigo-600/30 dark:text-indigo-300 bg-indigo-100 text-indigo-600",
+      recurrent: "bg-fuchsia-600 text-fuchsia-50",
     },
   },
   defaultVariants: {
