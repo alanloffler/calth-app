@@ -1,5 +1,6 @@
 import { FileText, Trash2 } from "lucide-react";
 
+import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { ConfirmDialog } from "@components/ConfirmDialog";
 import { DataTablePaginated } from "@components/data-table/DataTablePaginated";
@@ -83,6 +84,16 @@ export default function Events() {
       accessorKey: "title",
       enableHiding: true,
       header: ({ column }) => <SortableHeader column={column}>Título</SortableHeader>,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1">
+          {row.original.recurrentId && (
+            <Badge size="icon" variant="recurrent">
+              R
+            </Badge>
+          )}
+          {row.original.title}
+        </div>
+      ),
     },
     {
       accessorKey: "professional.firstName",
