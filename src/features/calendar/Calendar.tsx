@@ -3,6 +3,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import { Calendar as Schedule } from "react-big-calendar";
 import { CalendarEventsList } from "@calendar/components/CalendarEventsList";
+import { CustomEvent } from "@calendar/components/calendar/CustomEvent";
 import { ErrorNotification } from "@components/notifications/ErrorNotification";
 import { Loader } from "@components/Loader";
 import { PageLoader } from "@components/PageLoader";
@@ -213,6 +214,7 @@ export default function Calendar() {
                 isLoadingEvents && "pointer-events-none opacity-50",
               )}
               components={{
+                event: ({ event }) => <CustomEvent event={event} view={selectedView} />,
                 toolbar: (props: ToolbarProps<ICalendarEvent>) => (
                   <Toolbar {...props} calendarView={props.view as TView} currentDate={selectedDate} />
                 ),
