@@ -12,7 +12,7 @@ export function CustomEvent({ event, view }: { event: ICalendarEvent; view: TVie
         {event.recurrentId && (
           <span
             className={cn(
-              "bg-recurrent inline-block h-2 w-2 shrink-0 rounded-full",
+              "bg-recurrent inline-block h-3 w-3 shrink-0 rounded-full border-[1.5px] border-white",
               view !== "month" ? "mr-1!" : "mr-0",
             )}
           ></span>
