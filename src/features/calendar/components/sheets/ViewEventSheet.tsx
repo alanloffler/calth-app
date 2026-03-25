@@ -211,18 +211,30 @@ export function ViewEventSheet() {
                 <UpdateEventStatus event={event} onEventChange={handleStatusChange} />
               </Protected>
             </div>
-            <Card className="bg-muted flex flex-col gap-2 p-3 text-sm">
-              <div className="flex items-center gap-2">
-                <Badge size="icon" variant="recurrent">
-                  R
-                </Badge>
-                <p>Este turno forma parte de una serie de turnos recurrentes.</p>
-              </div>
-              <ul>
-                <li>Turno recurrente 1</li>
-                <li>Turno recurrente 2</li>
-              </ul>
-            </Card>
+            {event.siblings && event.siblings.length > 0 && (
+              <Card className="bg-muted flex flex-col gap-2 p-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <Badge size="icon" variant="recurrent">
+                    R
+                  </Badge>
+                  <p>Este turno forma parte de una serie de turnos recurrentes.</p>
+                </div>
+                <ul className="flex flex-col gap-1">
+                  {event.siblings?.map((sibling, idx) => (
+                    <li className="flex items-center gap-2" key={sibling.id}>
+                      <div>Turno {idx + 1}:</div>
+                      <div>{format(sibling.startDate, "dd/MM/yy")}</div>
+                      <div>
+                        {format(sibling.startDate, "HH:mm")} - {format(sibling.endDate, "HH:mm")}
+                      </div>
+                      <span>
+                        <EventStatus size="small" variant={sibling.status} />
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
           </div>
         </SheetContent>
       </Sheet>
