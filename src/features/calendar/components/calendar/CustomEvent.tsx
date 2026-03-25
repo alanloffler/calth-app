@@ -18,7 +18,7 @@ export function CustomEvent({ event, view }: { event: ICalendarEvent; view: TVie
           ></span>
         )}
       </div>
-      <h3>{event.title}</h3>
+      <span>{event.title}</span>
     </div>
   );
 }
