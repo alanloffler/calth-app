@@ -17,7 +17,7 @@ const badgeVariants = cva("inline-flex items-center justify-center font-medium u
       green: "bg-green-100 text-green-600 ",
       red: "bg-red-100 text-red-600",
       role: "dark:bg-indigo-600/30 dark:text-indigo-300 bg-indigo-100 text-indigo-600",
-      recurrent: "bg-fuchsia-600 text-fuchsia-50",
+      recurrent: "bg-recurrent text-background",
     },
   },
   defaultVariants: {
