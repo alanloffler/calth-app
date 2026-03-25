@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { ViewEventDialog } from "@event/components/ViewEventDialog";
 
@@ -109,6 +110,11 @@ function EventItem({ event, setOpen }: { event: ICalendarEvent; setOpen: Dispatc
       >
         <div className={cn("size-2.5 shrink-0 rounded-full", colors[event.status])}></div>
         <span className="min-w-8.75">{formatShortDate(event.startDate, es)}</span>
+        {event.recurrentId && (
+          <Badge size="icon-xs" variant="recurrent">
+            R
+          </Badge>
+        )}
         <span className="truncate">{event.title}</span>
       </button>
     </li>
