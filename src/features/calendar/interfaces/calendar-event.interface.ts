@@ -9,9 +9,17 @@ export interface ICalendarEvent {
   professional: IProfessionalEvent;
   professionalId: string;
   recurrentId: string;
+  siblings: ICalendarEventShort[];
   startDate: Date;
   status: TEventStatus;
   title: string;
   user: IUserEvent;
   userId: string;
+}
+
+interface ICalendarEventShort {
+  endDate: Date;
+  id: string;
+  startDate: Date;
+  status: TEventStatus;
 }
