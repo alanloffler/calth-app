@@ -137,6 +137,9 @@ body {
   --color-restore: oklch(0.67 0.16 58); /* amber-600 */
   --color-delete: oklch(0.64 0.21 25); /* red-500 */
   --color-history: oklch(0.67 0.26 322); /* fuchsia-500 */
+
+  /* Other colors */
+  --color-recurrent: oklch(0.667 0.295 322.15); /* fuchsia-500 */
 }
 
 .dark {
