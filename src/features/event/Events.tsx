@@ -45,10 +45,10 @@ export default function Events() {
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: LIMIT });
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { selectedEvent, setSelectedEvent, setOpenCreateEventSheet, setOpenViewEventSheet } = useEventStore();
+  const { refreshKey, selectedEvent, setSelectedEvent, setOpenCreateEventSheet, setOpenViewEventSheet } = useEventStore();
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["events", "list", filters, pagination, sorting],
+    queryKey: ["events", "list", filters, pagination, sorting, refreshKey],
     queryFn: () => {
       const sort = sorting[0];
       return EventsService.findEventsFiltered(
