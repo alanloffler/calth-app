@@ -5,6 +5,7 @@ import { WhatsApp } from "@components/icons/WhatsApp";
 import { Activity } from "react";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
+import { Card } from "@components/ui/card";
 import { ConfirmDialog } from "@components/ConfirmDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@components/ui/dropdown-menu";
 import { EditEventSheet } from "@calendar/components/sheets/EditEventSheet";
@@ -92,7 +93,7 @@ export function ViewEventSheet() {
     <>
       <Sheet open={openViewEventSheet} onOpenChange={handleOpenChange}>
         <SheetTrigger asChild></SheetTrigger>
-        <SheetContent className="sm:min-w-120">
+        <SheetContent className="sm:min-w-120" onOpenAutoFocus={(e) => e.preventDefault()}>
           <SheetHeader className="pt-8">
             <SheetTitle className="text-lg">Detalles del turno</SheetTitle>
             <SheetDescription className="text-base">Detalles del turno seleccionado</SheetDescription>
@@ -103,8 +104,9 @@ export function ViewEventSheet() {
                 <h2 className="text-base font-semibold md:text-lg">{event.title}</h2>
               </header>
               <ul className="mt-4 flex flex-col gap-3 text-sm md:text-base">
-                <li>
+                <li className="flex items-center gap-4">
                   <EventStatus variant={event.status} />
+                  {event.recurrentId && <Badge>Recurrente</Badge>}
                 </li>
                 <li>
                   <div className="flex items-center gap-3">
@@ -209,6 +211,18 @@ export function ViewEventSheet() {
                 <UpdateEventStatus event={event} onEventChange={handleStatusChange} />
               </Protected>
             </div>
+            <Card className="bg-muted flex flex-col gap-2 p-3 text-sm">
+              <div className="flex items-center gap-2">
+                <Badge size="icon" variant="recurrent">
+                  R
+                </Badge>
+                <p>Este turno forma parte de una serie de turnos recurrentes.</p>
+              </div>
+              <ul>
+                <li>Turno recurrente 1</li>
+                <li>Turno recurrente 2</li>
+              </ul>
+            </Card>
           </div>
         </SheetContent>
       </Sheet>
