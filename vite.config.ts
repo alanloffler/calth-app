@@ -5,12 +5,14 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import { readFileSync } from "fs";
 
+const certPath = path.resolve(__dirname, "../certs");
+
 // https://vite.dev/config/
 export default defineConfig({
   server: {
     https: {
-      key: readFileSync("/Users/alan/.certs/localhost-key.pem"),
-      cert: readFileSync("/Users/alan/.certs/localhost.pem"),
+      key: readFileSync(path.join(certPath, "localhost-key.pem")),
+      cert: readFileSync(path.join(certPath, "localhost.pem")),
     },
     host: true,
     // For Go API
