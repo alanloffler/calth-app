@@ -15,54 +15,42 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip"
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
 
-import type { IRole, IRolePermissions } from "@roles/interfaces/role.interface";
+import type { IRolePermissions } from "@roles/interfaces/role.interface";
 import { ERoles } from "@auth/enums/role.enum";
 import { EUserRole } from "@roles/enums/user-role.enum";
 import { RolesService } from "@roles/services/roles.service";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useTryCatch } from "@core/hooks/useTryCatch";
+import { useQuery } from "@tanstack/react-query";
 
 export default function ViewRole() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
-  const [role, setRole] = useState<IRole | undefined>(undefined);
   const admin = useAuthStore((state) => state.admin);
-  const usersInRole = useMemo(() => [...(role?.users ?? []), ...(role?.admins ?? [])], [role?.users, role?.admins]);
   const hasPermissions = usePermission(["roles-delete", "roles-delete-hard", "roles-restore", "roles-update"], "some");
   const navigate = useNavigate();
   const { id } = useParams();
-  const { isLoading: isLoadingRole, tryCatch: tryCatchRole } = useTryCatch();
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
-  const findOneRole = useCallback(
-    async function (id: string) {
+  const { isLoading: isLoadingRole, data: role } = useQuery({
+    queryKey: ["roles", "find-one", id!],
+    queryFn: () => {
       const isSuperAdmin = admin?.role.value === ERoles.super;
-      const serviceByRole = isSuperAdmin ? RolesService.findOneSoftRemoved(id) : RolesService.findOne(id);
-      const [response, responseError] = await tryCatchRole(serviceByRole);
-
-      if (responseError) {
-        toast.error(responseError.message);
-        return;
-      }
-
-      if (response && response.statusCode === 200) {
-        setRole(response.data);
-      }
+      return isSuperAdmin ? RolesService.findOneSoftRemoved(id!) : RolesService.findOne(id!);
     },
-    [admin?.role.value, tryCatchRole],
-  );
+    enabled: !!id,
+    select: (response) => response.data,
+  });
 
-  useEffect(() => {
-    findOneRole(id!);
-  }, [id, findOneRole]);
+  const usersInRole = useMemo(() => [...(role?.users ?? []), ...(role?.admins ?? [])], [role?.users, role?.admins]);
 
   const groupByCategory = (rolePermissions: IRolePermissions[]) => {
     if (!rolePermissions) return {};
@@ -120,7 +108,7 @@ export default function ViewRole() {
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
-      findOneRole(id);
+      // findOneRole(id);
     }
   }
 
