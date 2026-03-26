@@ -30,7 +30,6 @@ import { queryClient } from "@core/lib/query-client";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { usePermission } from "@permissions/hooks/usePermission";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function ViewRole() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
@@ -40,7 +39,6 @@ export default function ViewRole() {
   const hasPermissions = usePermission(["roles-delete", "roles-delete-hard", "roles-restore", "roles-update"], "some");
   const navigate = useNavigate();
   const { id } = useParams();
-  const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
 
   const {
     isLoading: isLoadingRole,
@@ -88,19 +86,17 @@ export default function ViewRole() {
     },
   });
 
-  async function removeHardRole(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemoveHard(RolesService.remove(id));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      navigate(-1);
-    }
-  }
+  const { mutate: removeHardRole, isPending: isRemovingHard } = useMutation({
+    mutationKey: ["removeHardRole"],
+    mutationFn: (id: string) => RolesService.remove(id),
+    onSuccess: (response: IApiResponse) => {
+      if (response && response.statusCode === 200) {
+        toast.success(response.message);
+        queryClient.invalidateQueries({ queryKey: ["roles", "find-one"] });
+        navigate(-1);
+      }
+    },
+  });
 
   const { mutate: restoreRole, isPending: isRestoring } = useMutation({
     mutationKey: ["restoreRole"],
