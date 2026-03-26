@@ -6,12 +6,14 @@ import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
 import { ConfirmDialog } from "@components/ConfirmDialog";
 import { CreatedAt } from "@components/CreatedAt";
+import { ErrorNotification } from "@components/notifications/ErrorNotification";
 import { Link } from "react-router";
 import { Loader } from "@components/Loader";
 import { PageHeader } from "@components/pages/PageHeader";
 import { Protected } from "@core/auth/components/Protected";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
+import type { AxiosError } from "axios";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -19,14 +21,15 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
 
+import type { IApiResponse } from "@core/interfaces/api-response.interface";
 import type { IRolePermissions } from "@roles/interfaces/role.interface";
 import { ERoles } from "@auth/enums/role.enum";
 import { EUserRole } from "@roles/enums/user-role.enum";
 import { RolesService } from "@roles/services/roles.service";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { usePermission } from "@permissions/hooks/usePermission";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 import { useQuery } from "@tanstack/react-query";
+import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function ViewRole() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
@@ -40,7 +43,12 @@ export default function ViewRole() {
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
-  const { isLoading: isLoadingRole, data: role } = useQuery({
+  const {
+    isLoading: isLoadingRole,
+    data: role,
+    error,
+    isError: isErrorLoadingRole,
+  } = useQuery({
     queryKey: ["roles", "find-one", id!],
     queryFn: () => {
       const isSuperAdmin = admin?.role.value === ERoles.super;
@@ -137,8 +145,8 @@ export default function ViewRole() {
           <div className="flex min-w-80 justify-center">
             <Loader size={20} text="Cargando rol" />
           </div>
-        ) : !role ? (
-          <>Error al buscar rol</>
+        ) : isErrorLoadingRole ? (
+          <ErrorNotification message={(error as AxiosError<IApiResponse>).response?.data.message ?? "Error"} />
         ) : (
           <>
             <CardHeader>
@@ -197,7 +205,7 @@ export default function ViewRole() {
                       <ul className="flex flex-col gap-2 pt-2 pl-4">
                         {usersInRole.map((item, idx) => (
                           <li className="flex items-center gap-3 text-sm" key={`admins-${item.id}`}>
-                            <Badge className="min-w-[29px] text-xs" size="small" variant="ic">
+                            <Badge className="min-w-7.25 text-xs" size="small" variant="ic">
                               {idx + 1}
                             </Badge>
                             <Button className="text-foreground h-fit p-0 font-normal" variant="link" asChild>
