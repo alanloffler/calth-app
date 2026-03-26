@@ -38,6 +38,9 @@ class EventsModuleService {
     if (filters.professionalId) {
       queryParams += `&professionalId=${filters.professionalId}`;
     }
+    if (filters.recurrent) {
+      queryParams += `&recurrent=${filters.recurrent}`;
+    }
     if (filters.status) {
       queryParams += `&status=${filters.status}`;
     }
