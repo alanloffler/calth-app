@@ -27,8 +27,8 @@ import { ERoles } from "@auth/enums/role.enum";
 import { EUserRole } from "@roles/enums/user-role.enum";
 import { RolesService } from "@roles/services/roles.service";
 import { useAuthStore } from "@auth/stores/auth.store";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { usePermission } from "@permissions/hooks/usePermission";
-import { useQuery } from "@tanstack/react-query";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function ViewRole() {
@@ -39,7 +39,6 @@ export default function ViewRole() {
   const hasPermissions = usePermission(["roles-delete", "roles-delete-hard", "roles-restore", "roles-update"], "some");
   const navigate = useNavigate();
   const { id } = useParams();
-  const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
@@ -78,19 +77,16 @@ export default function ViewRole() {
     return grouped;
   };
 
-  async function removeRole(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemove(RolesService.softRemove(id));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      navigate(-1);
-    }
-  }
+  const { mutate: removeRole, isPending: isRemoving } = useMutation({
+    mutationKey: ["removeRole"],
+    mutationFn: (id: string) => RolesService.softRemove(id),
+    onSuccess: (response: IApiResponse) => {
+      if (response && response.statusCode === 200) {
+        toast.success(response.message);
+        navigate(-1);
+      }
+    },
+  });
 
   async function removeHardRole(id: string): Promise<void> {
     const [response, error] = await tryCatchRemoveHard(RolesService.remove(id));
