@@ -30,7 +30,6 @@ export default function Roles() {
   const [selectedRole, setSelectedRole] = useState<IRole | undefined>(undefined);
   const admin = useAuthStore((state) => state.admin);
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
-  const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   const { data: roles, isLoading: isLoadingRoles } = useQuery({
     queryKey: ["roles", "list"],
@@ -66,19 +65,16 @@ export default function Roles() {
     }
   }
 
-  async function restoreRole(id: string): Promise<void> {
-    const [response, error] = await tryCatchRestore(RolesService.restore(id));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      // fetchRoles();
-    }
-  }
+  const { mutate: restoreRole, isPending: isRestoring } = useMutation({
+    mutationKey: ["roles", "restore"],
+    mutationFn: (id: string) => RolesService.restore(id),
+    onSuccess: (response) => {
+      if (response && response.statusCode === 200) {
+        queryClient.invalidateQueries({ queryKey: ["roles", "list"] });
+        toast.success(response.message);
+      }
+    },
+  });
 
   const columns: ColumnDef<IRole>[] = [
     {
