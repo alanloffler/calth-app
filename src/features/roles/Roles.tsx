@@ -12,13 +12,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip"
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import type { IRole } from "@roles/interfaces/role.interface";
 import { ERoles } from "@auth/enums/role.enum";
 import { EUserRole } from "@roles/enums/user-role.enum";
 import { RolesService } from "@roles/services/roles.service";
+import { queryClient } from "@core/lib/query-client";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
@@ -28,12 +29,11 @@ export default function Roles() {
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [selectedRole, setSelectedRole] = useState<IRole | undefined>(undefined);
   const admin = useAuthStore((state) => state.admin);
-  const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   const { data: roles, isLoading: isLoadingRoles } = useQuery({
-    queryKey: ["roles"],
+    queryKey: ["roles", "list"],
     queryFn: () => {
       const isSuperAdmin = admin?.role.value === ERoles.super;
       return isSuperAdmin ? RolesService.findAllSoftRemoved() : RolesService.findAll();
@@ -41,19 +41,16 @@ export default function Roles() {
     select: (response) => response.data,
   });
 
-  async function removeRole(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemove(RolesService.softRemove(id));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      // fetchRoles();
-    }
-  }
+  const { mutate: removeRole, isPending: isRemoving } = useMutation({
+    mutationKey: ["roles", "remove"],
+    mutationFn: (id: string) => RolesService.softRemove(id),
+    onSuccess: (response) => {
+      if (response && response.statusCode === 200) {
+        toast.success(response.message);
+        queryClient.invalidateQueries({ queryKey: ["roles", "list"] });
+      }
+    },
+  });
 
   async function removeHardRole(id: string): Promise<void> {
     const [response, error] = await tryCatchRemoveHard(RolesService.remove(id));
