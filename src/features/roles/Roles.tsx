@@ -21,7 +21,6 @@ import { EUserRole } from "@roles/enums/user-role.enum";
 import { RolesService } from "@roles/services/roles.service";
 import { queryClient } from "@core/lib/query-client";
 import { useAuthStore } from "@auth/stores/auth.store";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function Roles() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
@@ -29,7 +28,6 @@ export default function Roles() {
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [selectedRole, setSelectedRole] = useState<IRole | undefined>(undefined);
   const admin = useAuthStore((state) => state.admin);
-  const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
 
   const { data: roles, isLoading: isLoadingRoles } = useQuery({
     queryKey: ["roles", "list"],
@@ -51,20 +49,6 @@ export default function Roles() {
     },
   });
 
-  async function removeHardRole(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemoveHard(RolesService.remove(id));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      // fetchRoles();
-    }
-  }
-
   const { mutate: restoreRole, isPending: isRestoring } = useMutation({
     mutationKey: ["roles", "restore"],
     mutationFn: (id: string) => RolesService.restore(id),
@@ -72,6 +56,17 @@ export default function Roles() {
       if (response && response.statusCode === 200) {
         queryClient.invalidateQueries({ queryKey: ["roles", "list"] });
         toast.success(response.message);
+      }
+    },
+  });
+
+  const { mutate: removeHardRole, isPending: isRemovingHard } = useMutation({
+    mutationKey: ["roles", "remove-hard"],
+    mutationFn: (id: string) => RolesService.remove(id),
+    onSuccess: (response) => {
+      if (response && response.statusCode === 200) {
+        toast.success(response.message);
+        queryClient.invalidateQueries({ queryKey: ["roles", "list"] });
       }
     },
   });
