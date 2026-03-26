@@ -26,6 +26,7 @@ import type { IRolePermissions } from "@roles/interfaces/role.interface";
 import { ERoles } from "@auth/enums/role.enum";
 import { EUserRole } from "@roles/enums/user-role.enum";
 import { RolesService } from "@roles/services/roles.service";
+import { queryClient } from "@core/lib/query-client";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { usePermission } from "@permissions/hooks/usePermission";
@@ -40,7 +41,6 @@ export default function ViewRole() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
-  const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   const {
     isLoading: isLoadingRole,
@@ -83,7 +83,7 @@ export default function ViewRole() {
     onSuccess: (response: IApiResponse) => {
       if (response && response.statusCode === 200) {
         toast.success(response.message);
-        navigate(-1);
+        queryClient.invalidateQueries({ queryKey: ["roles", "find-one"] });
       }
     },
   });
@@ -102,19 +102,16 @@ export default function ViewRole() {
     }
   }
 
-  async function restoreRole(id: string): Promise<void> {
-    const [response, error] = await tryCatchRestore(RolesService.restore(id));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      // findOneRole(id);
-    }
-  }
+  const { mutate: restoreRole, isPending: isRestoring } = useMutation({
+    mutationKey: ["restoreRole"],
+    mutationFn: (id: string) => RolesService.restore(id),
+    onSuccess: (response: IApiResponse) => {
+      if (response && response.statusCode === 200) {
+        toast.success(response.message);
+        queryClient.invalidateQueries({ queryKey: ["roles", "find-one"] });
+      }
+    },
+  });
 
   function translate(content: string) {
     const dictionary: Record<string, string> = {
