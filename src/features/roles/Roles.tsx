@@ -12,7 +12,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip"
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 import type { IRole } from "@roles/interfaces/role.interface";
 import { ERoles } from "@auth/enums/role.enum";
@@ -25,33 +26,20 @@ export default function Roles() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
-  const [roles, setRoles] = useState<IRole[] | undefined>(undefined);
   const [selectedRole, setSelectedRole] = useState<IRole | undefined>(undefined);
   const admin = useAuthStore((state) => state.admin);
-  const { isLoading: isLoadingRoles, tryCatch: tryCatchRoles } = useTryCatch();
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
-  const fetchRoles = useCallback(async () => {
-    const isSuperAdmin = admin?.role.value === ERoles.super;
-    const serviceByRole = isSuperAdmin ? RolesService.findAllSoftRemoved() : RolesService.findAll();
-
-    const [response, error] = await tryCatchRoles(serviceByRole);
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      setRoles(response.data);
-    }
-  }, [admin?.role.value, tryCatchRoles]);
-
-  useEffect(() => {
-    fetchRoles();
-  }, [fetchRoles]);
+  const { data: roles, isLoading: isLoadingRoles } = useQuery({
+    queryKey: ["roles"],
+    queryFn: () => {
+      const isSuperAdmin = admin?.role.value === ERoles.super;
+      return isSuperAdmin ? RolesService.findAllSoftRemoved() : RolesService.findAll();
+    },
+    select: (response) => response.data,
+  });
 
   async function removeRole(id: string): Promise<void> {
     const [response, error] = await tryCatchRemove(RolesService.softRemove(id));
@@ -63,7 +51,7 @@ export default function Roles() {
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
-      fetchRoles();
+      // fetchRoles();
     }
   }
 
@@ -77,7 +65,7 @@ export default function Roles() {
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
-      fetchRoles();
+      // fetchRoles();
     }
   }
 
@@ -91,7 +79,7 @@ export default function Roles() {
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
-      fetchRoles();
+      // fetchRoles();
     }
   }
 
