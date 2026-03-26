@@ -137,6 +137,8 @@ export default function ViewRole() {
           <div className="flex min-w-80 justify-center">
             <Loader size={20} text="Cargando rol" />
           </div>
+        ) : !role ? (
+          <>Error al buscar rol</>
         ) : (
           <>
             <CardHeader>
