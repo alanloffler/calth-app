@@ -40,12 +40,14 @@ export default function Events() {
     date: undefined,
     patientId: undefined,
     professionalId: undefined,
+    recurrent: false,
     status: undefined,
   });
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: LIMIT });
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { refreshKey, selectedEvent, setSelectedEvent, setOpenCreateEventSheet, setOpenViewEventSheet } = useEventStore();
+  const { refreshKey, selectedEvent, setSelectedEvent, setOpenCreateEventSheet, setOpenViewEventSheet } =
+    useEventStore();
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["events", "list", filters, pagination, sorting, refreshKey],
