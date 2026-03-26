@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import { QueryClient, QueryCache } from "@tanstack/react-query";
+import { QueryClient, QueryCache, MutationCache } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import type { IApiResponse } from "@core/interfaces/api-response.interface";
@@ -12,6 +12,11 @@ function getErrorMessage(error: unknown): string {
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
+    },
+  }),
+  mutationCache: new MutationCache({
     onError: (error) => {
       toast.error(getErrorMessage(error));
     },
