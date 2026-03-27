@@ -1,4 +1,4 @@
-import { FileText, Trash2 } from "lucide-react";
+import { FilePenLine, FileText, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
@@ -46,8 +46,14 @@ export default function Events() {
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: LIMIT });
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { refreshKey, selectedEvent, setSelectedEvent, setOpenCreateEventSheet, setOpenViewEventSheet } =
-    useEventStore();
+  const {
+    refreshKey,
+    selectedEvent,
+    setOpenCreateEventSheet,
+    setOpenEditEventSheet,
+    setOpenViewEventSheet,
+    setSelectedEvent,
+  } = useEventStore();
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["events", "list", filters, pagination, sorting, refreshKey],
@@ -135,6 +141,24 @@ export default function Events() {
               </Button>
             </TooltipTrigger>
             <TooltipContent>Ver detalles</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <Protected requiredPermission="events-update">
+              <TooltipTrigger asChild>
+                <Button
+                  className="hover:text-edit"
+                  size="icon-sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedEvent(row.original);
+                    setOpenEditEventSheet(true, false);
+                  }}
+                >
+                  <FilePenLine />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Editar</TooltipContent>
+            </Protected>
           </Tooltip>
           <Protected requiredPermission="events-delete-hard">
             <Tooltip>
