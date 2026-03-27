@@ -45,12 +45,13 @@ function getEventTimeSlot(event: ICalendarEvent | null): string | null {
 
 interface IProps {
   event: ICalendarEvent | null;
+  hideOverlay?: boolean;
   onUpdateEvent: (updatedEvent: ICalendarEvent) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
 }
 
-export function EditEventSheet({ event, onUpdateEvent, open, setOpen }: IProps) {
+export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open, setOpen }: IProps) {
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
@@ -214,7 +215,7 @@ export function EditEventSheet({ event, onUpdateEvent, open, setOpen }: IProps) 
     <Sheet open={event !== null && open} onOpenChange={setOpen}>
       <SheetContent
         className="sm:min-w-155"
-        hideOverlay={true}
+        hideOverlay={hideOverlay}
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           closeRef.current?.focus();
