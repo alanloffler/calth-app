@@ -37,7 +37,7 @@ export function LatestEvents({ className }: IProps) {
     if (response && response.statusCode === 200) {
       setEvents(response.data);
     }
-  }, [tryCatch]);
+  }, [tryCatch, setEvents]);
 
   function handleSelectEvent(event: ICalendarEvent): void {
     setSelectedEvent(event);
@@ -86,7 +86,7 @@ export function LatestEvents({ className }: IProps) {
             </TableBody>
           </Table>
           <Button className="text-foreground justify-end" variant="link" asChild>
-            <Link to="/calendar">Ver todos</Link>
+            <Link to="/events">Ver todos</Link>
           </Button>
         </>
       )}
