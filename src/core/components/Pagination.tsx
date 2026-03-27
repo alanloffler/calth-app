@@ -3,16 +3,15 @@ import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 
-import type { PaginationState, Table } from "@tanstack/react-table";
+import type { Table } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
 
 interface IProps {
   pageSizes: number[];
-  pagination: PaginationState;
   table: Table<any>;
 }
 
-export function Pagination({ pageSizes, pagination, table }: IProps) {
+export function Pagination({ pageSizes, table }: IProps) {
   return (
     <section className={`dark:bg-muted flex items-center justify-end gap-2 p-5 md:gap-5`}>
       <Select value={`${table.getState().pagination.pageSize}`} onValueChange={(e) => table.setPageSize(parseInt(e))}>
