@@ -16,7 +16,7 @@ import type { ColumnDef, PaginationState, SortingState } from "@tanstack/react-t
 import { enUS, es } from "date-fns/locale";
 import { format, type Locale } from "date-fns";
 import { toast } from "sonner";
-import { useCallback, useState } from "react";
+import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
@@ -62,6 +62,11 @@ export default function Events() {
       );
     },
   });
+
+  const handleSetFilters = useCallback<Dispatch<SetStateAction<IEventFilters>>>((action) => {
+    setFilters(action);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  }, []);
 
   const handleSearch = useCallback(() => refetch(), [refetch]);
 
@@ -182,7 +187,7 @@ export default function Events() {
             </Button>
           </Protected>
         </PageHeader>
-        <Filters filters={filters} setFilters={setFilters} onSearch={handleSearch} />
+        <Filters filters={filters} setFilters={handleSetFilters} onSearch={handleSearch} />
         <DataTablePaginated
           columns={columns}
           data={data?.data?.result}
@@ -190,6 +195,7 @@ export default function Events() {
           loading={isLoading}
           onPaginationChange={setPagination}
           onSortingChange={setSorting}
+          pagination={pagination}
           rowCount={data?.data?.total}
           searchable={false}
         />
