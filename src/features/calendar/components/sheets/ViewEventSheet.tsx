@@ -30,6 +30,7 @@ import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function ViewEventSheet() {
   const {
+    editEventSheetHideOverlay,
     openEditEventSheet,
     openViewEventSheet,
     selectedEvent: event,
@@ -270,6 +271,7 @@ export function ViewEventSheet() {
       </ConfirmDialog>
       <EditEventSheet
         event={event}
+        hideOverlay={editEventSheetHideOverlay}
         onUpdateEvent={handleUpdateEvent}
         open={openEditEventSheet}
         setOpen={setOpenEditEventSheet}
