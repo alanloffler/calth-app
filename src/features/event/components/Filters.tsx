@@ -65,8 +65,8 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
       <div className="flex w-full flex-col items-center justify-between gap-3 lg:flex-row">
         <div
           className={cn(
-            "grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:w-fit lg:grid-cols-4",
-            open && "lg:grid-cols-3 xl:grid-cols-4",
+            "grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:w-fit lg:grid-cols-5",
+            open && "lg:grid-cols-4 xl:grid-cols-5",
           )}
         >
           {/* Date input */}
