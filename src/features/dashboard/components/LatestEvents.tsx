@@ -7,46 +7,29 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
-import { toast } from "sonner";
-import { useCallback, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { cn } from "@lib/utils";
 import { useEventStore } from "@calendar/stores/event.store";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   className?: string;
 }
 
 export function LatestEvents({ className }: IProps) {
-  const setOpenViewEventSheet = useEventStore((state) => state.setOpenViewEventSheet);
-  const setSelectedEvent = useEventStore((state) => state.setSelectedEvent);
-  const { isLoading, tryCatch } = useTryCatch();
-  const { events, setEvents, refreshKey } = useEventStore();
+  const { refreshKey, setOpenViewEventSheet, setSelectedEvent } = useEventStore();
 
-  const getLatestEvents = useCallback(async () => {
-    const [response, error] = await tryCatch(CalendarService.findAllByBusiness(5));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      setEvents(response.data);
-    }
-  }, [tryCatch, setEvents]);
+  const { data, isLoading } = useQuery({
+    queryKey: ["events", "latest", refreshKey],
+    queryFn: () => CalendarService.findAllByBusiness(5),
+  });
 
   function handleSelectEvent(event: ICalendarEvent): void {
     setSelectedEvent(event);
     setOpenViewEventSheet(true);
   }
-
-  useEffect(() => {
-    getLatestEvents();
-  }, [getLatestEvents, refreshKey]);
 
   return (
     <Card className={cn("relative gap-4 px-6", className)}>
@@ -67,7 +50,7 @@ export function LatestEvents({ className }: IProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {events?.map((event) => (
+              {data?.data?.map((event) => (
                 <TableRow
                   className="hover:cursor-pointer hover:bg-neutral-50/80 dark:hover:bg-neutral-900/50"
                   key={event.id}
