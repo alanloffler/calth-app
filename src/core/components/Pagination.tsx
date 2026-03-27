@@ -51,7 +51,7 @@ export function Pagination({ pageSizes, pagination, table }: IProps) {
           </>
         )}
         <span className="text-muted-foreground px-1 text-xs">
-          {pagination.pageIndex + 1} / {table.getPageCount()}
+          {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
         </span>
         {table.getPageCount() > 1 && (
           <>
