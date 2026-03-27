@@ -5,7 +5,7 @@ import { Pagination } from "@components/Pagination";
 import { Skeleton } from "@components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@components/ui/table";
 
-import { Activity, useMemo, useState } from "react";
+import { Activity, useEffect, useMemo, useState } from "react";
 import {
   type ColumnDef,
   flexRender,
@@ -46,13 +46,16 @@ export function DataTablePaginated<TData, TValue>({
   onPaginationChange,
   onSortingChange,
   pageSizes = [5, 10, 20, 50],
+  pagination: paginationProp,
   rowCount,
   searchable = true,
 }: DataTableProps<TData, TValue>) {
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: defaultPageSize,
-  });
+  const [pagination, setPagination] = useState<PaginationState>(
+    paginationProp ?? {
+      pageIndex: 0,
+      pageSize: defaultPageSize,
+    },
+  );
   const [globalFilter, setGlobalFilter] = useState<string>("");
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
 
@@ -67,6 +70,15 @@ export function DataTablePaginated<TData, TValue>({
         : columns,
     [loading, columns],
   );
+
+  useEffect(() => {
+    if (
+      paginationProp &&
+      (paginationProp.pageIndex !== pagination.pageIndex || paginationProp.pageSize !== pagination.pageSize)
+    ) {
+      setPagination(paginationProp);
+    }
+  }, [paginationProp, pagination]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
