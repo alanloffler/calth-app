@@ -1,4 +1,4 @@
-import { Check, Minus, Plus } from "lucide-react";
+import { Check, Lightbulb, Minus, Plus } from "lucide-react";
 
 import { Activity, useCallback } from "react";
 import { Badge } from "@components/Badge";
@@ -187,8 +187,9 @@ export function ChooseRecurringDate({
                   ))}
                 </ul>
                 {recurringDays && recurringDays.suggestion && (
-                  <div className="flex items-center justify-between gap-3 rounded-md border border-blue-100 bg-blue-50 p-3 text-blue-600 shadow-xs">
-                    <div className="flex gap-3">
+                  <div className="flex items-center justify-between gap-3 rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-blue-600 shadow-xs">
+                    <div className="flex items-center gap-3">
+                      <Lightbulb className="size-4 shrink-0" />
                       <h3 className="font-semibold">Sugerencia:</h3>
                       <span>{`${format(recurringDays?.suggestion, "EEEE", { locale: es })} a las ${format(recurringDays?.suggestion, "HH:mm", { locale: es })} hs.`}</span>
                     </div>
