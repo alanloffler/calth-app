@@ -29,6 +29,7 @@ interface IProps {
   error?: string;
   onActiveChange: (active: boolean) => void;
   onConfirm: (dates: string[], count: number) => void;
+  onSuggestionSelect: (date: string) => void;
   professionalId: string;
   recurringDays: IRecurrentDayResponse | undefined;
   selectedDate: string;
@@ -41,6 +42,7 @@ export function ChooseRecurringDate({
   error,
   onActiveChange,
   onConfirm,
+  onSuggestionSelect,
   professionalId,
   recurringDays,
   selectedDate,
@@ -178,7 +180,18 @@ export function ChooseRecurringDate({
                     </li>
                   ))}
                 </ul>
-                {JSON.stringify(recurringDays?.suggestion && format(recurringDays?.suggestion, "PPPP HH:mm"))}
+                {recurringDays && recurringDays.suggestion && (
+                  <div className="flex items-center justify-between gap-3 rounded-md border border-blue-100 bg-blue-50 p-3 text-blue-600 shadow-xs">
+                    <div className="flex gap-3">
+                      <h3 className="font-semibold">Sugerencia:</h3>
+                      <span>{`${format(recurringDays?.suggestion, "EEEE", { locale: es })} a las ${format(recurringDays?.suggestion, "HH:mm", { locale: es })} hs.`}</span>
+                    </div>
+                    <Button onClick={() => onSuggestionSelect(recurringDays.suggestion)} size="sm" type="button" variant="default">
+                      Elegir
+                    </Button>
+                  </div>
+                )}
+                {/*{JSON.stringify(recurringDays?.suggestion && format(recurringDays?.suggestion, "PPPP HH:mm"))}*/}
               </div>
             ) : (
               recurringDays && (
