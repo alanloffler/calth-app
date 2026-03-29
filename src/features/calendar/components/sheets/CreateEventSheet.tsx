@@ -34,7 +34,9 @@ export function CreateEventSheet() {
   const [isRecurringActive, setIsRecurringActive] = useState(false);
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
-  const [recurringDays, setRecurringDays] = useState<{ date: string; available: boolean }[] | undefined>(undefined);
+  const [recurringDays, setRecurringDays] = useState<
+    { date: string; available: boolean; suggestion: string }[] | undefined
+  >(undefined);
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
   const { isLoading: isSaving, tryCatch: tryCatchCreateEvent } = useTryCatch();
   const { openCreateEventSheet: open, setOpenCreateEventSheet: setOpen } = useEventStore();
