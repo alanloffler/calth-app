@@ -3,7 +3,7 @@ import { endOfMonth, format, startOfMonth } from "date-fns";
 import type { IApiResponse } from "@core/interfaces/api-response.interface";
 import type { IEventFilters } from "@event/interfaces/filters.interface";
 import type { IPaginatedEvents } from "@event/interfaces/paginated-events.interface";
-import type { IRecurrentDay } from "@event/interfaces/recurrent-day.interface";
+import type { IRecurrentDayResponse } from "@event/interfaces/recurrent-day.interface";
 import { apiClient } from "@core/client/client";
 
 class EventsModuleService {
@@ -76,7 +76,7 @@ class EventsModuleService {
     professionalId: string,
     startDate: string,
     days: number,
-  ): Promise<IApiResponse<IRecurrentDay[]>> {
+  ): Promise<IApiResponse<IRecurrentDayResponse>> {
     const path = `/events/check-recurring?professionalId=${professionalId}&startDate=${startDate}&days=${days}`;
     const response = await apiClient.get(path);
     return response.data;
