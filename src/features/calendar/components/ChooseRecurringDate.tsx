@@ -29,9 +29,9 @@ interface IProps {
   onActiveChange: (active: boolean) => void;
   onConfirm: (dates: string[], count: number) => void;
   professionalId: string;
-  recurringDays: { date: string; available: boolean }[] | undefined;
+  recurringDays: { date: string; available: boolean; suggestion: string }[] | undefined;
   selectedDate: string;
-  setRecurringDays: Dispatch<SetStateAction<{ date: string; available: boolean }[] | undefined>>;
+  setRecurringDays: Dispatch<SetStateAction<{ date: string; available: boolean; suggestion: string }[] | undefined>>;
   slotDuration: number | undefined;
 }
 
@@ -177,6 +177,7 @@ export function ChooseRecurringDate({
                     </li>
                   ))}
                 </ul>
+                {JSON.stringify(recurringDays?.map((d) => d.suggestion))}
               </div>
             ) : (
               recurringDays && (
