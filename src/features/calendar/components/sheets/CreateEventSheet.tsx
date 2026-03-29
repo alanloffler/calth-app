@@ -19,6 +19,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
+import type { IRecurrentDay } from "@event/interfaces/recurrent-day.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { EventsService } from "@event/services/events.service";
 import { UsersService } from "@users/services/users.service";
@@ -31,12 +32,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function CreateEventSheet() {
-  const [isRecurringActive, setIsRecurringActive] = useState(false);
+  const [isRecurringActive, setIsRecurringActive] = useState<boolean>(false);
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
-  const [recurringDays, setRecurringDays] = useState<
-    { date: string; available: boolean; suggestion: string }[] | undefined
-  >(undefined);
+  const [recurringDays, setRecurringDays] = useState<IRecurrentDay[] | undefined>(undefined);
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
   const { isLoading: isSaving, tryCatch: tryCatchCreateEvent } = useTryCatch();
   const { openCreateEventSheet: open, setOpenCreateEventSheet: setOpen } = useEventStore();
