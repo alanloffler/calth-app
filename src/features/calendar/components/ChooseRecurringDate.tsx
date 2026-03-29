@@ -17,7 +17,7 @@ import { Input } from "@components/ui/input";
 
 import { addMinutes, format } from "date-fns";
 import { es } from "date-fns/locale";
-import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
+import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from "react";
 
 import type { IRecurrentDayResponse } from "@event/interfaces/recurrent-day.interface";
 import { EventsService } from "@event/services/events.service";
@@ -54,6 +54,7 @@ export function ChooseRecurringDate({
   const [isNotAvailableError, setIsNotAvailableError] = useState<boolean>(false);
   const [isFetchingError, setIsFetchingError] = useState<boolean>(false);
   const [openRecurringDialog, setOpenRecurringDialog] = useState<boolean>(false);
+  const pendingCheckRef = useRef<boolean>(false);
 
   const handleChecked = useCallback(
     (checked: boolean): void => {
@@ -94,6 +95,11 @@ export function ChooseRecurringDate({
     setRecurringDays(undefined);
     setOpenRecurringDialog(false);
     setIsNotAvailableError(false);
+    if (pendingCheckRef.current) {
+      pendingCheckRef.current = false;
+      handleCheckAvailability();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate, setRecurringDays]);
 
   return (
@@ -186,12 +192,19 @@ export function ChooseRecurringDate({
                       <h3 className="font-semibold">Sugerencia:</h3>
                       <span>{`${format(recurringDays?.suggestion, "EEEE", { locale: es })} a las ${format(recurringDays?.suggestion, "HH:mm", { locale: es })} hs.`}</span>
                     </div>
-                    <Button onClick={() => onSuggestionSelect(recurringDays.suggestion)} size="sm" type="button" variant="default">
+                    <Button
+                      onClick={() => {
+                        pendingCheckRef.current = true;
+                        onSuggestionSelect(recurringDays.suggestion);
+                      }}
+                      size="sm"
+                      type="button"
+                      variant="default"
+                    >
                       Elegir
                     </Button>
                   </div>
                 )}
-                {/*{JSON.stringify(recurringDays?.suggestion && format(recurringDays?.suggestion, "PPPP HH:mm"))}*/}
               </div>
             ) : (
               recurringDays && (
