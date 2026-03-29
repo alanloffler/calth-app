@@ -19,7 +19,7 @@ import { addMinutes, format } from "date-fns";
 import { es } from "date-fns/locale";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 
-import type { IRecurrentDay } from "@event/interfaces/recurrent-day.interface";
+import type { IRecurrentDayResponse } from "@event/interfaces/recurrent-day.interface";
 import { EventsService } from "@event/services/events.service";
 import { cn } from "@lib/utils";
 import { tryCatch } from "@core/utils/try-catch";
@@ -30,9 +30,9 @@ interface IProps {
   onActiveChange: (active: boolean) => void;
   onConfirm: (dates: string[], count: number) => void;
   professionalId: string;
-  recurringDays: IRecurrentDay[] | undefined;
+  recurringDays: IRecurrentDayResponse | undefined;
   selectedDate: string;
-  setRecurringDays: Dispatch<SetStateAction<IRecurrentDay[] | undefined>>;
+  setRecurringDays: Dispatch<SetStateAction<IRecurrentDayResponse | undefined>>;
   slotDuration: number | undefined;
 }
 
@@ -74,7 +74,7 @@ export function ChooseRecurringDate({
     if (response && response.statusCode === 200 && response.data) {
       setRecurringDays(response.data);
 
-      const isNotAvailable = response.data.some((d) => d.available === false);
+      const isNotAvailable = response.data.dates.some((d) => d.available === false);
       if (isNotAvailable) {
         setIsNotAvailableError(true);
         return;
@@ -107,7 +107,7 @@ export function ChooseRecurringDate({
             onCheckedChange={() => handleChecked(!display)}
           />
           <FieldLabel htmlFor="recurring">Recurrente</FieldLabel>
-          {recurringDays && recurringDays?.length > 0 && (
+          {recurringDays && recurringDays?.dates.length > 0 && (
             <Button onClick={() => setRecurringDays(undefined)} size="sm" variant="secondary">
               Elegir de nuevo
             </Button>
@@ -162,14 +162,14 @@ export function ChooseRecurringDate({
               </Button>
             </div>
           )}
-          {(recurringDays && recurringDays.length === 0) ||
+          {(recurringDays && recurringDays.dates.length === 0) ||
             (isNotAvailableError ? (
               <div className="flex flex-col gap-3">
                 <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
                   No hay {days} turnos recurrentes disponibles, elegí otra fecha u horario
                 </div>
                 <ul className="flex flex-col gap-1">
-                  {recurringDays?.map((d) => (
+                  {recurringDays?.dates.map((d) => (
                     <li className="flex items-center gap-3" key={d.date}>
                       <Badge size="small" variant={d.available ? "green" : "gray"}>
                         {d.available ? "Disponible" : "Ocupado"}
@@ -178,14 +178,14 @@ export function ChooseRecurringDate({
                     </li>
                   ))}
                 </ul>
-                {JSON.stringify(recurringDays?.map((d) => d.suggestion))}
+                {JSON.stringify(recurringDays?.suggestion && format(recurringDays?.suggestion, "PPPP HH:mm"))}
               </div>
             ) : (
               recurringDays && (
                 <div className="flex flex-col gap-1">
                   <h3 className="text-sm font-medium">Se van a crear {days} turnos recurrentes</h3>
                   <ul className="flex flex-col gap-1">
-                    {recurringDays?.map((d) => (
+                    {recurringDays?.dates.map((d) => (
                       <li className="flex items-center gap-3" key={d.date}>
                         <span className="flex w-fit rounded-full bg-green-200 p-0.5">
                           <Check className="size-3.5 text-green-700" />
@@ -232,13 +232,13 @@ export function ChooseRecurringDate({
                 <li
                   className={cn(
                     "flex flex-col gap-1",
-                    !recurringDays || recurringDays.length === 0 ? "items-center" : "",
+                    !recurringDays || recurringDays.dates.length === 0 ? "items-center" : "",
                   )}
                 >
                   <span className="font-semibold">Detalles:</span>
                   <ul className="flex flex-col gap-1 pl-2">
-                    {recurringDays && recurringDays.length > 0 ? (
-                      recurringDays.map((d, idx) => (
+                    {recurringDays && recurringDays.dates.length > 0 ? (
+                      recurringDays.dates.map((d, idx) => (
                         <li className="flex items-center gap-2" key={d.date}>
                           <Badge className="uppercase" size="small" variant="ic">
                             Turno {idx + 1}
@@ -262,9 +262,9 @@ export function ChooseRecurringDate({
             </Button>
             <Button
               onClick={() => {
-                if (recurringDays && recurringDays.length > 0) {
+                if (recurringDays && recurringDays.dates.length > 0) {
                   onConfirm(
-                    recurringDays.map((d) => d.date),
+                    recurringDays.dates.map((d) => d.date),
                     days,
                   );
                 }
