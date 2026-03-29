@@ -19,6 +19,7 @@ import { addMinutes, format } from "date-fns";
 import { es } from "date-fns/locale";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 
+import type { IRecurrentDay } from "@event/interfaces/recurrent-day.interface";
 import { EventsService } from "@event/services/events.service";
 import { cn } from "@lib/utils";
 import { tryCatch } from "@core/utils/try-catch";
@@ -29,9 +30,9 @@ interface IProps {
   onActiveChange: (active: boolean) => void;
   onConfirm: (dates: string[], count: number) => void;
   professionalId: string;
-  recurringDays: { date: string; available: boolean; suggestion: string }[] | undefined;
+  recurringDays: IRecurrentDay[] | undefined;
   selectedDate: string;
-  setRecurringDays: Dispatch<SetStateAction<{ date: string; available: boolean; suggestion: string }[] | undefined>>;
+  setRecurringDays: Dispatch<SetStateAction<IRecurrentDay[] | undefined>>;
   slotDuration: number | undefined;
 }
 
