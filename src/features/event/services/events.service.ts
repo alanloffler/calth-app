@@ -75,7 +75,7 @@ class EventsModuleService {
     professionalId: string,
     startDate: string,
     days: number,
-  ): Promise<IApiResponse<{ date: string; available: boolean }[]>> {
+  ): Promise<IApiResponse<{ date: string; available: boolean; suggestion: string }[]>> {
     const path = `/events/check-recurring?professionalId=${professionalId}&startDate=${startDate}&days=${days}`;
     const response = await apiClient.get(path);
     return response.data;
