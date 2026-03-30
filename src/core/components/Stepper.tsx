@@ -1,3 +1,5 @@
+import { ChevronLeft, ChevronRight, Store } from "lucide-react";
+
 import { Button } from "@core/components/ui/button";
 
 import { Children, cloneElement, useMemo, useState, type ReactElement, type ReactNode } from "react";
@@ -65,10 +67,21 @@ export function Stepper({ children, onFinish, steps }: IProps) {
       <div className="py-10">{activeStepContent}</div>
       <div className="flex justify-end gap-5">
         <Button disabled={currentStep === 0} onClick={handlePrev} size="lg" type="button" variant="outline">
+          <ChevronLeft className="h-5 w-5" />
           Anterior
         </Button>
         <Button disabled={!canNext} onClick={handleNext} size="lg" type="button" variant="default">
-          {currentStep === steps.length - 1 ? "Crear mi negocio" : "Siguiente"}
+          {currentStep === steps.length - 1 ? (
+            <>
+              <Store className="h-5 w-5" />
+              Crear mi negocio
+            </>
+          ) : (
+            <>
+              Siguiente
+              <ChevronRight className="h-5 w-5" />
+            </>
+          )}
         </Button>
       </div>
     </div>
