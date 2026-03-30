@@ -5,6 +5,10 @@ import { Stepper } from "@components/Stepper";
 import { useEffect, useState } from "react";
 
 export default function CreateBusiness() {
+  function handleSubmit(): void {
+    console.log("Submit forms");
+  }
+
   return (
     <section className="bg-background flex h-screen w-full flex-col gap-8 p-8">
       <header className="flex gap-5">
@@ -17,7 +21,7 @@ export default function CreateBusiness() {
         Completa los siguientes formularios para crear tu negocio y comenzar a gestionar tus pacientes y turnos.
       </p>
       <section>
-        <Stepper steps={["Title 1", "Title 2"]}>
+        <Stepper steps={["Title 1", "Title 2"]} onFinish={handleSubmit}>
           <StepOneForm />
           <StepTwoForm />
           <StepTwoForm />
