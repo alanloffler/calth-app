@@ -49,11 +49,12 @@ export function Stepper({ children, onFinish, steps }: IProps) {
         {steps.map((step, idx) => {
           const isActive = idx <= currentStep;
           const isCompleted = idx < currentStep;
+          const isCurrent = idx === currentStep;
 
           return (
             <div key={idx} className={cn("flex items-center", idx < steps.length - 1 && "flex-1")}>
               <div className="flex-none">
-                <Step isActive={isActive} index={idx} step={step} />
+                <Step isActive={isActive} isCurrent={isCurrent} index={idx} step={step} />
               </div>
               {idx < steps.length - 1 && (
                 <div
@@ -88,16 +89,35 @@ export function Stepper({ children, onFinish, steps }: IProps) {
   );
 }
 
-function Step({ isActive, index, step }: { isActive: boolean; index: number; step: string }) {
+function Step({
+  isActive,
+  isCurrent,
+  index,
+  step,
+}: {
+  isActive: boolean;
+  isCurrent: boolean;
+  index: number;
+  step: string;
+}) {
   return (
     <div className="flex items-center gap-2 whitespace-nowrap">
       <div
         className={cn(
-          "flex h-8 w-8 items-center justify-center rounded-full text-lg font-semibold",
-          isActive ? "bg-primary text-background" : "bg-secondary text-foreground",
+          "relative flex items-center justify-center rounded-full text-lg font-semibold",
+          isActive ? "bg-primary/60 text-background" : "bg-secondary text-foreground",
+          isCurrent ? "bg-primary text-background h-10 w-10" : "h-9 w-9",
         )}
       >
-        {index + 1}
+        {isCurrent && (
+          <div
+            className={cn(
+              "border-background absolute top-1/2 left-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full border-2",
+              isCurrent ? "bg-primary" : undefined,
+            )}
+          ></div>
+        )}
+        <span className="z-10">{index + 1}</span>
       </div>
       <div>{step}</div>
     </div>
