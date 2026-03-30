@@ -35,7 +35,10 @@ export function Stepper({ children, onFinish, steps }: IProps) {
   };
 
   const handlePrev = () => {
-    setCurrentStep((prev) => prev - 1);
+    if (currentStep > 0) {
+      setCurrentStep((prev) => prev - 1);
+      setCanNext(true);
+    }
   };
 
   return (
@@ -61,11 +64,11 @@ export function Stepper({ children, onFinish, steps }: IProps) {
       </div>
       <div className="py-10">{activeStepContent}</div>
       <div className="flex justify-end gap-5">
-        <Button onClick={handlePrev} size="lg" variant="outline">
+        <Button disabled={currentStep === 0} onClick={handlePrev} size="lg" type="button" variant="outline">
           Anterior
         </Button>
-        <Button disabled={!canNext} onClick={handleNext} size="lg">
-          {currentStep === steps.length - 1 ? "Finalizar" : "Siguiente"}
+        <Button disabled={!canNext} onClick={handleNext} size="lg" type="button" variant="default">
+          {currentStep === steps.length - 1 ? "Crear mi negocio" : "Siguiente"}
         </Button>
       </div>
     </div>
