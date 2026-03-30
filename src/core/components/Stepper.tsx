@@ -1,6 +1,6 @@
 import { Button } from "@core/components/ui/button";
 
-import { Children, useMemo, useState, type ReactNode } from "react";
+import { Children, cloneElement, useMemo, useState, type ReactElement, type ReactNode } from "react";
 
 import { cn } from "@lib/utils";
 
@@ -8,23 +8,29 @@ interface IProps {
   children: ReactNode | ReactNode[];
   steps: string[];
 }
+
 export function Stepper({ children, steps }: IProps) {
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [canNext, setCanNext] = useState<boolean>(false);
+
   const memoChildren = useMemo(() => Children.toArray(children), [children]);
 
-  const isFirstStep = currentStep === 0;
-  const isLastStep = currentStep === steps.length - 1;
+  const activeStepContent = useMemo(() => {
+    const currentChild = memoChildren[currentStep] as ReactElement<{ setIsValid: (valid: boolean) => void }>;
+    return cloneElement(currentChild, {
+      setIsValid: (valid: boolean) => setCanNext(valid),
+    });
+  }, [memoChildren, currentStep]);
 
   const handleNext = () => {
-    if (!isLastStep) {
+    if (currentStep < steps.length - 1 && canNext) {
       setCurrentStep((prev) => prev + 1);
+      setCanNext(false);
     }
   };
 
   const handlePrev = () => {
-    if (!isFirstStep) {
-      setCurrentStep((prev) => prev - 1);
-    }
+    setCurrentStep((prev) => prev - 1);
   };
 
   return (
@@ -48,13 +54,13 @@ export function Stepper({ children, steps }: IProps) {
           );
         })}
       </div>
-      <div>{memoChildren[currentStep]}</div>
+      <div className="py-10">{activeStepContent}</div>
       <div className="flex justify-end gap-5">
         <Button onClick={handlePrev} size="lg" variant="outline">
           Anterior
         </Button>
-        <Button onClick={handleNext} size="lg">
-          Siguiente
+        <Button disabled={!canNext} onClick={handleNext} size="lg">
+          {currentStep === steps.length - 1 ? "Finalizar" : "Siguiente"}
         </Button>
       </div>
     </div>
