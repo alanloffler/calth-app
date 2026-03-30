@@ -15,6 +15,7 @@ import { UserLogin } from "@login/UserLogin";
 const Dashboard = lazy(() => import("./features/dashboard/Dashboard"));
 
 const Business = lazy(() => import("./features/business/Business"));
+const BusinessCreate = lazy(() => import("./features/business/views/CreateBusiness"));
 const Calendar = lazy(() => import("./features/calendar/Calendar"));
 
 const Admin = lazy(() => import("./features/admin/Admin"));
@@ -49,6 +50,14 @@ const Account = lazy(() => import("./features/account/Account"));
 const NotFound = lazy(() => import("./core/components/NotFound"));
 
 const router = createBrowserRouter([
+  {
+    path: "/business/create",
+    element: (
+      <GuestRoute>
+        <BusinessCreate />
+      </GuestRoute>
+    ),
+  },
   {
     path: "/login",
     element: (
