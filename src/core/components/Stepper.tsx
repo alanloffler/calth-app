@@ -6,10 +6,11 @@ import { cn } from "@lib/utils";
 
 interface IProps {
   children: ReactNode | ReactNode[];
+  onFinish: () => void;
   steps: string[];
 }
 
-export function Stepper({ children, steps }: IProps) {
+export function Stepper({ children, onFinish, steps }: IProps) {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [canNext, setCanNext] = useState<boolean>(false);
 
@@ -22,8 +23,12 @@ export function Stepper({ children, steps }: IProps) {
     });
   }, [memoChildren, currentStep]);
 
+  const lastStep = currentStep === steps.length - 1;
+
   const handleNext = () => {
-    if (currentStep < steps.length - 1 && canNext) {
+    if (lastStep) {
+      onFinish();
+    } else if (canNext) {
       setCurrentStep((prev) => prev + 1);
       setCanNext(false);
     }
