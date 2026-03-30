@@ -28,7 +28,7 @@ export default function CreateBusiness() {
       <p className="text-lg">
         Completa los siguientes formularios para crear tu negocio y comenzar a gestionar tus pacientes y turnos.
       </p>
-      <section>
+      <section className="mt-8">
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(handleSubmit)}>
             <Stepper steps={["Title 1", "Title 2", "Title 3"]} onFinish={methods.handleSubmit(handleSubmit)}>
