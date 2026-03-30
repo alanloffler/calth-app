@@ -65,6 +65,7 @@ export function Stepper({ children, onFinish, steps }: IProps) {
           );
         })}
       </div>
+      <div className="block text-lg font-semibold md:hidden">{steps[currentStep]}</div>
       <div className="py-10">{activeStepContent}</div>
       <div className="flex justify-end gap-5">
         <Button disabled={currentStep === 0} onClick={handlePrev} size="lg" type="button" variant="outline">
@@ -119,7 +120,7 @@ function Step({
         )}
         <span className="z-10">{index + 1}</span>
       </div>
-      <div>{step}</div>
+      <div className="hidden md:block">{step}</div>
     </div>
   );
 }
