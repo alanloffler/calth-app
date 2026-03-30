@@ -2,6 +2,8 @@ import { GalleryVerticalEnd } from "lucide-react";
 
 import { Stepper } from "@components/Stepper";
 
+import { useEffect, useState } from "react";
+
 export default function CreateBusiness() {
   return (
     <section className="bg-background flex h-screen w-full flex-col gap-8 p-8">
@@ -15,12 +17,42 @@ export default function CreateBusiness() {
         Completa los siguientes formularios para crear tu negocio y comenzar a gestionar tus pacientes y turnos.
       </p>
       <section>
-        <Stepper steps={["Title 1", "Title 2", "Title 3"]}>
-          <div>Content 1</div>
-          <div>Content 2</div>
-          <div>Content 3</div>
+        <Stepper steps={["Title 1", "Title 2"]}>
+          <StepOneForm />
+          <StepTwoForm />
+          <StepTwoForm />
         </Stepper>
       </section>
     </section>
   );
+}
+
+export function StepOneForm({ setIsValid }: { setIsValid?: (valid: boolean) => void }) {
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    const isValid = email.includes("@") && email.length > 5;
+    setIsValid?.(isValid);
+  }, [email, setIsValid]);
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold">Datos de contacto</h2>
+      <input
+        className="border p-2"
+        type="email"
+        placeholder="Tu email..."
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+    </div>
+  );
+}
+
+export function StepTwoForm({ setIsValid }: { setIsValid?: (valid: boolean) => void }) {
+  useEffect(() => {
+    setIsValid?.(true);
+  }, [setIsValid]);
+
+  return <>Step 2 form</>;
 }
