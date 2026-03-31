@@ -1,5 +1,6 @@
 import type { IApiResponse } from "@core/interfaces/api-response.interface";
 import type { IBusiness } from "@business/interfaces/business.interface";
+import type { ICreateBusiness } from "@business/interfaces/create-business.interface";
 import { apiClient } from "@core/client/client";
 
 class BusinessModuleService {
@@ -11,6 +12,11 @@ class BusinessModuleService {
     }
 
     return BusinessModuleService.instance;
+  }
+
+  public async create(data: ICreateBusiness): Promise<IApiResponse<IBusiness>> {
+    const response = await apiClient.post("/businesses", data);
+    return response.data;
   }
 
   public async findOne(businessId: string): Promise<IApiResponse<IBusiness>> {
