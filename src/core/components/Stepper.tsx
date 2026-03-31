@@ -29,16 +29,26 @@ export function Stepper({ children, onFinish, steps }: IProps) {
     }
   }, [lastStep, onFinish]);
 
-  const activeStepContent = useMemo(() => {
-    const currentChild = memoChildren[currentStep] as ReactElement<{
-      setIsValid: (valid: boolean) => void;
-      formId: string;
-      onStepComplete: () => void;
-    }>;
-    return cloneElement(currentChild, {
-      setIsValid: (valid: boolean) => setCanNext(valid),
-      formId: "stepper-step-form",
-      onStepComplete: handleStepComplete,
+  const allStepContent = useMemo(() => {
+    return memoChildren.map((child, idx) => {
+      const isActive = idx === currentStep;
+      const element = child as ReactElement<{
+        setIsValid: (valid: boolean) => void;
+        formId: string;
+        onStepComplete: () => void;
+      }>;
+      const cloned = isActive
+        ? cloneElement(element, {
+            setIsValid: (valid: boolean) => setCanNext(valid),
+            formId: "stepper-step-form",
+            onStepComplete: handleStepComplete,
+          })
+        : element;
+      return (
+        <div key={idx} className={isActive ? undefined : "hidden"}>
+          {cloned}
+        </div>
+      );
     });
   }, [memoChildren, currentStep, handleStepComplete]);
 
@@ -72,7 +82,7 @@ export function Stepper({ children, onFinish, steps }: IProps) {
         })}
       </div>
       <div className="block text-lg font-semibold md:hidden">{steps[currentStep]}</div>
-      <div className="py-10">{activeStepContent}</div>
+      <div className="py-10">{allStepContent}</div>
       <div className="flex justify-end gap-5">
         <Button disabled={currentStep === 0} onClick={handlePrev} size="lg" type="button" variant="outline">
           <ChevronLeft className="h-5 w-5" />
