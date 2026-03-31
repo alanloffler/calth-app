@@ -71,7 +71,13 @@ export function Stepper({ className, children, onFinish, steps }: IProps) {
           return (
             <div key={idx} className={cn("flex items-center", idx < steps.length - 1 && "flex-1")}>
               <div className="flex-none">
-                <Step isActive={isActive} isCurrent={isCurrent} index={idx} step={step} />
+                <Step
+                  isActive={isActive}
+                  isCurrent={isCurrent}
+                  index={idx}
+                  step={step}
+                  onClick={() => isCompleted && setCurrentStep(idx)}
+                />
               </div>
               {idx < steps.length - 1 && (
                 <div
@@ -112,20 +118,23 @@ function Step({
   isCurrent,
   index,
   step,
+  onClick,
 }: {
   isActive: boolean;
   isCurrent: boolean;
   index: number;
   step: string;
+  onClick: () => void;
 }) {
   return (
     <div className="flex items-center gap-2 whitespace-nowrap">
       <div
         className={cn(
-          "relative flex items-center justify-center rounded-full text-lg font-semibold",
+          "relative flex items-center justify-center rounded-full text-lg font-semibold hover:cursor-pointer",
           isActive ? "bg-primary/60 text-background" : "bg-secondary text-foreground",
           isCurrent ? "bg-primary text-background h-10 w-10" : "h-9 w-9",
         )}
+        onClick={onClick}
       >
         {isCurrent && (
           <div
