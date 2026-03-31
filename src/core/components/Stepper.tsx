@@ -7,12 +7,13 @@ import { Children, cloneElement, useCallback, useMemo, useState, type ReactEleme
 import { cn } from "@lib/utils";
 
 interface IProps {
+  className?: string;
   children: ReactNode | ReactNode[];
   onFinish: () => void;
   steps: string[];
 }
 
-export function Stepper({ children, onFinish, steps }: IProps) {
+export function Stepper({ className, children, onFinish, steps }: IProps) {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [canNext, setCanNext] = useState<boolean>(false);
 
@@ -60,7 +61,7 @@ export function Stepper({ children, onFinish, steps }: IProps) {
   };
 
   return (
-    <div className="flex w-full flex-col gap-5">
+    <div className={cn("flex w-full flex-col gap-5", className)}>
       <div className="flex w-full items-center">
         {steps.map((step, idx) => {
           const isActive = idx <= currentStep;
