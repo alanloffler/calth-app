@@ -23,6 +23,7 @@ interface IProps {
 
 export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IProps) {
   const [icError, setIcError] = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
   const icRef = useMaskito({ options: digitsMask });
 
   // TODO: find by value === superadmin
@@ -36,7 +37,7 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
       ic: "",
       lastName: "",
       phoneNumber: "",
-      userName: "",
+      userName: "@",
       password: "",
       roleId: roleId,
     },
@@ -44,10 +45,11 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
   });
 
   const {
+    clearErrors,
     control,
     formState: { isValid },
     handleSubmit,
-    clearErrors,
+    setValue,
   } = methods;
 
   useEffect(() => {
@@ -133,8 +135,29 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="userName">Usuario</FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="userName" {...field} />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                <Input
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                  id="userName"
+                  onChange={(e) => {
+                    setUsernameError(null);
+                    clearErrors("userName");
+
+                    const rawValue = e.target.value.toLowerCase();
+                    const noAtSigns = rawValue.replace(/@/g, "");
+                    const sanitizedContent = noAtSigns.replace(/[^a-z0-9.\-_]/g, "");
+                    const finalValue = `@${sanitizedContent}`;
+
+                    setValue("userName", finalValue, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                    setValue("userName", finalValue);
+                  }}
+                />
+                {(fieldState.invalid || usernameError) && (
+                  <FieldError errors={usernameError ? [{ message: usernameError }] : [fieldState.error]} />
+                )}
               </Field>
             )}
           />
