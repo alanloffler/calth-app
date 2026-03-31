@@ -44,4 +44,9 @@ export const createBusinessSchema = z.object({
     .nonempty("El código postal es obligatorio")
     .min(4, "El código postal debe tener al 4 dígitos")
     .max(6, "El código postal debe tener como máximo 6 dígitos"),
+  slug: z
+    .string()
+    .nonempty("El subdominio es obligatorio")
+    .min(3, "El subdominio debe tener al menos 3 caracteres")
+    .max(50, "El subdominio debe tener como máximo 50 caracteres"),
 });
