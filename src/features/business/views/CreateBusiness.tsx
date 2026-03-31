@@ -39,12 +39,10 @@ export default function CreateBusiness() {
       <p className="text-lg">
         Completa los siguientes formularios para crear tu negocio y comenzar a gestionar tus pacientes y turnos.
       </p>
-      <section className="mx-12 my-8">
-        <Stepper steps={["Tu negocio", "Administrador"]} onFinish={handleFinish}>
-          <BusinessForm onSubmit={handleBusinessSubmit} />
-          <AdminForm onSubmit={handleAdminSubmit} />
-        </Stepper>
-      </section>
+      <Stepper className="px-12 py-8" steps={["Tu negocio", "Administrador"]} onFinish={handleFinish}>
+        <BusinessForm onSubmit={handleBusinessSubmit} />
+        <AdminForm onSubmit={handleAdminSubmit} />
+      </Stepper>
     </section>
   );
 }
