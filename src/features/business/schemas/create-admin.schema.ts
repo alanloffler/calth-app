@@ -2,9 +2,9 @@ import { z } from "zod";
 
 export const createAdminSchema = z.object({
   email: z.email({ message: "Debes ingresar un email válido" }),
-  firstName: z.string().nonempty("El nombre es obligatorio"),
+  firstName: z.string().nonempty("El nombre es obligatorio").min(3, "El nombre debe tener al menos 3 caracteres"),
   ic: z.string().nonempty("El número de DNI es obligatorio").max(8, "Máximo 8 dígitos").min(8, "Mínimo 8 dígitos"),
-  lastName: z.string().nonempty("El apellido es obligatorio"),
+  lastName: z.string().nonempty("El apellido es obligatorio").min(3, "El apellido debe tener al menos 3 caracteres"),
   phoneNumber: z
     .string()
     .nonempty("El número de teléfono es obligatorio")
