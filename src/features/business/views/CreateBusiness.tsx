@@ -1,6 +1,7 @@
 import { GalleryVerticalEnd } from "lucide-react";
 
 import { AdminForm } from "@business/components/forms/AdminForm";
+import { ContactForm } from "@business/components/forms/ContactForm";
 import { BusinessForm } from "@business/components/forms/BusinessForm";
 import { Stepper } from "@components/Stepper";
 
@@ -9,15 +10,21 @@ import { useRef } from "react";
 
 import type { createAdminSchema } from "@business/schemas/create-admin.schema";
 import type { createBusinessSchema } from "@business/schemas/create-business.schema";
+import type { createContactSchema } from "@business/schemas/create-contact.schema";
 
-type BusinessData = z.infer<typeof createBusinessSchema>;
 type AdminData = z.infer<typeof createAdminSchema>;
+type BusinessData = z.infer<typeof createBusinessSchema>;
+type ContactData = z.infer<typeof createContactSchema>;
 
 export default function CreateBusiness() {
-  const collectedData = useRef<{ business?: BusinessData; admin?: AdminData }>({});
+  const collectedData = useRef<{ business?: BusinessData; contact?: ContactData; admin?: AdminData }>({});
 
   function handleBusinessSubmit(data: BusinessData) {
     collectedData.current.business = data;
+  }
+
+  function handleContactSubmit(data: ContactData) {
+    collectedData.current.contact = data;
   }
 
   function handleAdminSubmit(data: AdminData) {
@@ -39,8 +46,9 @@ export default function CreateBusiness() {
       <p className="text-lg">
         Completa los siguientes formularios para crear tu negocio y comenzar a gestionar tus pacientes y turnos.
       </p>
-      <Stepper className="px-12 py-8" steps={["Tu negocio", "Administrador"]} onFinish={handleFinish}>
+      <Stepper className="px-12 py-8" steps={["Tu negocio", "Contacto", "Administrador"]} onFinish={handleFinish}>
         <BusinessForm onSubmit={handleBusinessSubmit} />
+        <ContactForm onSubmit={handleContactSubmit} />
         <AdminForm onSubmit={handleAdminSubmit} />
       </Stepper>
     </section>
