@@ -20,7 +20,17 @@ interface IProps {
 export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: IProps) {
   const methods = useForm<BusinessFormValues>({
     resolver: zodResolver(createBusinessSchema),
-    defaultValues: { taxId: "", tradeName: "", companyName: "", description: "" },
+    defaultValues: {
+      taxId: "",
+      tradeName: "",
+      companyName: "",
+      description: "",
+      street: "",
+      city: "",
+      province: "",
+      country: "",
+      zipCode: "",
+    },
     mode: "onChange",
   });
 
@@ -42,7 +52,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
   return (
     <FormProvider {...methods}>
       <form
-        className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         id={formId}
         onSubmit={handleSubmit(handleFormSubmit)}
       >
@@ -93,7 +103,64 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             )}
           />
         </FieldGroup>
-        <FieldGroup>Content column 2</FieldGroup>
+        <FieldGroup>
+          <FieldTitle className="text-base">Dirección:</FieldTitle>
+          <Controller
+            name="street"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="street">Calle</FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="street" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="city"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="city">Ciudad</FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="city" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="province"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="province">Provincia</FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="province" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="country"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="country">País</FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="country" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="zipCode"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="zipCode">Código Postal</FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="zipCode" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+        </FieldGroup>
         <FieldGroup>Content column 3</FieldGroup>
       </form>
     </FormProvider>
