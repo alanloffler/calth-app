@@ -1,3 +1,5 @@
+import { Asterisk } from "lucide-react";
+
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel, FieldTitle } from "@components/ui/field";
 import { Input } from "@components/ui/input";
@@ -72,7 +74,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="taxId">CUIT</FieldLabel>
+                <FieldLabel className="flex items-center" htmlFor="taxId">
+                  CUIT <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
@@ -92,7 +96,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="tradeName">Razón social</FieldLabel>
+                <FieldLabel htmlFor="tradeName">
+                  Razón social <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="tradeName" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -103,7 +109,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="companyName">Nombre comercial</FieldLabel>
+                <FieldLabel htmlFor="companyName">
+                  Nombre comercial <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="companyName" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -114,7 +122,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="description">Descripción</FieldLabel>
+                <FieldLabel htmlFor="description">
+                  Descripción <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="description" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -128,7 +138,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="street">Calle</FieldLabel>
+                <FieldLabel htmlFor="street">
+                  Calle <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="street" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -139,7 +151,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="city">Ciudad</FieldLabel>
+                <FieldLabel htmlFor="city">
+                  Ciudad <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="city" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -150,7 +164,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="province">Provincia</FieldLabel>
+                <FieldLabel htmlFor="province">
+                  Provincia <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="province" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -161,7 +177,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="country">País</FieldLabel>
+                <FieldLabel htmlFor="country">
+                  País <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="country" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -172,7 +190,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="zipCode">Código Postal</FieldLabel>
+                <FieldLabel htmlFor="zipCode">
+                  Código Postal <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="zipCode" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -186,7 +206,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="email">E-mail</FieldLabel>
+                <FieldLabel htmlFor="email">
+                  Email <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="email" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -197,7 +219,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="phoneNumber">Número de teléfono</FieldLabel>
+                <FieldLabel htmlFor="phoneNumber">
+                  Número de teléfono <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
@@ -217,7 +241,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="whatsAppNumber">Número de WhatsApp</FieldLabel>
+                <FieldLabel htmlFor="whatsAppNumber">
+                  Número de WhatsApp <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
@@ -245,6 +271,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
           />
         </FieldGroup>
       </form>
+      <div className="mt-8 flex items-center gap-3 text-sm">
+        <Asterisk className="size-5" /> Campos obligatorios
+      </div>
     </FormProvider>
   );
 }
