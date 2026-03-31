@@ -3,10 +3,14 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field"
 import { Input } from "@components/ui/input";
 
 import type { z } from "zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useMaskito } from "@maskito/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { createAdminSchema } from "@business/schemas/create-admin.schema";
+import { digitsMask } from "@core/masks/maskito-digits";
+import { tryCatch } from "@core/utils/try-catch";
+import { UsersService } from "@users/services/users.service";
 
 type AdminFormValues = z.infer<typeof createAdminSchema>;
 
@@ -18,6 +22,9 @@ interface IProps {
 }
 
 export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IProps) {
+  const [icError, setIcError] = useState<string | null>(null);
+  const icRef = useMaskito({ options: digitsMask });
+
   // TODO: find by value === superadmin
   const roleId = "ac854a41-5862-423d-90b1-942f7d8e5f27";
 
@@ -40,6 +47,7 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
     control,
     formState: { isValid },
     handleSubmit,
+    clearErrors,
   } = methods;
 
   useEffect(() => {
@@ -87,8 +95,35 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="ic">DNI</FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="ic" {...field} />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                <Input
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                  id="ic"
+                  ref={(node) => {
+                    field.ref(node);
+                    icRef(node);
+                  }}
+                  onChange={async (e) => {
+                    field.onChange(e);
+
+                    const value = e.target.value;
+
+                    setIcError(null);
+                    clearErrors("ic");
+
+                    if (value.length > 7) {
+                      const [response, error] = await tryCatch(UsersService.checkIcAvailability(value));
+                      if (response?.data === false || error) {
+                        const errorMsg = error ? "Error al comprobar DNI" : "DNI ya registrado";
+                        setIcError(errorMsg);
+                        control.setError("ic", { message: errorMsg });
+                      }
+                    }
+                  }}
+                />
+                {(fieldState.invalid || icError) && (
+                  <FieldError errors={icError ? [{ message: icError }] : [fieldState.error]} />
+                )}
               </Field>
             )}
           />
