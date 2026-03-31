@@ -4,9 +4,11 @@ import { Input } from "@components/ui/input";
 
 import type { z } from "zod";
 import { useEffect } from "react";
+import { useMaskito } from "@maskito/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { createBusinessSchema } from "@business/schemas/create-business.schema";
+import { digitsMask } from "@core/masks/maskito-digits";
 
 type BusinessFormValues = z.infer<typeof createBusinessSchema>;
 
@@ -18,6 +20,9 @@ interface IProps {
 }
 
 export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: IProps) {
+  const taxRef = useMaskito({ options: digitsMask });
+  const phoneRef = useMaskito({ options: digitsMask });
+
   const methods = useForm<BusinessFormValues>({
     resolver: zodResolver(createBusinessSchema),
     defaultValues: {
@@ -68,7 +73,16 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="taxId">CUIT</FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="taxId" {...field} />
+                <Input
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                  id="taxId"
+                  maxLength={12}
+                  ref={(node) => {
+                    field.ref(node);
+                    taxRef(node);
+                  }}
+                />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
@@ -184,7 +198,16 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="phoneNumber">Número de teléfono</FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="phoneNumber" {...field} />
+                <Input
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                  id="phoneNumber"
+                  maxLength={11}
+                  ref={(node) => {
+                    field.ref(node);
+                    phoneRef(node);
+                  }}
+                />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
@@ -195,7 +218,16 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="whatsAppNumber">Número de WhatsApp</FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="whatsAppNumber" {...field} />
+                <Input
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                  id="whatsAppNumber"
+                  maxLength={11}
+                  ref={(node) => {
+                    field.ref(node);
+                    phoneRef(node);
+                  }}
+                />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
