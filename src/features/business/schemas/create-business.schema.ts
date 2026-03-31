@@ -44,16 +44,4 @@ export const createBusinessSchema = z.object({
     .nonempty("El código postal es obligatorio")
     .min(4, "El código postal debe tener al 4 dígitos")
     .max(6, "El código postal debe tener como máximo 6 dígitos"),
-  // Contact
-  email: z.email({ message: "Debes ingresar un email válido" }),
-  phoneNumber: z
-    .string()
-    .nonempty("El número de teléfono es obligatorio")
-    .length(10, "El número de teléfono debe tener 10 dígitos"),
-  whatsAppNumber: z.string().length(10, "El número de WhatsApp debe tener 10 dígitos").optional(),
-  website: z
-    .string()
-    .min(7, "El sitio web debe tener al menos 7 caracteres")
-    .max(50, "El sitio web debe tener como máximo 50 caracteres")
-    .optional(),
 });
