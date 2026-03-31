@@ -1,5 +1,5 @@
 import { Controller, FormProvider, useForm } from "react-hook-form";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel, FieldTitle } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 
 import type { z } from "zod";
@@ -20,7 +20,7 @@ interface IProps {
 export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: IProps) {
   const methods = useForm<BusinessFormValues>({
     resolver: zodResolver(createBusinessSchema),
-    defaultValues: { companyName: "", taxId: "" },
+    defaultValues: { taxId: "", tradeName: "", companyName: "", description: "" },
     mode: "onChange",
   });
 
@@ -41,19 +41,13 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
 
   return (
     <FormProvider {...methods}>
-      <form id={formId} onSubmit={handleSubmit(handleFormSubmit)}>
-        <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-4">
-          <Controller
-            name="companyName"
-            control={control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="companyName">Nombre del negocio</FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="companyName" {...field} />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
+      <form
+        className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        id={formId}
+        onSubmit={handleSubmit(handleFormSubmit)}
+      >
+        <FieldGroup>
+          <FieldTitle className="text-base">Datos del negocio:</FieldTitle>
           <Controller
             name="taxId"
             control={control}
@@ -65,7 +59,42 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
               </Field>
             )}
           />
+          <Controller
+            name="tradeName"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="tradeName">Razón social</FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="tradeName" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="companyName"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="companyName">Nombre comercial</FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="companyName" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="description"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="description">Descripción</FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="description" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
         </FieldGroup>
+        <FieldGroup>Content column 2</FieldGroup>
+        <FieldGroup>Content column 3</FieldGroup>
       </form>
     </FormProvider>
   );
