@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, Store } from "lucide-react";
 
 import { Button } from "@core/components/ui/button";
 
-import { Children, cloneElement, useMemo, useState, type ReactElement, type ReactNode } from "react";
+import { Children, cloneElement, useCallback, useMemo, useState, type ReactElement, type ReactNode } from "react";
 
 import { cn } from "@lib/utils";
 
@@ -18,23 +18,29 @@ export function Stepper({ children, onFinish, steps }: IProps) {
 
   const memoChildren = useMemo(() => Children.toArray(children), [children]);
 
-  const activeStepContent = useMemo(() => {
-    const currentChild = memoChildren[currentStep] as ReactElement<{ setIsValid: (valid: boolean) => void }>;
-    return cloneElement(currentChild, {
-      setIsValid: (valid: boolean) => setCanNext(valid),
-    });
-  }, [memoChildren, currentStep]);
-
   const lastStep = currentStep === steps.length - 1;
 
-  const handleNext = () => {
+  const handleStepComplete = useCallback(() => {
     if (lastStep) {
       onFinish();
-    } else if (canNext) {
+    } else {
       setCurrentStep((prev) => prev + 1);
       setCanNext(false);
     }
-  };
+  }, [lastStep, onFinish]);
+
+  const activeStepContent = useMemo(() => {
+    const currentChild = memoChildren[currentStep] as ReactElement<{
+      setIsValid: (valid: boolean) => void;
+      formId: string;
+      onStepComplete: () => void;
+    }>;
+    return cloneElement(currentChild, {
+      setIsValid: (valid: boolean) => setCanNext(valid),
+      formId: "stepper-step-form",
+      onStepComplete: handleStepComplete,
+    });
+  }, [memoChildren, currentStep, handleStepComplete]);
 
   const handlePrev = () => {
     if (currentStep > 0) {
@@ -72,7 +78,7 @@ export function Stepper({ children, onFinish, steps }: IProps) {
           <ChevronLeft className="h-5 w-5" />
           Anterior
         </Button>
-        <Button disabled={!canNext} onClick={handleNext} size="lg" type="button" variant="default">
+        <Button disabled={!canNext} form="stepper-step-form" size="lg" type="submit" variant="default">
           {currentStep === steps.length - 1 ? (
             <>
               <Store className="h-5 w-5" />
