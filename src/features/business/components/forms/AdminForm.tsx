@@ -20,7 +20,17 @@ interface IProps {
 export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IProps) {
   const methods = useForm<AdminFormValues>({
     resolver: zodResolver(createAdminSchema),
-    defaultValues: { adminEmail: "" },
+    defaultValues: {
+      email: "",
+      firstName: "",
+      ic: "",
+      lastName: "",
+      phoneNumber: "",
+      userName: "",
+      password: "",
+      roleId: "",
+      businessId: "",
+    },
     mode: "onChange",
   });
 
