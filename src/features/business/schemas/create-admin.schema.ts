@@ -18,5 +18,4 @@ export const createAdminSchema = z.object({
     .nonempty("La contraseña es obligatoria")
     .min(8, "La contraseña debe tener al menos 8 caracteres"),
   roleId: z.uuid({ message: "El rol es obligatorio" }),
-  businessId: z.uuid({ message: "El negocio es obligatorio" }),
 });
