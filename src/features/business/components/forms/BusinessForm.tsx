@@ -30,6 +30,10 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
       province: "",
       country: "",
       zipCode: "",
+      email: "",
+      phoneNumber: "",
+      whatsAppNumber: "",
+      website: "",
     },
     mode: "onChange",
   });
@@ -161,7 +165,53 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             )}
           />
         </FieldGroup>
-        <FieldGroup>Content column 3</FieldGroup>
+        <FieldGroup>
+          <FieldTitle className="text-base">Contacto:</FieldTitle>
+          <Controller
+            name="email"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="email">E-mail</FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="email" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="phoneNumber"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="phoneNumber">Número de teléfono</FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="phoneNumber" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="whatsAppNumber"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="whatsAppNumber">Número de WhatsApp</FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="whatsAppNumber" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="website"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="website">Página web</FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="website" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+        </FieldGroup>
       </form>
     </FormProvider>
   );
