@@ -41,6 +41,8 @@ export function LatestPatients({ className }: IProps) {
     getLatestEvents();
   }, [getLatestEvents]);
 
+  if (!isLoading && !patients?.length) return null;
+
   return (
     <Card className={cn("relative gap-4 px-6", className)}>
       <h2 className="font-semibold">Últimos pacientes</h2>
