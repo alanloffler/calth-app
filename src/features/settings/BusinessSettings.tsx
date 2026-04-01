@@ -16,12 +16,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { BusinessService } from "@business/services/business.service";
 import { businessSchema } from "@business/schemas/business.schema";
 import { cn } from "@lib/utils";
+import { useAuthStore } from "@auth/stores/auth.store";
 import { useSidebar } from "@components/ui/sidebar";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function BusinessSettings() {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { admin } = useAuthStore();
   const { isLoading: isLoadingBusiness, tryCatch: tryCatchBusiness } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSaveBusiness } = useTryCatch();
   const { open } = useSidebar();
@@ -47,7 +49,9 @@ export default function BusinessSettings() {
   });
 
   const fetchBusiness = useCallback(async (): Promise<void> => {
-    const [response, error] = await tryCatchBusiness(BusinessService.findOne());
+    if (!admin) return;
+
+    const [response, error] = await tryCatchBusiness(BusinessService.findOne(admin.businessId));
 
     if (error) {
       toast.error(error.message);
@@ -76,7 +80,7 @@ export default function BusinessSettings() {
         });
       }
     }
-  }, [form, tryCatchBusiness]);
+  }, [admin, form, tryCatchBusiness]);
 
   useEffect(() => {
     fetchBusiness();
