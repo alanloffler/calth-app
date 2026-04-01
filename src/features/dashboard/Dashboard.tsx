@@ -35,7 +35,7 @@ export default function Dashboard() {
           <p className="text-lg font-medium">Bienvenido a tu panel de control</p>
         </Card>
       )}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-8 empty:hidden lg:grid-cols-12">
         <LatestEvents className="col-span-12 xl:col-span-8 2xl:col-span-6" />
         <LatestPatients className="col-span-12 xl:col-span-4 2xl:col-span-6" />
       </div>
