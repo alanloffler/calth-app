@@ -17,15 +17,13 @@ import { BusinessService } from "@business/services/business.service";
 import { businessSchema } from "@business/schemas/business.schema";
 import { cn } from "@lib/utils";
 import { useAuthStore } from "@auth/stores/auth.store";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSidebar } from "@components/ui/sidebar";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function BusinessSettings() {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { admin } = useAuthStore();
-  const { isLoading: isSaving, tryCatch: tryCatchSaveBusiness } = useTryCatch();
   const { open } = useSidebar();
 
   const form = useForm<z.infer<typeof businessSchema>>({
@@ -75,19 +73,14 @@ export default function BusinessSettings() {
     });
   }, [business, form]);
 
-  async function onSubmit(data: z.infer<typeof businessSchema>): Promise<void> {
+  const { isPending: isSaving, mutate: saveBusiness } = useMutation({
+    mutationFn: (data: z.infer<typeof businessSchema>) => BusinessService.update(businessId!, data),
+    onSuccess: () => toast.success("Configuración de tu negocio actualizada"),
+  });
+
+  function onSubmit(data: z.infer<typeof businessSchema>): void {
     if (!businessId) return;
-
-    const [response, error] = await tryCatchSaveBusiness(BusinessService.update(businessId, data));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200 && response.data) {
-      toast.success("Configuración de tu negocio actualizada");
-    }
+    saveBusiness(data);
   }
 
   function handleCancel(): void {
