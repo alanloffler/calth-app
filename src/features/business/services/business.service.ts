@@ -14,7 +14,7 @@ class BusinessModuleService {
     return BusinessModuleService.instance;
   }
 
-  public async create(data: any): Promise<IApiResponse<IBusiness>> {
+  public async create(data: ICreateBusiness): Promise<IApiResponse<IBusiness>> {
     const response = await apiClient.post("/businesses", data);
     return response.data;
   }
