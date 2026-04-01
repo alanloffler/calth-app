@@ -8,7 +8,7 @@ import { PageHeader } from "@components/pages/PageHeader";
 
 import type z from "zod";
 import { toast } from "sonner";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +17,7 @@ import { BusinessService } from "@business/services/business.service";
 import { businessSchema } from "@business/schemas/business.schema";
 import { cn } from "@lib/utils";
 import { useAuthStore } from "@auth/stores/auth.store";
+import { useQuery } from "@tanstack/react-query";
 import { useSidebar } from "@components/ui/sidebar";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
@@ -24,7 +25,6 @@ export default function BusinessSettings() {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { admin } = useAuthStore();
-  const { isLoading: isLoadingBusiness, tryCatch: tryCatchBusiness } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSaveBusiness } = useTryCatch();
   const { open } = useSidebar();
 
@@ -48,43 +48,32 @@ export default function BusinessSettings() {
     },
   });
 
-  const fetchBusiness = useCallback(async (): Promise<void> => {
-    if (!admin) return;
-
-    const [response, error] = await tryCatchBusiness(BusinessService.findOne(admin.businessId));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200 && response.data) {
-      if (response.data) {
-        setBusinessId(response.data.id);
-        const r = response.data;
-
-        form.reset({
-          slug: r.slug,
-          taxId: r.taxId,
-          companyName: r.companyName,
-          tradeName: r.tradeName,
-          description: r.description,
-          street: r.street,
-          city: r.city,
-          province: r.province,
-          country: r.country,
-          zipCode: r.zipCode,
-          email: r.email,
-          phoneNumber: r.phoneNumber,
-          whatsAppNumber: r.whatsAppNumber,
-        });
-      }
-    }
-  }, [admin, form, tryCatchBusiness]);
+  const { data: business, isLoading: isLoadingBusiness } = useQuery({
+    queryKey: ["business"],
+    queryFn: () => admin && BusinessService.findOne(admin.businessId),
+  });
 
   useEffect(() => {
-    fetchBusiness();
-  }, [fetchBusiness]);
+    const r = business?.data;
+    if (!r) return;
+
+    setBusinessId(r.id);
+    form.reset({
+      slug: r.slug,
+      taxId: r.taxId,
+      companyName: r.companyName,
+      tradeName: r.tradeName,
+      description: r.description,
+      street: r.street,
+      city: r.city,
+      province: r.province,
+      country: r.country,
+      zipCode: r.zipCode,
+      email: r.email,
+      phoneNumber: r.phoneNumber,
+      whatsAppNumber: r.whatsAppNumber,
+    });
+  }, [business, form]);
 
   async function onSubmit(data: z.infer<typeof businessSchema>): Promise<void> {
     if (!businessId) return;
