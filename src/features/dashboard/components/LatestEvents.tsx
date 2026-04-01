@@ -31,6 +31,8 @@ export function LatestEvents({ className }: IProps) {
     setOpenViewEventSheet(true);
   }
 
+  if (!isLoading && !data?.data?.length) return null;
+
   return (
     <Card className={cn("relative gap-4 px-6", className)}>
       <h2 className="font-semibold">Últimos turnos</h2>
