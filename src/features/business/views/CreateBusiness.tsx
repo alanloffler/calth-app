@@ -9,6 +9,7 @@ import type { z } from "zod";
 import { toast } from "sonner";
 import { useRef } from "react";
 
+import type { ICreateBusiness } from "@business/interfaces/create-business.interface";
 import type { createAdminSchema } from "@business/schemas/create-admin.schema";
 import type { createBusinessSchema } from "@business/schemas/create-business.schema";
 import type { createContactSchema } from "@business/schemas/create-contact.schema";
@@ -35,7 +36,7 @@ export default function CreateBusiness() {
   }
 
   async function handleFinish() {
-    const [response, error] = await tryCatch(BusinessService.create(collectedData.current));
+    const [response, error] = await tryCatch(BusinessService.create(collectedData.current as ICreateBusiness));
     if (error) {
       toast.error(error.message);
       return;
