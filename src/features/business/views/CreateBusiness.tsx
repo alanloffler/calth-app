@@ -6,11 +6,14 @@ import { BusinessForm } from "@business/components/forms/BusinessForm";
 import { Stepper } from "@components/Stepper";
 
 import type { z } from "zod";
+import { toast } from "sonner";
 import { useRef } from "react";
 
 import type { createAdminSchema } from "@business/schemas/create-admin.schema";
 import type { createBusinessSchema } from "@business/schemas/create-business.schema";
 import type { createContactSchema } from "@business/schemas/create-contact.schema";
+import { BusinessService } from "@business/services/business.service";
+import { tryCatch } from "@core/utils/try-catch";
 
 type AdminData = z.infer<typeof createAdminSchema>;
 type BusinessData = z.infer<typeof createBusinessSchema>;
@@ -31,8 +34,15 @@ export default function CreateBusiness() {
     collectedData.current.admin = data;
   }
 
-  function handleFinish() {
-    console.log("Submit all", collectedData.current);
+  async function handleFinish() {
+    const [response, error] = await tryCatch(BusinessService.create(collectedData.current));
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    if (response) {
+      toast.success("Negocio creado exitosamente");
+    }
   }
 
   return (
