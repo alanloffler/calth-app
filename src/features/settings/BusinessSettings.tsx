@@ -98,7 +98,6 @@ export default function BusinessSettings() {
 
     if (response && response.statusCode === 200 && response.data) {
       toast.success("Configuración de tu negocio actualizada");
-      // navigate(-1);
     }
   }
 
@@ -112,7 +111,7 @@ export default function BusinessSettings() {
       <PageHeader title="Configuraciones de tu negocio">
         {isLoadingBusiness && <Loader className="text-sm" size={18} text="Cargando tu negocio" />}
       </PageHeader>
-      <Card className="w-full 2xl:max-w-[1100px]">
+      <Card className="w-full 2xl:max-w-275">
         <CardContent className="flex flex-col gap-6">
           <form className="grid grid-cols-1 gap-6 xl:grid-cols-2" id="edit-form" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-4 border-b pb-8">
@@ -141,20 +140,25 @@ export default function BusinessSettings() {
                   name="slug"
                   control={form.control}
                   render={({ field, fieldState }) => (
-                    <Field
-                      className={cn("col-span-1", open ? "md:col-span-12 lg:col-span-6" : "md:col-span-6")}
-                      data-invalid={fieldState.invalid}
+                    <div
+                      className={cn(
+                        "col-span-1 flex w-full flex-col gap-1",
+                        open ? "md:col-span-12 lg:col-span-6" : "md:col-span-6",
+                      )}
                     >
-                      <FieldLabel htmlFor="slug">Subdominio</FieldLabel>
-                      <Input
-                        aria-invalid={fieldState.invalid}
-                        className="disabled:opacity-100"
-                        disabled
-                        id="slug"
-                        {...field}
-                      />
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                    </Field>
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor="slug">Subdominio</FieldLabel>
+                        <Input
+                          aria-invalid={fieldState.invalid}
+                          className="disabled:opacity-100"
+                          disabled
+                          id="slug"
+                          {...field}
+                        />
+                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                      </Field>
+                      <p className="text-muted-foreground w-fit text-xs">{`https://${field.value}.calth.app`}</p>
+                    </div>
                   )}
                 />
                 <Controller
