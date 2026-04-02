@@ -298,7 +298,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
       </form>
       <div className="mt-8 flex items-center gap-3 text-sm">
         <Asterisk className="size-5" /> Campos obligatorios
-        <Button onClick={() => completeForm()} size="xs" variant="outline">
+        <Button onClick={() => completeForm()} size="xs" type="button" variant="outline">
           Complete
         </Button>
       </div>
