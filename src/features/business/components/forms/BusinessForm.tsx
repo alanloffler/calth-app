@@ -21,7 +21,8 @@ function toSlug(value: string): string | null {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  if (slug.length < 3) {
+  console.log(slug);
+  if (slug.length < 3 || slug.includes("s-r-l") || slug.includes("s-a")) {
     return null;
   }
   return slug;
