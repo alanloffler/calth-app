@@ -5,6 +5,7 @@ import { Checkbox } from "@components/ui/checkbox";
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel, FieldTitle } from "@components/ui/field";
 import { Input } from "@components/ui/input";
+import { Textarea } from "@components/ui/textarea";
 
 import type { z } from "zod";
 import { useEffect } from "react";
@@ -21,7 +22,7 @@ function toSlug(value: string): string | null {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  console.log(slug);
+
   if (slug.length < 3 || slug.includes("s-r-l") || slug.includes("s-a")) {
     return null;
   }
@@ -163,7 +164,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
                 <FieldLabel htmlFor="description">
                   Descripción <Asterisk className="size-3" />
                 </FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="description" {...field} />
+                <Textarea className="min-h-25" aria-invalid={fieldState.invalid} id="description" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
