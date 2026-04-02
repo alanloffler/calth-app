@@ -84,7 +84,6 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
   }
 
   function completeForm(): void {
-    console.log("completeForm");
     businessForm.reset({
       taxId: "20301011029",
       tradeName: "Clínica Wanda S.R.L.",
