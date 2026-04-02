@@ -1,5 +1,6 @@
 import { Asterisk } from "lucide-react";
 
+import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel, FieldTitle } from "@components/ui/field";
@@ -78,6 +79,22 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
   function handleFormSubmit(data: BusinessFormValues): void {
     onSubmit?.(data);
     onStepComplete?.();
+  }
+
+  function completeForm(): void {
+    console.log("completeForm");
+    businessForm.reset({
+      taxId: "20301011029",
+      tradeName: "Clínica Wanda S.R.L.",
+      companyName: "Clínica Wanda",
+      description: "Centro médico especializado en pediatría y obstetricia.",
+      street: "Calle 1º de Abril",
+      city: "Wanda",
+      province: "Misiones",
+      country: "Argentina",
+      zipCode: "3376",
+      slug: "clinicawanda",
+    });
   }
 
   return (
@@ -280,6 +297,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
       </form>
       <div className="mt-8 flex items-center gap-3 text-sm">
         <Asterisk className="size-5" /> Campos obligatorios
+        <Button onClick={() => completeForm()} size="xs" variant="outline">
+          Complete
+        </Button>
       </div>
     </FormProvider>
   );
