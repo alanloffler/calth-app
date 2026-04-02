@@ -42,7 +42,6 @@ export default function CreateBusiness() {
       return;
     }
     if (response) {
-      // TODO: create localstorage with app-settings, default to show light mode, icons and tooltips
       toast.success("Negocio creado exitosamente");
     }
   }
