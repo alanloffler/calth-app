@@ -90,7 +90,10 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="firstName">Nombre</FieldLabel>
+                <FieldLabel htmlFor="firstName">
+                  Nombre
+                  <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="firstName" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -101,7 +104,10 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="lastName">Apellido</FieldLabel>
+                <FieldLabel htmlFor="lastName">
+                  Apellido
+                  <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="lastName" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -112,7 +118,10 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="ic">DNI</FieldLabel>
+                <FieldLabel htmlFor="ic">
+                  DNI
+                  <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
@@ -150,7 +159,10 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="userName">Usuario</FieldLabel>
+                <FieldLabel htmlFor="userName">
+                  Usuario
+                  <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
@@ -184,7 +196,10 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="email">E-mail</FieldLabel>
+                <FieldLabel htmlFor="email">
+                  E-mail
+                  <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="email" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -195,7 +210,10 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="password">Contraseña</FieldLabel>
+                <FieldLabel htmlFor="password">
+                  Contraseña
+                  <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="password" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -206,7 +224,10 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="phoneNumber">Teléfono</FieldLabel>
+                <FieldLabel htmlFor="phoneNumber">
+                  Teléfono
+                  <Asterisk className="size-3" />
+                </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="phoneNumber" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
