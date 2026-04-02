@@ -1,3 +1,6 @@
+import { Asterisk } from "lucide-react";
+
+import { Button } from "@components/ui/button";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
@@ -7,10 +10,10 @@ import { useEffect, useState } from "react";
 import { useMaskito } from "@maskito/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { UsersService } from "@users/services/users.service";
 import { createAdminSchema } from "@business/schemas/create-admin.schema";
 import { digitsMask } from "@core/masks/maskito-digits";
 import { tryCatch } from "@core/utils/try-catch";
-import { UsersService } from "@users/services/users.service";
 
 type AdminFormValues = z.infer<typeof createAdminSchema>;
 
@@ -56,9 +59,22 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
     setIsValid?.(isValid);
   }, [isValid, setIsValid]);
 
-  function handleFormSubmit(data: AdminFormValues) {
+  function handleFormSubmit(data: AdminFormValues): void {
     onSubmit?.(data);
     onStepComplete?.();
+  }
+
+  function completeForm(): void {
+    adminForm.reset({
+      email: "vanesa@gmail.com",
+      firstName: "Vanesa",
+      ic: "29100200",
+      lastName: "Suárez",
+      phoneNumber: "3757998877",
+      userName: "@vanesa",
+      password: "admin123",
+      roleId: roleId,
+    });
   }
 
   return (
@@ -211,6 +227,12 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
           />
         </FieldGroup>
       </form>
+      <div className="mt-8 flex items-center gap-3 text-sm">
+        <Asterisk className="size-5" /> Campos obligatorios
+        <Button onClick={() => completeForm()} size="xs" type="button" variant="outline">
+          Complete
+        </Button>
+      </div>
     </FormProvider>
   );
 }
