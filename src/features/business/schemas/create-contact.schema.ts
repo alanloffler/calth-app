@@ -6,10 +6,11 @@ export const createContactSchema = z.object({
     .string()
     .nonempty("El número de teléfono es obligatorio")
     .length(10, "El número de teléfono debe tener 10 dígitos"),
-  whatsAppNumber: z.string().length(10, "El número de WhatsApp debe tener 10 dígitos").optional(),
+  whatsAppNumber: z.string().length(10, "El número de WhatsApp debe tener 10 dígitos").or(z.literal("")).optional(),
   website: z
     .string()
     .min(7, "El sitio web debe tener al menos 7 caracteres")
     .max(50, "El sitio web debe tener como máximo 50 caracteres")
+    .or(z.literal(""))
     .optional(),
 });
