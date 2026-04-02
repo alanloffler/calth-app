@@ -29,7 +29,7 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
   // TODO: find by value === superadmin
   const roleId = "ac854a41-5862-423d-90b1-942f7d8e5f27";
 
-  const methods = useForm<AdminFormValues>({
+  const adminForm = useForm<AdminFormValues>({
     resolver: zodResolver(createAdminSchema),
     defaultValues: {
       email: "",
@@ -50,7 +50,7 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
     formState: { isValid },
     handleSubmit,
     setValue,
-  } = methods;
+  } = adminForm;
 
   useEffect(() => {
     setIsValid?.(isValid);
@@ -62,7 +62,7 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
   }
 
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...adminForm}>
       <form
         className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         id={formId}
