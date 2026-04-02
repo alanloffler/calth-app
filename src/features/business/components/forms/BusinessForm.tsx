@@ -38,7 +38,7 @@ interface IProps {
 export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: IProps) {
   const taxRef = useMaskito({ options: digitsMask });
 
-  const methods = useForm<BusinessFormValues>({
+  const businessForm = useForm<BusinessFormValues>({
     resolver: zodResolver(createBusinessSchema),
     defaultValues: {
       taxId: "",
@@ -59,7 +59,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
     control,
     formState: { isValid },
     handleSubmit,
-  } = methods;
+  } = businessForm;
 
   const slugField = useWatch({ control, name: "slug" });
   const tradeName = useWatch({ control, name: "tradeName" });
@@ -75,13 +75,13 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
     setIsValid?.(isValid);
   }, [isValid, setIsValid]);
 
-  function handleFormSubmit(data: BusinessFormValues) {
+  function handleFormSubmit(data: BusinessFormValues): void {
     onSubmit?.(data);
     onStepComplete?.();
   }
 
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...businessForm}>
       <form
         className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         id={formId}
