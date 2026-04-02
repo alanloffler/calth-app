@@ -1,5 +1,6 @@
 import { Asterisk } from "lucide-react";
 
+import { Button } from "@components/ui/button";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel, FieldTitle } from "@components/ui/field";
 import { Input } from "@components/ui/input";
@@ -48,6 +49,14 @@ export function ContactForm({ setIsValid, formId, onStepComplete, onSubmit }: IP
   function handleFormSubmit(data: ContactFormValues) {
     onSubmit?.(data);
     onStepComplete?.();
+  }
+
+  function completeForm(): void {
+    contactForm.reset({
+      email: "clinicawanda@gmail.com",
+      phoneNumber: "3757470101",
+      whatsAppNumber: "3757101010",
+    });
   }
 
   return (
@@ -131,6 +140,9 @@ export function ContactForm({ setIsValid, formId, onStepComplete, onSubmit }: IP
       </form>
       <div className="mt-8 flex items-center gap-3 text-sm">
         <Asterisk className="size-5" /> Campos obligatorios
+        <Button onClick={() => completeForm()} size="xs" type="button" variant="outline">
+          Complete
+        </Button>
       </div>
     </FormProvider>
   );
