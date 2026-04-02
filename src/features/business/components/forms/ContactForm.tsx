@@ -24,7 +24,7 @@ interface IProps {
 export function ContactForm({ setIsValid, formId, onStepComplete, onSubmit }: IProps) {
   const phoneRef = useMaskito({ options: digitsMask });
 
-  const methods = useForm<ContactFormValues>({
+  const contactForm = useForm<ContactFormValues>({
     resolver: zodResolver(createContactSchema),
     defaultValues: {
       email: "",
@@ -39,7 +39,7 @@ export function ContactForm({ setIsValid, formId, onStepComplete, onSubmit }: IP
     control,
     formState: { isValid },
     handleSubmit,
-  } = methods;
+  } = contactForm;
 
   useEffect(() => {
     setIsValid?.(isValid);
@@ -51,7 +51,7 @@ export function ContactForm({ setIsValid, formId, onStepComplete, onSubmit }: IP
   }
 
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...contactForm}>
       <form
         className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         id={formId}
