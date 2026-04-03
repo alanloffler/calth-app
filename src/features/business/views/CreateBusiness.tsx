@@ -16,6 +16,7 @@ import type { createBusinessSchema } from "@business/schemas/create-business.sch
 import type { createContactSchema } from "@business/schemas/create-contact.schema";
 import { BusinessService } from "@business/services/business.service";
 import { tryCatch } from "@core/utils/try-catch";
+import { Card } from "@components/ui/card";
 
 type AdminData = z.infer<typeof createAdminSchema>;
 type BusinessData = z.infer<typeof createBusinessSchema>;
@@ -83,11 +84,11 @@ export default function CreateBusiness() {
           </Stepper>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-1">
-          <p>Negocio creado exitosamente, serás redirigido a la página de ingreso en</p>
+        <Card className="mx-auto flex w-fit flex-col items-center gap-3 px-6">
+          <p className="font-medium">Negocio creado exitosamente, serás redirigido a la página de ingreso en</p>
           <Countdown callback={handleTimerEnd} seconds={REDIRECT_SECONDS} />
-          <div>{redirectURL}</div>
-        </div>
+          <div className="text-muted-foreground text-sm font-medium">{redirectURL}</div>
+        </Card>
       )}
     </section>
   );
