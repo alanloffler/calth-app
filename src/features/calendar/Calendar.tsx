@@ -1,10 +1,13 @@
 import "@calendar/styles/calendar.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
+import { Button } from "@components/ui/button";
 import { Calendar as Schedule } from "react-big-calendar";
 import { CalendarEventsList } from "@calendar/components/CalendarEventsList";
+import { Card } from "@components/ui/card";
 import { CustomEvent } from "@calendar/components/calendar/CustomEvent";
 import { ErrorNotification } from "@components/notifications/ErrorNotification";
+import { Link } from "react-router";
 import { Loader } from "@components/Loader";
 import { PageLoader } from "@components/PageLoader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
@@ -146,7 +149,7 @@ export default function Calendar() {
 
     if (response && response.statusCode === 200 && response.data) {
       setProfessionals(response.data);
-      getProfessional(response.data[0].id);
+      if (response.data.length > 0) getProfessional(response.data[0].id);
     }
   }, [getProfessional, tryCatchProfessionals]);
 
@@ -170,7 +173,21 @@ export default function Calendar() {
     fetchProfessionals();
   }, [fetchProfessionals]);
 
-  if (!isReady) return <PageLoader text="Cargando agenda" />;
+  if (professionals?.length === 0) {
+    return (
+      <Card className="mx-auto w-fit px-6">
+        <span>Aún no hay profesionales para mostrar la agenda.</span>
+        <Button className="mx-auto w-fit" size="default" variant="default" asChild>
+          <Link to="/users/create" state={{ role: "professional" }}>
+            Creá un profesional
+          </Link>
+        </Button>
+      </Card>
+    );
+  }
+  if (!isReady) {
+    return <PageLoader text="Cargando agenda" />;
+  }
 
   return (
     <>
