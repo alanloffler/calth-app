@@ -13,19 +13,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createContactSchema } from "@business/schemas/create-contact.schema";
 import { digitsMask } from "@core/masks/maskito-digits";
 
-type ContactFormValues = z.infer<typeof createContactSchema>;
+type ContactFormInput = z.input<typeof createContactSchema>;
+type ContactFormOutput = z.output<typeof createContactSchema>;
 
 interface IProps {
   setIsValid?: (valid: boolean) => void;
   formId?: string;
   onStepComplete?: () => void;
-  onSubmit?: (data: ContactFormValues) => void;
+  onSubmit?: (data: ContactFormOutput) => void;
 }
 
 export function ContactForm({ setIsValid, formId, onStepComplete, onSubmit }: IProps) {
   const phoneRef = useMaskito({ options: digitsMask });
 
-  const contactForm = useForm<ContactFormValues>({
+  const contactForm = useForm<ContactFormInput, unknown, ContactFormOutput>({
     resolver: zodResolver(createContactSchema),
     defaultValues: {
       email: "",
@@ -46,7 +47,7 @@ export function ContactForm({ setIsValid, formId, onStepComplete, onSubmit }: IP
     setIsValid?.(isValid);
   }, [isValid, setIsValid]);
 
-  function handleFormSubmit(data: ContactFormValues) {
+  function handleFormSubmit(data: ContactFormOutput) {
     onSubmit?.(data);
     onStepComplete?.();
   }
@@ -131,7 +132,12 @@ export function ContactForm({ setIsValid, formId, onStepComplete, onSubmit }: IP
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="website">Página web</FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="website" {...field} />
+                <Input
+                  aria-invalid={fieldState.invalid}
+                  id="website"
+                  {...field}
+                  value={(field.value as string) ?? ""}
+                />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
