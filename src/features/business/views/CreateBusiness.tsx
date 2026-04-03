@@ -2,6 +2,8 @@ import { GalleryVerticalEnd } from "lucide-react";
 
 import { AdminForm } from "@business/components/forms/AdminForm";
 import { BusinessForm } from "@business/components/forms/BusinessForm";
+import { Button } from "@components/ui/button";
+import { Card } from "@components/ui/card";
 import { ContactForm } from "@business/components/forms/ContactForm";
 import { Countdown } from "@components/Countdown";
 import { Stepper } from "@components/Stepper";
@@ -16,7 +18,6 @@ import type { createBusinessSchema } from "@business/schemas/create-business.sch
 import type { createContactSchema } from "@business/schemas/create-contact.schema";
 import { BusinessService } from "@business/services/business.service";
 import { tryCatch } from "@core/utils/try-catch";
-import { Card } from "@components/ui/card";
 
 type AdminData = z.infer<typeof createAdminSchema>;
 type BusinessData = z.infer<typeof createBusinessSchema>;
@@ -86,8 +87,14 @@ export default function CreateBusiness() {
       ) : (
         <Card className="mx-auto flex w-fit flex-col items-center gap-3 px-6">
           <p className="font-medium">Negocio creado exitosamente, serás redirigido a la página de ingreso en</p>
-          <Countdown callback={handleTimerEnd} seconds={REDIRECT_SECONDS} />
-          <div className="text-muted-foreground text-sm font-medium">{redirectURL}</div>
+          <Countdown className="mt-3" callback={handleTimerEnd} seconds={REDIRECT_SECONDS} />
+          <Button
+            onClick={() => window.location.replace(redirectURL)}
+            className="text-muted-foreground text-sm font-medium"
+            variant="link"
+          >
+            {redirectURL}
+          </Button>
         </Card>
       )}
     </section>
