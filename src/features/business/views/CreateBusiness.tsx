@@ -1,13 +1,14 @@
 import { GalleryVerticalEnd } from "lucide-react";
 
 import { AdminForm } from "@business/components/forms/AdminForm";
-import { ContactForm } from "@business/components/forms/ContactForm";
 import { BusinessForm } from "@business/components/forms/BusinessForm";
+import { ContactForm } from "@business/components/forms/ContactForm";
+import { Countdown } from "@components/Countdown";
 import { Stepper } from "@components/Stepper";
 
 import type { z } from "zod";
 import { toast } from "sonner";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import type { ICreateBusiness } from "@business/interfaces/create-business.interface";
 import type { createAdminSchema } from "@business/schemas/create-admin.schema";
@@ -23,21 +24,9 @@ type ContactData = z.infer<typeof createContactSchema>;
 const REDIRECT_SECONDS = 5;
 
 export default function CreateBusiness() {
-  const [showStepper, setShowStepper] = useState<boolean>(true);
-  const [timer, setTimer] = useState(REDIRECT_SECONDS);
-  const [slug, setSlug] = useState("");
+  const [showStepper, setShowStepper] = useState<boolean>(false);
+  const [slug, setSlug] = useState<string>("");
   const collectedData = useRef<{ business?: BusinessData; contact?: ContactData; admin?: AdminData }>({});
-
-  useEffect(() => {
-    if (showStepper) return;
-    if (timer === 0) {
-      const { protocol } = window.location;
-      window.location.replace(`${protocol}//${slug}.localhost:5173/login`);
-      return;
-    }
-    const id = setTimeout(() => setTimer((t) => t - 1), 1000);
-    return () => clearTimeout(id);
-  }, [showStepper, timer, slug]);
 
   function handleBusinessSubmit(data: BusinessData) {
     collectedData.current.business = data;
@@ -64,6 +53,14 @@ export default function CreateBusiness() {
     }
   }
 
+  function handleTimerEnd(): void {
+    if (!slug) return;
+
+    const { protocol } = window.location;
+    // TODO: replace with the actual domain via .env file
+    window.location.replace(`${protocol}//${slug}.localhost:5173/login`);
+  }
+
   return (
     <section className="bg-background flex h-screen w-full flex-col gap-8 p-8">
       <header className="flex gap-5">
@@ -84,7 +81,10 @@ export default function CreateBusiness() {
           </Stepper>
         </div>
       ) : (
-        <div>Negocio creado exitosamente, serás redirigido a la página de ingreso en {timer}.</div>
+        <div className="flex items-center gap-1">
+          <p>Negocio creado exitosamente, serás redirigido a la página de ingreso en</p>
+          <Countdown callback={handleTimerEnd} seconds={REDIRECT_SECONDS} />
+        </div>
       )}
     </section>
   );
