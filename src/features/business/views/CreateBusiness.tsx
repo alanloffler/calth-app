@@ -25,7 +25,7 @@ const REDIRECT_SECONDS = 5;
 
 export default function CreateBusiness() {
   const [showStepper, setShowStepper] = useState<boolean>(false);
-  const [slug, setSlug] = useState<string>("");
+  const [slug, setSlug] = useState<string>("centro");
   const collectedData = useRef<{ business?: BusinessData; contact?: ContactData; admin?: AdminData }>({});
 
   function handleBusinessSubmit(data: BusinessData) {
@@ -81,9 +81,10 @@ export default function CreateBusiness() {
           </Stepper>
         </div>
       ) : (
-        <div className="flex items-center gap-1">
+        <div className="flex flex-col items-center gap-1">
           <p>Negocio creado exitosamente, serás redirigido a la página de ingreso en</p>
           <Countdown callback={handleTimerEnd} seconds={REDIRECT_SECONDS} />
+          <div>{`https://${slug}.localhost:5173/login`}</div>
         </div>
       )}
     </section>
