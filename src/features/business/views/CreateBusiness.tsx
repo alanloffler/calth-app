@@ -26,15 +26,16 @@ type ContactData = z.infer<typeof createContactSchema>;
 const REDIRECT_SECONDS = 5;
 
 export default function CreateBusiness() {
-  // const [redirectURL, setRedirectURL] = useState<string>("");
-  const [redirectURL, setRedirectURL] = useState<string>("https://clinicawanda.localhost:5173/login");
-  const [showStepper, setShowStepper] = useState<boolean>(false);
+  const [redirectURL, setRedirectURL] = useState<string>("");
+  const [showStepper, setShowStepper] = useState<boolean>(true);
   const [slug, setSlug] = useState<string>("clinicawanda");
   const collectedData = useRef<{ business?: BusinessData; contact?: ContactData; admin?: AdminData }>({});
 
   function handleBusinessSubmit(data: BusinessData) {
     collectedData.current.business = data;
+
     setSlug(collectedData.current.business!.slug);
+
     const appUrl = import.meta.env.VITE_APP_URL;
     const splittedURL = appUrl.split("//");
     setRedirectURL(`${splittedURL[0]}//${slug}.${splittedURL[1]}/login`);
@@ -62,7 +63,7 @@ export default function CreateBusiness() {
 
   function handleTimerEnd(): void {
     if (!slug) return;
-    // window.location.replace(redirectURL);
+    window.location.replace(redirectURL);
   }
 
   return (
