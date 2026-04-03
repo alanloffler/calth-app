@@ -1,6 +1,8 @@
 import "@calendar/styles/calendar.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
+import { Plus } from "lucide-react";
+
 import { Button } from "@components/ui/button";
 import { Calendar as Schedule } from "react-big-calendar";
 import { CalendarEventsList } from "@calendar/components/CalendarEventsList";
@@ -179,6 +181,7 @@ export default function Calendar() {
         <span>Aún no hay profesionales para mostrar la agenda.</span>
         <Button className="mx-auto w-fit" size="default" variant="default" asChild>
           <Link to="/users/create" state={{ role: "professional" }}>
+            <Plus />
             Creá un profesional
           </Link>
         </Button>
