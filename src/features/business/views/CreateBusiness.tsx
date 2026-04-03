@@ -7,7 +7,7 @@ import { Stepper } from "@components/Stepper";
 
 import type { z } from "zod";
 import { toast } from "sonner";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { ICreateBusiness } from "@business/interfaces/create-business.interface";
 import type { createAdminSchema } from "@business/schemas/create-admin.schema";
@@ -20,8 +20,24 @@ type AdminData = z.infer<typeof createAdminSchema>;
 type BusinessData = z.infer<typeof createBusinessSchema>;
 type ContactData = z.infer<typeof createContactSchema>;
 
+const REDIRECT_SECONDS = 5;
+
 export default function CreateBusiness() {
+  const [showStepper, setShowStepper] = useState<boolean>(true);
+  const [timer, setTimer] = useState(REDIRECT_SECONDS);
+  const [slug, setSlug] = useState("");
   const collectedData = useRef<{ business?: BusinessData; contact?: ContactData; admin?: AdminData }>({});
+
+  useEffect(() => {
+    if (showStepper) return;
+    if (timer === 0) {
+      const { protocol } = window.location;
+      window.location.replace(`${protocol}//${slug}.localhost:5173/login`);
+      return;
+    }
+    const id = setTimeout(() => setTimer((t) => t - 1), 1000);
+    return () => clearTimeout(id);
+  }, [showStepper, timer, slug]);
 
   function handleBusinessSubmit(data: BusinessData) {
     collectedData.current.business = data;
@@ -43,6 +59,8 @@ export default function CreateBusiness() {
     }
     if (response) {
       toast.success("Negocio creado exitosamente");
+      setSlug(collectedData.current.business!.slug);
+      setShowStepper(false);
     }
   }
 
@@ -54,14 +72,20 @@ export default function CreateBusiness() {
         </div>
         <h1 className="flex items-center text-2xl font-semibold">Calth</h1>
       </header>
-      <p className="text-lg">
-        Completa los siguientes formularios para crear tu negocio y comenzar a gestionar tus pacientes y turnos.
-      </p>
-      <Stepper className="px-12 py-8" steps={["Tu negocio", "Contacto", "Administrador"]} onFinish={handleFinish}>
-        <BusinessForm onSubmit={handleBusinessSubmit} />
-        <ContactForm onSubmit={handleContactSubmit} />
-        <AdminForm onSubmit={handleAdminSubmit} />
-      </Stepper>
+      {showStepper ? (
+        <div>
+          <p className="text-lg">
+            Completa los siguientes formularios para crear tu negocio y comenzar a gestionar tus pacientes y turnos.
+          </p>
+          <Stepper className="px-12 py-8" steps={["Tu negocio", "Contacto", "Administrador"]} onFinish={handleFinish}>
+            <BusinessForm onSubmit={handleBusinessSubmit} />
+            <ContactForm onSubmit={handleContactSubmit} />
+            <AdminForm onSubmit={handleAdminSubmit} />
+          </Stepper>
+        </div>
+      ) : (
+        <div>Negocio creado exitosamente, serás redirigido a la página de ingreso en {timer}.</div>
+      )}
     </section>
   );
 }
