@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 
+import { cn } from "@lib/utils";
+
 interface IProps {
   callback?: () => void;
+  className?: string;
   seconds: number;
 }
 
-export function Countdown({ callback, seconds }: IProps) {
+export function Countdown({ callback, className, seconds }: IProps) {
   const [count, setCount] = useState<number>(seconds);
 
   useEffect(() => {
@@ -20,7 +23,12 @@ export function Countdown({ callback, seconds }: IProps) {
   }, [count, callback]);
 
   return (
-    <div className="text-background aspect-square rounded-sm bg-gray-400 p-1 text-center text-xl font-semibold">
+    <div
+      className={cn(
+        "text-background aspect-square rounded-sm bg-gray-400 p-1 text-center text-xl font-semibold",
+        className,
+      )}
+    >
       {count}
     </div>
   );
