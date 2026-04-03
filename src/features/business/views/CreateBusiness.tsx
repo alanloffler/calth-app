@@ -24,12 +24,18 @@ type ContactData = z.infer<typeof createContactSchema>;
 const REDIRECT_SECONDS = 5;
 
 export default function CreateBusiness() {
+  // const [redirectURL, setRedirectURL] = useState<string>("");
+  const [redirectURL, setRedirectURL] = useState<string>("https://clinicawanda.localhost:5173/login");
   const [showStepper, setShowStepper] = useState<boolean>(false);
-  const [slug, setSlug] = useState<string>("centro");
+  const [slug, setSlug] = useState<string>("clinicawanda");
   const collectedData = useRef<{ business?: BusinessData; contact?: ContactData; admin?: AdminData }>({});
 
   function handleBusinessSubmit(data: BusinessData) {
     collectedData.current.business = data;
+    setSlug(collectedData.current.business!.slug);
+    const appUrl = import.meta.env.VITE_APP_URL;
+    const splittedURL = appUrl.split("//");
+    setRedirectURL(`${splittedURL[0]}//${slug}.${splittedURL[1]}/login`);
   }
 
   function handleContactSubmit(data: ContactData) {
@@ -48,17 +54,13 @@ export default function CreateBusiness() {
     }
     if (response) {
       toast.success("Negocio creado exitosamente");
-      setSlug(collectedData.current.business!.slug);
       setShowStepper(false);
     }
   }
 
   function handleTimerEnd(): void {
     if (!slug) return;
-
-    const { protocol } = window.location;
-    // TODO: replace with the actual domain via .env file
-    window.location.replace(`${protocol}//${slug}.localhost:5173/login`);
+    // window.location.replace(redirectURL);
   }
 
   return (
@@ -84,7 +86,7 @@ export default function CreateBusiness() {
         <div className="flex flex-col items-center gap-1">
           <p>Negocio creado exitosamente, serás redirigido a la página de ingreso en</p>
           <Countdown callback={handleTimerEnd} seconds={REDIRECT_SECONDS} />
-          <div>{`https://${slug}.localhost:5173/login`}</div>
+          <div>{redirectURL}</div>
         </div>
       )}
     </section>
