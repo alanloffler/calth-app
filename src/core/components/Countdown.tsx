@@ -19,5 +19,9 @@ export function Countdown({ callback, seconds }: IProps) {
     }
   }, [count, callback]);
 
-  return <div>{count}</div>;
+  return (
+    <div className="text-background aspect-square rounded-sm bg-gray-400 p-1 text-center text-xl font-semibold">
+      {count}
+    </div>
+  );
 }
