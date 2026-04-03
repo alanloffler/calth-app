@@ -1,4 +1,4 @@
-import { FilePenLine, FileText, Trash2 } from "lucide-react";
+import { FilePenLine, FileText, Plus, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
@@ -207,6 +207,7 @@ export default function Events() {
         <PageHeader title="Turnos" subtitle="Módulo de visualización y administración de turnos">
           <Protected requiredPermission="events-create">
             <Button size="lg" variant="default" onClick={() => setOpenCreateEventSheet(true)}>
+              <Plus />
               Crear turno
             </Button>
           </Protected>
