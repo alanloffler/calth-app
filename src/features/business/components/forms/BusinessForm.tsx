@@ -42,6 +42,7 @@ interface IProps {
 
 export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: IProps) {
   const [taxIdError, setTaxIdError] = useState<string | null>(null);
+  const [unavailableSlugs, setUnavailableSlugs] = useState<Set<string>>(new Set());
   const taxRef = useMaskito({ options: digitsMask });
 
   const businessForm = useForm<BusinessFormValues>({
@@ -78,6 +79,17 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
         .map(toSlug)
         .filter((s): s is string => s !== null)
     : [];
+
+  useEffect(() => {
+    if (slugSuggestions.length === 0) return;
+    const allSuggestions = [slugSuggestions[0] + (slugSuggestions[1] ?? ""), ...slugSuggestions];
+    allSuggestions.forEach(async (slug) => {
+      const [response] = await tryCatch(BusinessService.checkSlugAvailability(slug));
+      if (response?.data === false) {
+        setUnavailableSlugs((prev) => new Set(prev).add(slug));
+      }
+    });
+  }, [tradeName]);
 
   useEffect(() => {
     setIsValid?.(isValid);
@@ -276,7 +288,6 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
           {slugField && slugField.length > 2 && (
             <span className="text-muted-foreground text-sm">Tu dirección será: https://{slugField}.calth.app</span>
           )}
-          {/* TODO: CHECK AVAILABILITY ON BACKEND */}
           {slugSuggestions.length > 0 && (
             <Controller
               name="slug"
@@ -285,32 +296,45 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
                 <div className="text-sm">
                   <h3 className="mb-2">Sugerencias:</h3>
                   <ul className="space-y-2">
-                    {
-                      <li key="composed-slug" className="flex items-center gap-2">
-                        <Checkbox
-                          id="slug-composed-slug"
-                          checked={field.value === slugSuggestions[0] + slugSuggestions[1]}
-                          onCheckedChange={(checked) =>
-                            field.onChange(checked ? slugSuggestions[0] + slugSuggestions[1] : "")
-                          }
-                        />
-                        <label htmlFor="slug-composed-slug" className="cursor-pointer">
-                          {slugSuggestions[0] + slugSuggestions[1]}
-                        </label>
-                      </li>
-                    }
-                    {slugSuggestions.map((suggestion) => (
-                      <li key={suggestion} className="flex items-center gap-2">
-                        <Checkbox
-                          id={`slug-${suggestion}`}
-                          checked={field.value === suggestion}
-                          onCheckedChange={(checked) => field.onChange(checked ? suggestion : "")}
-                        />
-                        <label htmlFor={`slug-${suggestion}`} className="cursor-pointer">
-                          {suggestion}
-                        </label>
-                      </li>
-                    ))}
+                    {(() => {
+                      const composed = slugSuggestions[0] + (slugSuggestions[1] ?? "");
+                      const isUnavailable = unavailableSlugs.has(composed);
+                      return (
+                        <li key="composed-slug" className="flex items-center gap-2">
+                          <Checkbox
+                            id="slug-composed-slug"
+                            disabled={isUnavailable}
+                            checked={field.value === composed}
+                            onCheckedChange={(checked) => field.onChange(checked ? composed : "")}
+                          />
+                          <label
+                            htmlFor="slug-composed-slug"
+                            className={isUnavailable ? "text-muted-foreground line-through" : "cursor-pointer"}
+                          >
+                            {composed}
+                          </label>
+                        </li>
+                      );
+                    })()}
+                    {slugSuggestions.map((suggestion) => {
+                      const isUnavailable = unavailableSlugs.has(suggestion);
+                      return (
+                        <li key={suggestion} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`slug-${suggestion}`}
+                            disabled={isUnavailable}
+                            checked={field.value === suggestion}
+                            onCheckedChange={(checked) => field.onChange(checked ? suggestion : "")}
+                          />
+                          <label
+                            htmlFor={`slug-${suggestion}`}
+                            className={isUnavailable ? "text-muted-foreground line-through" : "cursor-pointer"}
+                          >
+                            {suggestion}
+                          </label>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}
