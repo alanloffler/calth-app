@@ -138,7 +138,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
                     if (value.length === 11) {
                       const [response, error] = await tryCatch(BusinessService.checkTaxIdAvailability(value));
                       if (response?.data === false || error) {
-                        const errorMsg = error ? "Error al comprobar CUIT" : "CUIT no disponible";
+                        const errorMsg = error?.message ?? response?.message ?? "CUIT no disponible";
                         setTaxIdError(errorMsg);
                         setError("taxId", { message: errorMsg });
                       }
