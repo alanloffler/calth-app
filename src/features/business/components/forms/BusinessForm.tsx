@@ -8,12 +8,14 @@ import { Input } from "@components/ui/input";
 import { Textarea } from "@components/ui/textarea";
 
 import type { z } from "zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMaskito } from "@maskito/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { BusinessService } from "@business/services/business.service";
 import { createBusinessSchema } from "@business/schemas/create-business.schema";
 import { digitsMask } from "@core/masks/maskito-digits";
+import { tryCatch } from "@core/utils/try-catch";
 
 function toSlug(value: string): string | null {
   const slug = value
@@ -39,6 +41,7 @@ interface IProps {
 }
 
 export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: IProps) {
+  const [taxIdError, setTaxIdError] = useState<string | null>(null);
   const taxRef = useMaskito({ options: digitsMask });
 
   const businessForm = useForm<BusinessFormValues>({
@@ -59,9 +62,11 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
   });
 
   const {
+    clearErrors,
     control,
     formState: { isValid },
     handleSubmit,
+    setError,
   } = businessForm;
 
   const slugField = useWatch({ control, name: "slug" });
@@ -111,21 +116,38 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             name="taxId"
             control={control}
             render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
+              <Field data-invalid={fieldState.invalid || !!taxIdError}>
                 <FieldLabel className="flex items-center" htmlFor="taxId">
                   CUIT <Asterisk className="size-3" />
                 </FieldLabel>
                 <Input
                   {...field}
-                  aria-invalid={fieldState.invalid}
+                  aria-invalid={fieldState.invalid || !!taxIdError}
                   id="taxId"
                   maxLength={12}
                   ref={(node) => {
                     field.ref(node);
                     taxRef(node);
                   }}
+                  onChange={async (e) => {
+                    field.onChange(e);
+                    const value = e.target.value;
+                    setTaxIdError(null);
+                    clearErrors("taxId");
+
+                    if (value.length === 11) {
+                      const [response, error] = await tryCatch(BusinessService.checkTaxIdAvailability(value));
+                      if (response?.data === false || error) {
+                        const errorMsg = error ? "Error al comprobar CUIT" : "CUIT no disponible";
+                        setTaxIdError(errorMsg);
+                        setError("taxId", { message: errorMsg });
+                      }
+                    }
+                  }}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {(fieldState.invalid || taxIdError) && (
+                  <FieldError errors={taxIdError ? [{ message: taxIdError }] : [fieldState.error]} />
+                )}
               </Field>
             )}
           />
