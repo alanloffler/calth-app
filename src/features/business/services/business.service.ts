@@ -30,9 +30,8 @@ class BusinessModuleService {
   }
 
   public async checkTaxIdAvailability(taxId: string): Promise<IApiResponse<boolean>> {
-    return await { data: false, message: "Tax ID not available", statusCode: 404 };
-    // const response = await apiClient.get(`/businesses/check-tax-availability/${taxId}`);
-    // return response.data;
+    const response = await apiClient.get(`/businesses/availability/tax-id/${taxId}`);
+    return response.data;
   }
 }
 
