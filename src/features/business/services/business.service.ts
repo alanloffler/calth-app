@@ -33,6 +33,11 @@ class BusinessModuleService {
     const response = await apiClient.get(`/businesses/availability/tax-id/${taxId}`);
     return response.data;
   }
+
+  public async checkSlugAvailability(slug: string): Promise<IApiResponse<boolean>> {
+    const response = await apiClient.get(`/businesses/availability/slug/${slug}`);
+    return response.data;
+  }
 }
 
 export const BusinessService = BusinessModuleService.getInstance();
