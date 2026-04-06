@@ -19,6 +19,7 @@ import type { IRole } from "@roles/interfaces/role.interface";
 import { ERoles } from "@auth/enums/role.enum";
 import { EUserRole } from "@roles/enums/user-role.enum";
 import { RolesService } from "@roles/services/roles.service";
+import { RolesTableConfig } from "@core/config/table.config";
 import { queryClient } from "@core/lib/query-client";
 import { useAuthStore } from "@auth/stores/auth.store";
 
@@ -212,7 +213,7 @@ export default function Roles() {
         <DataTable
           columns={columns}
           data={roles}
-          defaultPageSize={10}
+          defaultPageSize={RolesTableConfig.limit}
           defaultSorting={[{ id: "name", desc: false }]}
           loading={isLoadingRoles}
         />
