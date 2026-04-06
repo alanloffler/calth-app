@@ -21,6 +21,7 @@ import type { TUserRole } from "@roles/interfaces/user-role.type";
 import { ERolePlural } from "@roles/enums/role-plural.enum";
 import { ERoles } from "@auth/enums/role.enum";
 import { UsersService } from "@users/services/users.service";
+import { UsersTableConfig } from "@core/config/table.config";
 import { formatIc } from "@core/formatters/ic.formatter";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { useAuthStore } from "@auth/stores/auth.store";
@@ -324,7 +325,7 @@ export default function Users() {
           columnVisibility={columnVisibility}
           columns={columns}
           data={users}
-          defaultPageSize={10}
+          defaultPageSize={UsersTableConfig.limit}
           defaultSorting={[{ id: "userName", desc: false }]}
           loading={isLoadingUsers}
           pageSizes={[5, 10, 20, 50]}
