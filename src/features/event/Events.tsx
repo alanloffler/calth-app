@@ -220,6 +220,7 @@ export default function Events() {
           loading={isLoading}
           onPaginationChange={setPagination}
           onSortingChange={setSorting}
+          pageSizes={EventsTableConfig.pageSizes}
           pagination={pagination}
           rowCount={data?.data?.total}
           searchable={false}
