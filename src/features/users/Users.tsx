@@ -328,7 +328,7 @@ export default function Users() {
           defaultPageSize={UsersTableConfig.limit}
           defaultSorting={[{ id: "userName", desc: false }]}
           loading={isLoadingUsers}
-          pageSizes={[5, 10, 20, 50]}
+          pageSizes={UsersTableConfig.pageSizes}
         />
       </div>
       <ConfirmDialog
