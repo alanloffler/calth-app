@@ -20,4 +20,5 @@ export const RolesTableConfig = {
 
 export const UsersTableConfig = {
   limit: 10,
+  pageSizes: [5, 10, 20, 50],
 };
