@@ -63,7 +63,6 @@ class UsersModuleService {
     return response.data;
   }
 
-  // TODO: order and usage confirmation
   public async findAll(role: string): Promise<IApiResponse<IUser[]>> {
     const response = await apiClient.get(`/users/role/${role}`);
     return response.data;
