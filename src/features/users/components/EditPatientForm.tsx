@@ -19,7 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
-import { GENDERS } from "@core/constants/gender.constant";
+import { GENDERS } from "@core/constants/genders.constant";
 import { UsersService } from "@users/services/users.service";
 import { dateMask } from "@core/masks/maskito-date";
 import { digitsMask } from "@core/masks/maskito-digits";
