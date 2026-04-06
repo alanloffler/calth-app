@@ -27,7 +27,7 @@ import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { ERoles } from "@auth/enums/role.enum";
 import { EUserRole } from "@roles/enums/user-role.enum";
-import { GENDERS } from "@core/constants/gender.constant";
+import { GENDERS } from "@core/constants/genders.constant";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { UsersService } from "@users/services/users.service";
 import { formatIc } from "@core/formatters/ic.formatter";
