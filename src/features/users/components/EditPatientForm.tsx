@@ -6,6 +6,7 @@ import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 import { Loader } from "@components/Loader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 
 import z from "zod";
 import { format } from "date-fns";
@@ -18,6 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
+import { GENDERS } from "@core/constants/gender.constant";
 import { UsersService } from "@users/services/users.service";
 import { dateMask } from "@core/masks/maskito-date";
 import { digitsMask } from "@core/masks/maskito-digits";
@@ -32,6 +34,9 @@ import { useTryCatch } from "@core/hooks/useTryCatch";
 interface IProps {
   userId: string;
 }
+
+// TODO: get from settings store, need changes on database -> ADD column
+const LOCALE = "es";
 
 export function EditPatientForm({ userId }: IProps) {
   const [userToUpdate, setUserToUpdate] = useState<IUser | null>(null);
@@ -348,14 +353,29 @@ export function EditPatientForm({ userId }: IProps) {
                     </Field>
                   )}
                 />
-                {/* TODO: refactor to select */}
                 <Controller
                   name="gender"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor="gender">Género</FieldLabel>
-                      <Input aria-invalid={fieldState.invalid} id="gender" {...field} />
+                      <Select
+                        disabled={!GENDERS || GENDERS[LOCALE].length < 1}
+                        key={field.value}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger id="gender" aria-invalid={fieldState.invalid}>
+                          <SelectValue placeholder="Género" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {GENDERS[LOCALE].map((gender, idx) => (
+                            <SelectItem key={idx} value={gender.value}>
+                              {gender.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                     </Field>
                   )}
