@@ -1,5 +1,6 @@
 export const EventsTableConfig = {
   limit: 10,
+  pageSizes: [5, 10, 20, 50],
 };
 
 export const HistoryTableConfig = {
