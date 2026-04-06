@@ -16,6 +16,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { IPermission } from "@permissions/interfaces/permission.interface";
 import { PermissionsService } from "@permissions/services/permissions.service";
+import { PermissionsTableConfig } from "@core/config/table.config";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
@@ -226,7 +227,7 @@ export default function Permissions() {
         <DataTable
           columns={columns}
           data={permissions}
-          defaultPageSize={10}
+          defaultPageSize={PermissionsTableConfig.limit}
           defaultSorting={[{ id: "actionKey", desc: false }]}
           loading={isLoadingPermissions}
         />
