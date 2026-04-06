@@ -305,7 +305,13 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
           </SheetContent>
         </Sheet>
       )}
-      <DataTable columns={columns} data={history} defaultPageSize={HistoryTableConfig.limit} loading={isLoading} />
+      <DataTable
+        columns={columns}
+        data={history}
+        defaultPageSize={HistoryTableConfig.limit}
+        loading={isLoading}
+        pageSizes={HistoryTableConfig.pageSizes}
+      />
       {selectedHistory && (
         <EditHistorySheet
           open={openEditSheet}
