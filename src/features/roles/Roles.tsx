@@ -216,6 +216,7 @@ export default function Roles() {
           defaultPageSize={RolesTableConfig.limit}
           defaultSorting={[{ id: "name", desc: false }]}
           loading={isLoadingRoles}
+          pageSizes={RolesTableConfig.pageSizes}
         />
       </div>
       {selectedRole && (
