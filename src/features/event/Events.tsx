@@ -22,12 +22,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IEventFilters } from "@event/interfaces/filters.interface";
 import { EventsService } from "@event/services/events.service";
+import { EventsTableConfig } from "@core/config/table.config";
 import { formatShortDateTime } from "@core/formatters/date.formatter";
 import { queryClient } from "@core/lib/query-client";
 import { useEventStore } from "@calendar/stores/event.store";
 
 // TODO: get from config
-const LIMIT = 10;
 const LOCALE = "es";
 
 const localeMap: Record<string, Locale> = {
@@ -44,7 +44,7 @@ export default function Events() {
     status: undefined,
   });
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: LIMIT });
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: EventsTableConfig.limit });
   const [sorting, setSorting] = useState<SortingState>([]);
   const {
     refreshKey,
@@ -216,7 +216,7 @@ export default function Events() {
         <DataTablePaginated
           columns={columns}
           data={data?.data?.result}
-          defaultPageSize={LIMIT}
+          defaultPageSize={EventsTableConfig.limit}
           loading={isLoading}
           onPaginationChange={setPagination}
           onSortingChange={setSorting}
