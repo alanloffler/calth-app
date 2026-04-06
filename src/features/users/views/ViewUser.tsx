@@ -27,12 +27,16 @@ import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { ERoles } from "@auth/enums/role.enum";
 import { EUserRole } from "@roles/enums/user-role.enum";
+import { GENDERS } from "@core/constants/gender.constant";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { UsersService } from "@users/services/users.service";
 import { formatIc } from "@core/formatters/ic.formatter";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useTryCatch } from "@core/hooks/useTryCatch";
+
+// TODO: get from settings store, need db changes
+const LOCALE = "es";
 
 export default function ViewUser() {
   const [medicalHistory, setMedicalHistory] = useState<IMedicalHistory[] | undefined>();
@@ -212,7 +216,9 @@ export default function ViewUser() {
                       {user.role.value === EUserRole["patient"] && (
                         <li className="flex flex-wrap justify-start gap-2">
                           <span className="shrink-0 font-semibold">Género:</span>
-                          <span className="break-all">{user.patientProfile?.gender}</span>
+                          <span className="break-all">
+                            {GENDERS[LOCALE].find((g) => g.value === user.patientProfile?.gender)?.label}
+                          </span>
                         </li>
                       )}
                     </ul>
