@@ -101,6 +101,7 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
             ...event.professional,
             ...updatedEventResponse.data.professional,
             professionalProfile: {
+              professionalPrefix: "",
               ...event.professional.professionalProfile,
               ...updatedEventResponse.data.professional?.professionalProfile,
             },
