@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { TUserRole } from "@roles/interfaces/user-role.type";
 import { ERoles } from "@auth/enums/role.enum";
-import { GENDER } from "@medical-history/constants/gender.constant";
+import { GENDERS } from "@core/constants/gender.constant";
 import { UsersService } from "@users/services/users.service";
 import { createPatientSchema } from "@users/schemas/create-patient.schema";
 import { dateMask } from "@core/masks/maskito-date";
@@ -26,6 +26,9 @@ import { tryCatch } from "@core/utils/try-catch";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { useDebounce } from "@core/hooks/useDebounce";
 import { useTryCatch } from "@core/hooks/useTryCatch";
+
+// TODO: get from settings store, needs db changes
+const LOCALE = "es";
 
 export function CreatePatientForm() {
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -287,7 +290,7 @@ export function CreatePatientForm() {
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor="gender">Género</FieldLabel>
                       <Select
-                        disabled={GENDER.length === 0}
+                        disabled={GENDERS[LOCALE].length === 0}
                         key={field.value}
                         value={field.value}
                         onValueChange={field.onChange}
@@ -296,7 +299,7 @@ export function CreatePatientForm() {
                           <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent>
-                          {GENDER.map((gender) => (
+                          {GENDERS[LOCALE].map((gender) => (
                             <SelectItem key={gender.value} value={gender.value}>
                               {gender.label}
                             </SelectItem>
