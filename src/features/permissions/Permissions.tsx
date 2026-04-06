@@ -230,6 +230,7 @@ export default function Permissions() {
           defaultPageSize={PermissionsTableConfig.limit}
           defaultSorting={[{ id: "actionKey", desc: false }]}
           loading={isLoadingPermissions}
+          pageSizes={PermissionsTableConfig.pageSizes}
         />
       </div>
       <ConfirmDialog
