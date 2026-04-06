@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { TUserRole } from "@roles/interfaces/user-role.type";
 import { ERoles } from "@auth/enums/role.enum";
-import { GENDERS } from "@core/constants/gender.constant";
+import { GENDERS } from "@core/constants/genders.constant";
 import { UsersService } from "@users/services/users.service";
 import { createPatientSchema } from "@users/schemas/create-patient.schema";
 import { dateMask } from "@core/masks/maskito-date";
