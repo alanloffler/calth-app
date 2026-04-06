@@ -19,6 +19,7 @@ import { useState } from "react";
 
 import type { IMedicalHistory } from "@medical-history/interfaces/medical-history.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
+import { HistoryTableConfig } from "@core/config/table.config";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { cn } from "@lib/utils";
 import { formatIc } from "@core/formatters/ic.formatter";
@@ -304,7 +305,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
           </SheetContent>
         </Sheet>
       )}
-      <DataTable columns={columns} data={history} loading={isLoading} />
+      <DataTable columns={columns} data={history} defaultPageSize={HistoryTableConfig.limit} loading={isLoading} />
       {selectedHistory && (
         <EditHistorySheet
           open={openEditSheet}
