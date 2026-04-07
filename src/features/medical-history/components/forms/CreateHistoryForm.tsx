@@ -40,16 +40,32 @@ interface IProps {
 // TODO: get from settings store
 const LOCALE = "es";
 
-const corporate: Theme = createTheme(LIGHT_THEME, {
-  name: "corporate",
+const shadcnTheme: Theme = {
+  name: "shadcn",
   primitives: {
-    primary: "#6B21A8",
-    primaryForeground: "d10f32",
-    primaryMuted: "rgba(107, 33, 168, 0.15)",
-    borderFocus: "#6B21A8",
-    focusRing: "var(--primary)",
+    background: "var(--background)",
+    foreground: "var(--foreground)",
+    mutedForeground: "var(--muted-foreground)",
+    border: "var(--border)",
+    borderFocus: "var(--ring)",
+    primary: "var(--primary)",
+    primaryForeground: "var(--primary-foreground)",
+    primaryMuted: "color-mix(in srgb, var(--primary) 15%, transparent)",
+    surfaceRaised: "var(--secondary)",
+    surfaceOverlay: "var(--secondary)",
+    hoverBackground: "var(--accent)",
+    activeBackground: "color-mix(in srgb, var(--primary) 20%, transparent)",
+    danger: "var(--destructive)",
+    dangerMuted: "color-mix(in srgb, var(--destructive) 15%, transparent)",
+    success: "var(--success)",
+    shadow: "var(--shadow)",
+    focusRing: "transparent",
   },
-});
+  toolbar: {
+    background: "var(--secondary)",
+    borderColor: "var(--border)",
+  },
+};
 
 export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -132,16 +148,23 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
     const preset = createFullPreset();
     let mounted = true;
     createEditor({
-      theme: corporate,
       locale: Locale[LOCALE.toUpperCase() as keyof typeof Locale],
       autofocus: false,
       placeholder: "",
       // theme: ThemePreset.Light,
       toolbar: preset.toolbar,
+      theme: shadcnTheme,
     }).then((editor) => {
-      if (mounted && containerRef.current) {
+      if (containerRef.current) {
         containerRef.current.appendChild(editor);
         editorRef.current = editor;
+
+        // Sincronizar cambios del editor al formulario
+        editor.on("stateChange", () => {
+          editor.getContentHTML().then((html) => {
+            form.setValue("comments", html, { shouldDirty: true });
+          });
+        });
       }
     });
 
