@@ -29,7 +29,7 @@ import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interfa
 import type { IUser } from "@users/interfaces/user.interface";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { createHistorySchema } from "@medical-history/schemas/create-history.schema";
-import "@event/styles/notectl.style.css";
+import "@event/styles/notectl.css";
 
 interface IProps {
   user: IUser;
@@ -44,7 +44,7 @@ const corporate: Theme = createTheme(LIGHT_THEME, {
   name: "corporate",
   primitives: {
     primary: "#6B21A8",
-    primaryForeground: "#6B21A8",
+    primaryForeground: "d10f32",
     primaryMuted: "rgba(107, 33, 168, 0.15)",
     borderFocus: "#6B21A8",
     focusRing: "var(--primary)",
