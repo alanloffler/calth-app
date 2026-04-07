@@ -296,9 +296,9 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
                   <span className="font-semibold">Receta:</span>
                   {selectedHistory.recipe ? <p>Contiene receta (true)</p> : <p>No contiene receta (false)</p>}
                 </li>
-                <li className="flex gap-3">
+                <li className="flex flex-col gap-3">
                   <span className="font-semibold">Notas:</span>
-                  <p>{selectedHistory.comments}</p>
+                  <div dangerouslySetInnerHTML={{ __html: selectedHistory.comments }}></div>
                 </li>
               </ul>
             </div>
