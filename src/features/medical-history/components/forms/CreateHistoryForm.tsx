@@ -11,14 +11,16 @@ import { Label } from "@components/ui/label";
 import { Loader } from "@components/Loader";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
-import { Textarea } from "@components/ui/textarea";
+// import { Textarea } from "@components/ui/textarea";
 import { UserCombobox } from "@calendar/components/UserCombobox";
 
 import type z from "zod";
+import { createEditor, createTheme, LIGHT_THEME, Locale, NotectlEditor, ThemePreset, type Theme } from "@notectl/core";
+import { createFullPreset } from "@notectl/core/presets";
 import { es } from "date-fns/locale";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +29,7 @@ import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interfa
 import type { IUser } from "@users/interfaces/user.interface";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { createHistorySchema } from "@medical-history/schemas/create-history.schema";
+import "@event/styles/notectl.style.css";
 
 interface IProps {
   user: IUser;
@@ -34,12 +37,28 @@ interface IProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
+// TODO: get from settings store
+const LOCALE = "es";
+
+const corporate: Theme = createTheme(LIGHT_THEME, {
+  name: "corporate",
+  primitives: {
+    primary: "#6B21A8",
+    primaryForeground: "#6B21A8",
+    primaryMuted: "rgba(107, 33, 168, 0.15)",
+    borderFocus: "#6B21A8",
+    focusRing: "var(--primary)",
+  },
+});
+
 export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [dateType, setDateType] = useState<"manual" | "event">("manual");
   const [openCalendar, setOpenCalendar] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<ICalendarEvent | undefined>(undefined);
   const { isLoading: isSaving, tryCatch: tryCatchCreateHistory } = useTryCatch();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<NotectlEditor>(null);
 
   const form = useForm<z.infer<typeof createHistorySchema>>({
     resolver: zodResolver(createHistorySchema),
@@ -108,6 +127,29 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
       form.setValue("reason", "");
     }
   }, [selectedEvent, dateType, form]);
+
+  useEffect(() => {
+    const preset = createFullPreset();
+    let mounted = true;
+    createEditor({
+      theme: corporate,
+      locale: Locale[LOCALE.toUpperCase() as keyof typeof Locale],
+      autofocus: false,
+      placeholder: "",
+      // theme: ThemePreset.Light,
+      toolbar: preset.toolbar,
+    }).then((editor) => {
+      if (mounted && containerRef.current) {
+        containerRef.current.appendChild(editor);
+        editorRef.current = editor;
+      }
+    });
+
+    return () => {
+      mounted = false;
+      editorRef.current?.destroy();
+    };
+  }, []);
 
   return (
     <div className="flex h-full flex-col">
@@ -237,7 +279,8 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="comments">Comentarios:</FieldLabel>
-                <Textarea aria-invalid={fieldState.invalid} className="min-h-50" id="comments" rows={28} {...field} />
+                {/*<Textarea aria-invalid={fieldState.invalid} className="min-h-50" id="comments" rows={28} {...field} />*/}
+                <div className="editor-theme" {...field} ref={containerRef}></div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
