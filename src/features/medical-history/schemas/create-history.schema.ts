@@ -5,8 +5,7 @@ export const createHistorySchema = z.object({
   comments: z
     .string()
     .refine((val) => val.replace(/<[^>]*>/g, "").trim().length >= 3, "Mínimo 3 caracteres")
-    .refine((val) => val.replace(/<[^>]*>/g, "").trim().length <= 1000, "Máximo 1000 caracteres")
-    .nonoptional(),
+    .max(1000, "Máximo 1000 caracteres"),
   date: z.date({ message: "La fecha es obligatoria" }),
   eventId: z.uuid({ message: "El id del usuario es obligatorio" }).nullish(),
   professionalId: z.uuid({ message: "El profesional es obligatorio" }).nonoptional(),
