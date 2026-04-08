@@ -1,21 +1,28 @@
+import { FilePenLine } from "lucide-react";
+
 import { Badge } from "@components/Badge";
+import { Button } from "@components/ui/button";
+import { Protected } from "@auth/components/Protected";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import type { Dispatch, SetStateAction } from "react";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 
 import type { IMedicalHistory } from "@medical-history/interfaces/medical-history.interface";
+import type { TPermission } from "@permissions/interfaces/permission.type";
 import { formatIc } from "@core/formatters/ic.formatter";
 
 interface IProps {
   eventClick: Dispatch<SetStateAction<boolean>>;
   history: IMedicalHistory;
+  onEdit: () => void;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export function ViewHistorySheet({ eventClick, history, open, setOpen }: IProps) {
+export function ViewHistorySheet({ eventClick, history, onEdit, open, setOpen }: IProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild></SheetTrigger>
@@ -66,6 +73,18 @@ export function ViewHistorySheet({ eventClick, history, open, setOpen }: IProps)
               ></div>
             </li>
           </ul>
+          <div>
+            <Protected requiredPermission={"medical_history-update" as TPermission}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button className="hover:text-edit" onClick={onEdit} size="icon-sm" variant="ghost">
+                    <FilePenLine />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Editar</TooltipContent>
+              </Tooltip>
+            </Protected>
+          </div>
         </div>
       </SheetContent>
     </Sheet>
