@@ -65,7 +65,7 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
 
     setDate(date);
     if (dateType === "manual") {
-      form.setValue("date", date);
+      form.setValue("date", date, { shouldValidate: true });
     }
   }
 
@@ -104,11 +104,17 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
         typeof selectedEvent.startDate === "string"
           ? parseISO(selectedEvent.startDate)
           : new Date(selectedEvent.startDate);
-      form.setValue("date", eventDate);
+
+      form.setValue("date", eventDate, { shouldValidate: true });
       form.setValue("reason", selectedEvent.title);
     } else {
       setSelectedEvent(undefined);
       form.setValue("reason", "");
+
+      if (dateType === "event") {
+        setDate(undefined);
+        form.resetField("date");
+      }
     }
   }, [selectedEvent, dateType, form]);
 
