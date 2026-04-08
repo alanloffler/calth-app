@@ -19,13 +19,13 @@ export function ViewHistorySheet({ eventClick, history, open, setOpen }: IProps)
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild></SheetTrigger>
-      <SheetContent className="sm:min-w-120" onOpenAutoFocus={(e) => e.preventDefault()}>
+      <SheetContent className="flex flex-col sm:min-w-120" onOpenAutoFocus={(e) => e.preventDefault()}>
         <SheetHeader className="pt-8">
           <SheetTitle className="text-lg">Historia médica</SheetTitle>
           <SheetDescription className="text-base">Detalles de la historia médica seleccionada</SheetDescription>
         </SheetHeader>
-        <div className="flex flex-col gap-6 p-4">
-          <ul className="flex flex-col gap-3">
+        <div className="flex min-h-0 flex-1 flex-col gap-6 p-4">
+          <ul className="flex min-h-0 flex-1 flex-col gap-3">
             <li>
               <h1 className="text-center text-xl font-semibold">{history.reason}</h1>
             </li>
@@ -58,9 +58,12 @@ export function ViewHistorySheet({ eventClick, history, open, setOpen }: IProps)
               <span className="font-semibold">Receta:</span>
               {history.recipe ? <p>Contiene receta (true)</p> : <p>No contiene receta (false)</p>}
             </li>
-            <li className="flex flex-col gap-3">
-              <span className="font-semibold">Notas:</span>
-              <div dangerouslySetInnerHTML={{ __html: history.comments }}></div>
+            <li className="bg-muted mt-4 flex min-h-0 flex-1 flex-col gap-3 rounded-md border p-2">
+              <span className="text-center font-semibold">Notas</span>
+              <div
+                className="bg-background min-h-0 flex-1 overflow-y-auto rounded-sm border p-2"
+                dangerouslySetInnerHTML={{ __html: history.comments }}
+              ></div>
             </li>
           </ul>
         </div>
