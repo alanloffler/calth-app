@@ -33,16 +33,24 @@ const shadcnTheme: Theme = {
 interface IProps<TFieldValues extends FieldValues, TName extends FieldPath<TFieldValues>> {
   field: ControllerRenderProps<TFieldValues, TName>;
   form: UseFormReturn<TFieldValues>;
+  invalid?: boolean;
   locale: string;
 }
 
 export function RichTextEditor<TFieldValues extends FieldValues, TName extends FieldPath<TFieldValues>>({
   field,
   form,
+  invalid,
   locale,
 }: IProps<TFieldValues, TName>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<NotectlEditor>(null);
+
+  useEffect(() => {
+    if (!editorRef.current) return;
+    editorRef.current.style.outline = invalid ? "1px solid var(--destructive)" : "";
+    editorRef.current.style.borderRadius = invalid ? "var(--radius)" : "";
+  }, [invalid]);
 
   useEffect(() => {
     const preset = createFullPreset();
@@ -61,7 +69,12 @@ export function RichTextEditor<TFieldValues extends FieldValues, TName extends F
 
         editor.on("stateChange", () => {
           editor.getContentHTML().then((html: string) => {
-            form.setValue(field.name, html as PathValue<TFieldValues, TName>, { shouldDirty: true });
+            form.setValue(field.name, html as PathValue<TFieldValues, TName>, {
+              shouldDirty: true,
+              shouldValidate: true,
+            });
+            editor.style.outline = "";
+            editor.style.borderRadius = "";
           });
         });
       }
@@ -73,5 +86,5 @@ export function RichTextEditor<TFieldValues extends FieldValues, TName extends F
     };
   }, [field.name, form, locale]);
 
-  return <div {...field} ref={containerRef}></div>;
+  return <div {...field} aria-invalid={invalid} ref={containerRef}></div>;
 }
