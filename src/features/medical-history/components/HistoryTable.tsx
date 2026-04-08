@@ -259,6 +259,10 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
           history={selectedHistory}
           open={openSheet}
           setOpen={setOpenSheet}
+          onEdit={() => {
+            // TODO: use a global sheet like event, or at least do not show overlay
+            setOpenEditSheet(true);
+          }}
         />
       )}
       <DataTable
