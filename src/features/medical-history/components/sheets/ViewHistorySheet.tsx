@@ -1,4 +1,4 @@
-import { FilePenLine } from "lucide-react";
+import { FilePenLine, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
@@ -18,11 +18,12 @@ interface IProps {
   eventClick: Dispatch<SetStateAction<boolean>>;
   history: IMedicalHistory;
   onEdit: () => void;
+  onDelete: () => void;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export function ViewHistorySheet({ eventClick, history, onEdit, open, setOpen }: IProps) {
+export function ViewHistorySheet({ eventClick, history, onEdit, onDelete, open, setOpen }: IProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild></SheetTrigger>
@@ -73,15 +74,25 @@ export function ViewHistorySheet({ eventClick, history, onEdit, open, setOpen }:
               ></div>
             </li>
           </ul>
-          <div>
+          <div className="flex items-center justify-end gap-3">
             <Protected requiredPermission={"medical_history-update" as TPermission}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button className="hover:text-edit" onClick={onEdit} size="icon-sm" variant="ghost">
+                  <Button className="hover:text-edit" onClick={onEdit} size="icon-sm" variant="outline">
                     <FilePenLine />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Editar</TooltipContent>
+              </Tooltip>
+            </Protected>
+            <Protected requiredPermission={"medical_history-delete-hard" as TPermission}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button className="hover:text-delete" onClick={onDelete} size="icon-sm" variant="outline">
+                    <Trash2 />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Eliminar</TooltipContent>
               </Tooltip>
             </Protected>
           </div>
