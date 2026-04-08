@@ -8,8 +8,8 @@ import { DataTable } from "@components/data-table/DataTable";
 import { EditHistorySheet } from "@medical-history/components/sheets/EditHistorySheet";
 import { EventDetailsDialog } from "@calendar/components/EventDetailsDialog";
 import { Protected } from "@auth/components/Protected";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
+import { ViewHistorySheet } from "@medical-history/components/sheets/ViewHistorySheet";
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { es } from "date-fns/locale";
@@ -22,7 +22,6 @@ import type { TPermission } from "@permissions/interfaces/permission.type";
 import { HistoryTableConfig } from "@core/config/table.config";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { cn } from "@lib/utils";
-import { formatIc } from "@core/formatters/ic.formatter";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
@@ -255,55 +254,12 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
   return history && history.length > 0 ? (
     <>
       {selectedHistory && (
-        <Sheet open={openSheet} onOpenChange={setOpenSheet}>
-          <SheetTrigger asChild></SheetTrigger>
-          <SheetContent className="sm:min-w-120" onOpenAutoFocus={(e) => e.preventDefault()}>
-            <SheetHeader className="pt-8">
-              <SheetTitle className="text-lg">Historia médica</SheetTitle>
-              <SheetDescription className="text-base">Detalles de la historia médica seleccionada</SheetDescription>
-            </SheetHeader>
-            <div className="flex flex-col gap-6 p-4">
-              <ul className="flex flex-col gap-3">
-                <li>
-                  <h1 className="text-center text-xl font-semibold">{selectedHistory.reason}</h1>
-                </li>
-                <li className="flex gap-3">
-                  <span className="font-semibold">Paciente:</span>
-                  <span>{`${selectedHistory.user.firstName} ${selectedHistory.user.lastName}`}</span>
-                  <Badge variant="ic">{formatIc(selectedHistory.user.ic)}</Badge>
-                </li>
-                <li className="flex gap-3">
-                  <span className="font-semibold">Profesional:</span>
-                  <span>{`${selectedHistory.professional.professionalProfile?.professionalPrefix} ${selectedHistory.professional.firstName} ${selectedHistory.professional.lastName}`}</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="font-semibold">Fecha de atención:</span>
-                  <span>{format(selectedHistory.date, "P", { locale: es })}</span>
-                </li>
-                {selectedHistory.eventId && (
-                  <li className="flex gap-3">
-                    <span className="font-semibold">Evento:</span>
-                    <button onClick={() => setOpenEventDialog(true)}>
-                      <Badge variant="id">{selectedHistory.eventId.split("-")[0]}</Badge>
-                    </button>
-                  </li>
-                )}
-                <li className="flex gap-3">
-                  <span className="font-semibold">Título:</span>
-                  <p>{selectedHistory.reason}</p>
-                </li>
-                <li className="flex gap-3">
-                  <span className="font-semibold">Receta:</span>
-                  {selectedHistory.recipe ? <p>Contiene receta (true)</p> : <p>No contiene receta (false)</p>}
-                </li>
-                <li className="flex flex-col gap-3">
-                  <span className="font-semibold">Notas:</span>
-                  <div dangerouslySetInnerHTML={{ __html: selectedHistory.comments }}></div>
-                </li>
-              </ul>
-            </div>
-          </SheetContent>
-        </Sheet>
+        <ViewHistorySheet
+          eventClick={setOpenEventDialog}
+          history={selectedHistory}
+          open={openSheet}
+          setOpen={setOpenSheet}
+        />
       )}
       <DataTable
         columns={columns}
