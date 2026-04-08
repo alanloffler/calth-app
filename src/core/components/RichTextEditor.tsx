@@ -33,6 +33,7 @@ const shadcnTheme: Theme = {
 interface IProps<TFieldValues extends FieldValues, TName extends FieldPath<TFieldValues>> {
   field: ControllerRenderProps<TFieldValues, TName>;
   form: UseFormReturn<TFieldValues>;
+  initialContent?: string;
   invalid?: boolean;
   locale: string;
 }
@@ -40,6 +41,7 @@ interface IProps<TFieldValues extends FieldValues, TName extends FieldPath<TFiel
 export function RichTextEditor<TFieldValues extends FieldValues, TName extends FieldPath<TFieldValues>>({
   field,
   form,
+  initialContent,
   invalid,
   locale,
 }: IProps<TFieldValues, TName>) {
@@ -66,6 +68,10 @@ export function RichTextEditor<TFieldValues extends FieldValues, TName extends F
       if (mounted && containerRef.current) {
         containerRef.current.appendChild(editor);
         editorRef.current = editor;
+
+        if (initialContent) {
+          editor.setContentHTML(initialContent);
+        }
 
         editor.on("stateChange", () => {
           editor.getContentHTML().then((html: string) => {
