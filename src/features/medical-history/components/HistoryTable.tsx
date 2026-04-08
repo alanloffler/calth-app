@@ -216,6 +216,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
     if (response && response.statusCode === 200) {
       toast.success(response.message);
       onUpdated();
+      setOpenSheet(false);
     }
   }
 
@@ -254,15 +255,14 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
   return history && history.length > 0 ? (
     <>
       {selectedHistory && (
+        // TODO: use a global sheet like event, or at least do not show overlay
         <ViewHistorySheet
           eventClick={setOpenEventDialog}
           history={selectedHistory}
           open={openSheet}
           setOpen={setOpenSheet}
-          onEdit={() => {
-            // TODO: use a global sheet like event, or at least do not show overlay
-            setOpenEditSheet(true);
-          }}
+          onEdit={() => setOpenEditSheet(true)}
+          onDelete={() => setOpenRemoveDialog(true)}
         />
       )}
       <DataTable
