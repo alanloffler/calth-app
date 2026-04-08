@@ -11,7 +11,7 @@ import { Label } from "@components/ui/label";
 import { Loader } from "@components/Loader";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
-import { Textarea } from "@components/ui/textarea";
+import { RichTextEditor } from "@components/RichTextEditor";
 import { UserCombobox } from "@calendar/components/UserCombobox";
 
 import type z from "zod";
@@ -33,6 +33,9 @@ interface IProps {
   onUpdated: () => void;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
+
+// TODO: get from settings store
+const LOCALE = "es";
 
 export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
   const [date, setDate] = useState<Date | undefined>(history.date ? new Date(history.date) : undefined);
@@ -227,7 +230,7 @@ export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="comments">Comentarios:</FieldLabel>
-                <Textarea aria-invalid={fieldState.invalid} className="min-h-50" id="comments" rows={28} {...field} />
+                <RichTextEditor field={field} form={form} invalid={fieldState.invalid} locale={LOCALE} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
