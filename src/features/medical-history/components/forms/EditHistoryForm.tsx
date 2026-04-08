@@ -111,8 +111,12 @@ export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
   }, [selectedEvent, dateType, form]);
 
   return (
-    <div className="flex flex-col gap-10">
-      <form className="grid grid-cols-1 gap-6" id="create-history" onSubmit={form.handleSubmit(onSubmit)}>
+    <div className="flex h-full flex-col">
+      <form
+        className="grid h-full grid-cols-1 gap-6 overflow-y-auto p-6"
+        id="create-history"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
         <FieldGroup className="grid grid-cols-1 gap-6">
           <Controller
             name="professionalId"
@@ -229,21 +233,29 @@ export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="comments">Comentarios:</FieldLabel>
-                <RichTextEditor field={field} form={form} invalid={fieldState.invalid} locale={LOCALE} />
+                <FieldLabel htmlFor="comments">Notas:</FieldLabel>
+                <RichTextEditor
+                  field={field}
+                  form={form}
+                  initialContent={history.comments}
+                  invalid={fieldState.invalid}
+                  locale={LOCALE}
+                />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />
         </FieldGroup>
       </form>
-      <div className="flex items-center justify-end gap-4">
-        <Button variant="ghost" onClick={resetForm}>
-          Cancelar
-        </Button>
-        <Button disabled={!form.formState.isDirty} form="create-history" type="submit" variant="default">
-          {isUpdating ? <Loader color="white" text="Guardando" /> : "Guardar"}
-        </Button>
+      <div className="bg-background shrink-0 border-t p-6">
+        <div className="flex items-center justify-end gap-4">
+          <Button variant="ghost" onClick={resetForm}>
+            Cancelar
+          </Button>
+          <Button disabled={!form.formState.isDirty} form="create-history" type="submit" variant="default">
+            {isUpdating ? <Loader color="white" text="Guardando" /> : "Guardar"}
+          </Button>
+        </div>
       </div>
     </div>
   );
