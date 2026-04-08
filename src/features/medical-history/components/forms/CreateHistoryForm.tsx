@@ -11,16 +11,15 @@ import { Label } from "@components/ui/label";
 import { Loader } from "@components/Loader";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
+import { RichTextEditor } from "@components/RichTextEditor";
 import { UserCombobox } from "@calendar/components/UserCombobox";
 
 import type z from "zod";
-import { createEditor, Locale, NotectlEditor, type Theme } from "@notectl/core";
-import { createFullPreset } from "@notectl/core/presets";
 import { es } from "date-fns/locale";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
-import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -38,41 +37,12 @@ interface IProps {
 // TODO: get from settings store
 const LOCALE = "es";
 
-const shadcnTheme: Theme = {
-  name: "shadcn",
-  primitives: {
-    background: "var(--background)",
-    foreground: "var(--foreground)",
-    mutedForeground: "var(--muted-foreground)",
-    border: "var(--border)",
-    borderFocus: "var(--ring)",
-    primary: "var(--primary)",
-    primaryForeground: "var(--primary-foreground)",
-    primaryMuted: "color-mix(in srgb, var(--primary) 15%, transparent)",
-    surfaceRaised: "var(--secondary)",
-    surfaceOverlay: "var(--secondary)",
-    hoverBackground: "var(--accent)",
-    activeBackground: "color-mix(in srgb, var(--primary) 20%, transparent)",
-    danger: "var(--destructive)",
-    dangerMuted: "color-mix(in srgb, var(--destructive) 15%, transparent)",
-    success: "var(--success)",
-    shadow: "var(--shadow)",
-    focusRing: "transparent",
-  },
-  toolbar: {
-    background: "var(--muted)",
-    borderColor: "var(--border)",
-  },
-};
-
 export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [dateType, setDateType] = useState<"manual" | "event">("manual");
   const [openCalendar, setOpenCalendar] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<ICalendarEvent | undefined>(undefined);
   const { isLoading: isSaving, tryCatch: tryCatchCreateHistory } = useTryCatch();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<NotectlEditor>(null);
 
   const form = useForm<z.infer<typeof createHistorySchema>>({
     resolver: zodResolver(createHistorySchema),
@@ -88,7 +58,7 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
     },
   });
 
-  const professionalId = form.watch("professionalId");
+  const professionalId = useWatch({ control: form.control, name: "professionalId" });
 
   function onSelectDate(date: Date | undefined) {
     if (!date) return;
@@ -141,35 +111,6 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
       form.setValue("reason", "");
     }
   }, [selectedEvent, dateType, form]);
-
-  useEffect(() => {
-    const preset = createFullPreset();
-    let mounted = true;
-
-    createEditor({
-      autofocus: false,
-      locale: Locale[LOCALE.toUpperCase() as keyof typeof Locale],
-      placeholder: "",
-      theme: shadcnTheme,
-      toolbar: preset.toolbar,
-    }).then((editor) => {
-      if (mounted && containerRef.current) {
-        containerRef.current.appendChild(editor);
-        editorRef.current = editor;
-
-        editor.on("stateChange", () => {
-          editor.getContentHTML().then((html) => {
-            form.setValue("comments", html, { shouldDirty: true });
-          });
-        });
-      }
-    });
-
-    return () => {
-      mounted = false;
-      editorRef.current?.destroy();
-    };
-  }, [form]);
 
   return (
     <div className="flex h-full flex-col">
@@ -299,7 +240,7 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="comments">Comentarios:</FieldLabel>
-                <div {...field} ref={containerRef}></div>
+                <RichTextEditor field={field} form={form} locale={LOCALE} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
