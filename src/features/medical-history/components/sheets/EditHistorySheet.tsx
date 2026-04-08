@@ -16,7 +16,7 @@ export function EditHistorySheet({ history, onUpdated, open, setOpen }: IProps) 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild></SheetTrigger>
-      <SheetContent className="sm:min-w-[480px]" onOpenAutoFocus={(e) => e.preventDefault()}>
+      <SheetContent className="sm:min-w-120" onOpenAutoFocus={(e) => e.preventDefault()}>
         <SheetHeader className="pt-8">
           <SheetTitle className="text-lg">Historia médica</SheetTitle>
           <SheetDescription className="text-base">
