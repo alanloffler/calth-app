@@ -240,7 +240,7 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="comments">Comentarios:</FieldLabel>
-                <RichTextEditor field={field} form={form} locale={LOCALE} />
+                <RichTextEditor field={field} form={form} invalid={fieldState.invalid} locale={LOCALE} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
