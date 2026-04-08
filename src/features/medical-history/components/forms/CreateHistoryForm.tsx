@@ -11,11 +11,10 @@ import { Label } from "@components/ui/label";
 import { Loader } from "@components/Loader";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
-// import { Textarea } from "@components/ui/textarea";
 import { UserCombobox } from "@calendar/components/UserCombobox";
 
 import type z from "zod";
-import { createEditor, createTheme, LIGHT_THEME, Locale, NotectlEditor, ThemePreset, type Theme } from "@notectl/core";
+import { createEditor, Locale, NotectlEditor, type Theme } from "@notectl/core";
 import { createFullPreset } from "@notectl/core/presets";
 import { es } from "date-fns/locale";
 import { format, parseISO } from "date-fns";
@@ -29,7 +28,6 @@ import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interfa
 import type { IUser } from "@users/interfaces/user.interface";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { createHistorySchema } from "@medical-history/schemas/create-history.schema";
-import "@event/styles/notectl.css";
 
 interface IProps {
   user: IUser;
@@ -62,7 +60,7 @@ const shadcnTheme: Theme = {
     focusRing: "transparent",
   },
   toolbar: {
-    background: "var(--secondary)",
+    background: "var(--muted)",
     borderColor: "var(--border)",
   },
 };
@@ -147,19 +145,18 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
   useEffect(() => {
     const preset = createFullPreset();
     let mounted = true;
+
     createEditor({
-      locale: Locale[LOCALE.toUpperCase() as keyof typeof Locale],
       autofocus: false,
+      locale: Locale[LOCALE.toUpperCase() as keyof typeof Locale],
       placeholder: "",
-      // theme: ThemePreset.Light,
-      toolbar: preset.toolbar,
       theme: shadcnTheme,
+      toolbar: preset.toolbar,
     }).then((editor) => {
-      if (containerRef.current) {
+      if (mounted && containerRef.current) {
         containerRef.current.appendChild(editor);
         editorRef.current = editor;
 
-        // Sincronizar cambios del editor al formulario
         editor.on("stateChange", () => {
           editor.getContentHTML().then((html) => {
             form.setValue("comments", html, { shouldDirty: true });
@@ -172,7 +169,7 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
       mounted = false;
       editorRef.current?.destroy();
     };
-  }, []);
+  }, [form]);
 
   return (
     <div className="flex h-full flex-col">
@@ -302,8 +299,7 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="comments">Comentarios:</FieldLabel>
-                {/*<Textarea aria-invalid={fieldState.invalid} className="min-h-50" id="comments" rows={28} {...field} />*/}
-                <div className="editor-theme" {...field} ref={containerRef}></div>
+                <div {...field} ref={containerRef}></div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
