@@ -114,8 +114,10 @@ export default function AppSettings() {
                     <SelectValue placeholder={timezoneSetting.title} />
                   </SelectTrigger>
                   <SelectContent>
-                    {TimezonesConfig.timezones.map((tz) => (
-                      <SelectItem value={tz.value}>{tz.label}</SelectItem>
+                    {TimezonesConfig.timezones.map((tz, idx) => (
+                      <SelectItem key={`tz-${idx}`} value={tz.value}>
+                        {tz.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
