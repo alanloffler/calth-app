@@ -31,6 +31,7 @@ const shadcnTheme: Theme = {
 };
 
 interface IProps<TFieldValues extends FieldValues, TName extends FieldPath<TFieldValues>> {
+  className?: string;
   field: ControllerRenderProps<TFieldValues, TName>;
   form: UseFormReturn<TFieldValues>;
   initialContent?: string;
@@ -39,6 +40,7 @@ interface IProps<TFieldValues extends FieldValues, TName extends FieldPath<TFiel
 }
 
 export function RichTextEditor<TFieldValues extends FieldValues, TName extends FieldPath<TFieldValues>>({
+  className,
   field,
   form,
   initialContent,
@@ -90,7 +92,7 @@ export function RichTextEditor<TFieldValues extends FieldValues, TName extends F
       mounted = false;
       editorRef.current?.destroy();
     };
-  }, [field.name, form, locale]);
+  }, [field.name, form, initialContent, locale]);
 
-  return <div {...field} aria-invalid={invalid} ref={containerRef}></div>;
+  return <div className={className} {...field} aria-invalid={invalid} ref={containerRef}></div>;
 }
