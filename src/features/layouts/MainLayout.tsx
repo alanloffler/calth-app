@@ -2,7 +2,7 @@ import { AppSidebar } from "@components/app-sidebar";
 import { BackButton } from "@components/ui/BackButton";
 import { CreateEventSheet } from "@calendar/components/sheets/CreateEventSheet";
 import { HeaderBreadcrumb } from "@components/Breadcrumb";
-import { ModeToggle } from "@components/mode-toggle";
+import { ModeToggle } from "@components/ModeToggle";
 import { Outlet } from "react-router";
 import { Separator } from "@components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@components/ui/sidebar";
