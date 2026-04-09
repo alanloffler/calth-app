@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IMedicalHistory } from "@medical-history/interfaces/medical-history.interface";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
+import { SchemaConstant } from "@core/config/schemas.config";
 import { cn } from "@lib/utils";
 import { createHistorySchema } from "@medical-history/schemas/create-history.schema";
 
@@ -237,9 +238,11 @@ export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
                 <div className="flex items-center justify-between">
                   <FieldLabel htmlFor="comments">Notas:</FieldLabel>
                   <div
-                    className={cn("text-muted-foreground text-sm", { "text-destructive": field.value.length > 1000 })}
+                    className={cn("text-muted-foreground text-sm", {
+                      "text-destructive": field.value.length > SchemaConstant.medicalHistory.commentsMaxLength,
+                    })}
                   >
-                    {field.value.length}/1000
+                    {field.value.length}/{SchemaConstant.medicalHistory.commentsMaxLength}
                   </div>
                 </div>
                 <RichTextEditor
