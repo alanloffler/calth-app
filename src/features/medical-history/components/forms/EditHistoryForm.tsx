@@ -19,7 +19,7 @@ import { es } from "date-fns/locale";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -60,7 +60,7 @@ export function EditHistoryForm({ history, onUpdated, setOpen }: IProps) {
     },
   });
 
-  const professionalId = form.watch("professionalId");
+  const professionalId = useWatch({ control: form.control, name: "professionalId" });
 
   function onSelectDate(date: Date | undefined) {
     if (!date) return;
