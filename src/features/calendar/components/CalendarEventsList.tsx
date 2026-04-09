@@ -10,7 +10,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { EventsService } from "@event/services/events.service";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { formatShortDate } from "@core/formatters/date.formatter";
 import { useEventStore } from "@calendar/stores/event.store";
 

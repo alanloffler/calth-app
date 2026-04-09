@@ -7,7 +7,7 @@ import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interfa
 import type { TEventStatus } from "@calendar/enums/event-status.enum";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { DEventStatus } from "@calendar/dictionaries/status.dictionary";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 

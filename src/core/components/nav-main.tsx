@@ -19,7 +19,7 @@ import {
 import type { ComponentType, SVGProps } from "react";
 
 import type { TPermission } from "@permissions/interfaces/permission.type";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { useActiveRoute } from "@core/hooks/useActiveRoute";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useSettingsStore } from "@settings/stores/settings.store";

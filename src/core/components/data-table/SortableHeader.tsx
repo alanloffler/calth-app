@@ -2,7 +2,7 @@ import { ChevronsUpDown, ChevronUp, ChevronDown } from "lucide-react";
 
 import type { Column } from "@tanstack/react-table";
 import type { ReactNode } from "react";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 
 export function SortableHeader<TData, TValue>({
   alignment = "left",

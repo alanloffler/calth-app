@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 import type { IEventFilters } from "@event/interfaces/filters.interface";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { useSidebar } from "@components/ui/sidebar";
 
 interface IProps {

@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { BusinessService } from "@business/services/business.service";
 import { businessSchema } from "@business/schemas/business.schema";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSidebar } from "@components/ui/sidebar";

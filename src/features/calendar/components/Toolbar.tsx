@@ -9,7 +9,7 @@ import type { ToolbarProps } from "react-big-calendar";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { TView } from "@calendar/interfaces/calendar-view.type";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { useEventStore } from "@calendar/stores/event.store";
 import { useSidebar } from "@components/ui/sidebar";
 

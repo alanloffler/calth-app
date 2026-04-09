@@ -28,7 +28,7 @@ import type { IUser } from "@users/interfaces/user.interface";
 import type { TView } from "@calendar/interfaces/calendar-view.type";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { UsersService } from "@users/services/users.service";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import {
   createEventPropGetter,
   createSlotPropGetter,

@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { useEventStore } from "@calendar/stores/event.store";
 
 interface IProps {

@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { TAuthType } from "@auth/interfaces/auth.type";
 import { AuthService } from "@auth/services/auth.service";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { loginSchema } from "@login/schemas/login.schema";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useTryCatch } from "@core/hooks/useTryCatch";

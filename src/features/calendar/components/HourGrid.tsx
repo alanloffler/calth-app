@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
 import type { eventSchema } from "@calendar/schemas/event.schema";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 
 interface IProps {
   form: UseFormReturn<z.infer<typeof eventSchema>>;

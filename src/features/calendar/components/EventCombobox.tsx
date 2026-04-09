@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {

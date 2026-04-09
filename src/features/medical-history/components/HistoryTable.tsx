@@ -21,7 +21,7 @@ import type { IMedicalHistory } from "@medical-history/interfaces/medical-histor
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { HistoryTableConfig } from "@core/config/table.config";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {

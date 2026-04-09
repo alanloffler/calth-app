@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { IBusiness } from "@business/interfaces/business.interface";
 import { BusinessService } from "@business/services/business.service";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useSidebar } from "@components/ui/sidebar";
 import { useTryCatch } from "@core/hooks/useTryCatch";

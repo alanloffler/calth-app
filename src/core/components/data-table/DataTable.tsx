@@ -18,7 +18,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   className?: string;

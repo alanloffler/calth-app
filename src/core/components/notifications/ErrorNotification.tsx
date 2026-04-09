@@ -4,7 +4,7 @@ import { Button } from "@components/ui/button";
 
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 
 const ErrorVariants = cva("flex flex-col mx-auto w-fit items-center border font-medium md:flex-row", {
   variants: {

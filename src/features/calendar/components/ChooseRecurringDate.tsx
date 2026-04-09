@@ -21,7 +21,7 @@ import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 
 
 import type { IRecurrentDayResponse } from "@event/interfaces/recurrent-day.interface";
 import { EventsService } from "@event/services/events.service";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { tryCatch } from "@core/utils/try-catch";
 
 interface IProps {

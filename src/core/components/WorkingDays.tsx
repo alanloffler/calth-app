@@ -3,7 +3,7 @@ import { Checkbox } from "@components/ui/checkbox";
 import { addDays, eachDayOfInterval, format, startOfWeek } from "date-fns";
 import { es } from "date-fns/locale";
 
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 
 interface IProps {
   "aria-invalid"?: boolean;

@@ -12,7 +12,7 @@ import { useNavigate } from "react-router";
 
 import type { IUser } from "@users/interfaces/user.interface";
 import { UsersService } from "@users/services/users.service";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {

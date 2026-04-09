@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 
 import type { Dispatch, SetStateAction } from "react";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 
 interface IProps {
   state: any | undefined;

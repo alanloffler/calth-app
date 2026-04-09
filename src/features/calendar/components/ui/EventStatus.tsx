@@ -2,7 +2,7 @@ import type { HTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { DEventStatus } from "@calendar/dictionaries/status.dictionary";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 
 const statusVariants = cva("inline-flex items-center justify-center font-medium uppercase", {
   variants: {

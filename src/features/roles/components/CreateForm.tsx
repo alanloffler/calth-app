@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { IPermissionGroup } from "@permissions/interfaces/permission-group.interface";
 import { PermissionsService } from "@permissions/services/permissions.service";
 import { RolesService } from "@roles/services/roles.service";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { roleSchema } from "@roles/schemas/role.schema";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 

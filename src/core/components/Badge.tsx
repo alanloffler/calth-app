@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 
 const badgeVariants = cva("inline-flex items-center justify-center font-medium uppercase", {
   variants: {

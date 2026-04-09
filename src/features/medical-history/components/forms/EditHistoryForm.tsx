@@ -27,7 +27,7 @@ import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interfa
 import type { IMedicalHistory } from "@medical-history/interfaces/medical-history.interface";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { SchemaConstant } from "@core/config/schemas.config";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { createHistorySchema } from "@medical-history/schemas/create-history.schema";
 
 interface IProps {

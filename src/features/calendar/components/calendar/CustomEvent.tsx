@@ -2,7 +2,7 @@ import { format } from "date-fns";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { TView } from "@calendar/interfaces/calendar-view.type";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 
 export function CustomEvent({ event, view }: { event: ICalendarEvent; view: TView }) {
   return (

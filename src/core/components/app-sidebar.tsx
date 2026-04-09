@@ -28,7 +28,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSidebar } from "@components/ui/sidebar";
 
 import type { TPermission } from "@permissions/interfaces/permission.type";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useEventStore } from "@calendar/stores/event.store";
 

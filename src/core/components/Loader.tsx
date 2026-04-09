@@ -1,4 +1,4 @@
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { useTheme } from "@core/providers/theme-provider";
 
 interface IProps {

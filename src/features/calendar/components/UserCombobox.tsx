@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { IUser } from "@users/interfaces/user.interface";
 import { EUserRole } from "@roles/enums/user-role.enum";
 import { UsersService } from "@users/services/users.service";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {

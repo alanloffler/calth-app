@@ -2,7 +2,7 @@
 
 import type { SVGProps } from "react";
 
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 
 interface IProps extends SVGProps<SVGSVGElement> {
   className?: string;

@@ -4,7 +4,7 @@ import { Button } from "@components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 
 import type { Table } from "@tanstack/react-table";
-import { cn } from "@/lib/utils";
+import { cn } from "@core/lib/utils";
 
 interface IProps {
   pageSizes: number[];

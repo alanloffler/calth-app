@@ -21,7 +21,7 @@ import type { IPermissionGroup } from "@permissions/interfaces/permission-group.
 import { ERoles } from "@auth/enums/role.enum";
 import { PermissionsService } from "@permissions/services/permissions.service";
 import { RolesService } from "@roles/services/roles.service";
-import { cn } from "@lib/utils";
+import { cn } from "@core/lib/utils";
 import { roleSchema } from "@roles/schemas/role.schema";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useTryCatch } from "@core/hooks/useTryCatch";
