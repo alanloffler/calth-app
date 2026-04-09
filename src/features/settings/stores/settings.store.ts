@@ -59,9 +59,7 @@ export const useSettingsStore = create(
         }
       },
       loadAppSettings: async (forceFromApi: boolean = false) => {
-        const currentState = get();
-
-        if (!currentState._hasHydrated) {
+        if (!get()._hasHydrated) {
           await new Promise((resolve) => {
             const checkHydrated = setInterval(() => {
               if (get()._hasHydrated) {
@@ -74,23 +72,12 @@ export const useSettingsStore = create(
 
         const state = get();
 
-        if (forceFromApi) {
-          set({ loading: true, error: null });
-
+        if (!forceFromApi && state.hasLocalSettings && state.appSettings.length > 0) {
           const [response, error] = await tryCatch(SettingsService.findByModule("app"));
-
-          if (error) {
-            set({ error: error.message, loading: false });
-            return;
+          if (!error && response?.statusCode === 200 && response.data) {
+            const merged = response.data.map((apiSetting) => state.appSettings.find((s) => s.id === apiSetting.id) ?? apiSetting);
+            set({ appSettings: merged });
           }
-
-          if (response && response.statusCode === 200 && response.data) {
-            set({ appSettings: response.data, loading: false, hasLocalSettings: true });
-          }
-          return;
-        }
-
-        if (state.appSettings.length > 0 && state.hasLocalSettings) {
           return;
         }
 
@@ -108,9 +95,7 @@ export const useSettingsStore = create(
         }
       },
       loadDashboardSettings: async (forceFromApi: boolean = false) => {
-        const currentState = get();
-
-        if (!currentState._hasHydrated) {
+        if (!get()._hasHydrated) {
           await new Promise((resolve) => {
             const checkHydrated = setInterval(() => {
               if (get()._hasHydrated) {
@@ -123,23 +108,12 @@ export const useSettingsStore = create(
 
         const state = get();
 
-        if (forceFromApi) {
-          set({ loading: true, error: null });
-
+        if (!forceFromApi && state.hasLocalSettings && state.dashboardSettings.length > 0) {
           const [response, error] = await tryCatch(SettingsService.findByModule("dashboard"));
-
-          if (error) {
-            set({ error: error.message, loading: false });
-            return;
+          if (!error && response?.statusCode === 200 && response.data) {
+            const merged = response.data.map((apiSetting) => state.dashboardSettings.find((s) => s.id === apiSetting.id) ?? apiSetting);
+            set({ dashboardSettings: merged });
           }
-
-          if (response && response.statusCode === 200 && response.data) {
-            set({ dashboardSettings: response.data, loading: false, hasLocalSettings: true });
-          }
-          return;
-        }
-
-        if (state.dashboardSettings.length > 0 && state.hasLocalSettings) {
           return;
         }
 
@@ -157,9 +131,7 @@ export const useSettingsStore = create(
         }
       },
       loadNotificationsSettings: async (forceFromApi: boolean = false) => {
-        const currentState = get();
-
-        if (!currentState._hasHydrated) {
+        if (!get()._hasHydrated) {
           await new Promise((resolve) => {
             const checkHydrated = setInterval(() => {
               if (get()._hasHydrated) {
@@ -172,23 +144,12 @@ export const useSettingsStore = create(
 
         const state = get();
 
-        if (forceFromApi) {
-          set({ loading: true, error: null });
-
+        if (!forceFromApi && state.hasLocalSettings && state.notificationsSettings.length > 0) {
           const [response, error] = await tryCatch(SettingsService.findByModule("notification"));
-
-          if (error) {
-            set({ error: error.message, loading: false });
-            return;
+          if (!error && response?.statusCode === 200 && response.data) {
+            const merged = response.data.map((apiSetting) => state.notificationsSettings.find((s) => s.id === apiSetting.id) ?? apiSetting);
+            set({ notificationsSettings: merged });
           }
-
-          if (response && response.statusCode === 200 && response.data) {
-            set({ notificationsSettings: response.data, loading: false, hasLocalSettings: true });
-          }
-          return;
-        }
-
-        if (state.notificationsSettings.length > 0 && state.hasLocalSettings) {
           return;
         }
 
