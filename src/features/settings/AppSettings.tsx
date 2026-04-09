@@ -22,6 +22,7 @@ export default function AppSettings() {
   const { appSettings, loadingAppSettings, updateAppSetting } = useSettingsStore();
   const { setTheme } = useTheme();
 
+  const localeSettings = appSettings.filter((setting) => setting.submodule === "locale");
   const menuSettings = appSettings.filter((setting) => setting.submodule === "menu");
   const themeSettings = appSettings.filter((setting) => setting.submodule === "theme");
 
@@ -63,6 +64,31 @@ export default function AppSettings() {
                   <SelectContent>
                     <SelectItem value="light">Claro</SelectItem>
                     <SelectItem value="dark">Oscuro</SelectItem>
+                  </SelectContent>
+                </Select>
+                {loadingAppSettings[setting.id] && <Loader color="#000" />}
+                {!canEditSettings && <LockKeyhole className="text-muted-foreground h-3.5 w-3.5" />}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Card className="relative col-span-1 gap-3 lg:col-span-3">
+          <CardHeader>
+            <CardTitle>Idioma</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-1 flex-col gap-2">
+            {localeSettings.map((setting) => (
+              <div className="flex items-center gap-3" key={setting.id}>
+                <label className="select-none hover:cursor-pointer" htmlFor={setting.id}>
+                  {setting.title}
+                </label>
+                <Select onValueChange={(value) => handleThemeChange(setting.id, value)} value={setting.value}>
+                  <SelectTrigger disabled={!canEditSettings || loadingAppSettings[setting.id]}>
+                    <SelectValue placeholder={setting.title} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="es">Español</SelectItem>
+                    <SelectItem value="en">Inglés</SelectItem>
                   </SelectContent>
                 </Select>
                 {loadingAppSettings[setting.id] && <Loader color="#000" />}
