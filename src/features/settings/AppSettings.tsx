@@ -10,6 +10,7 @@ import { useState } from "react";
 
 import type { TSyncMode } from "@settings/interfaces/sync-mode.type";
 import { ERoles } from "@auth/enums/role.enum";
+import { TimezonesConfig } from "@core/config/timezones.config";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useSettingsStore } from "@settings/stores/settings.store";
@@ -22,7 +23,8 @@ export default function AppSettings() {
   const { appSettings, loadingAppSettings, updateAppSetting } = useSettingsStore();
   const { setTheme } = useTheme();
 
-  const localeSettings = appSettings.filter((setting) => setting.submodule === "locale");
+  const localeSetting = appSettings.filter((setting) => setting.submodule === "locale")[0];
+  const timezoneSetting = appSettings.filter((setting) => setting.submodule === "locale")[1];
   const menuSettings = appSettings.filter((setting) => setting.submodule === "menu");
   const themeSettings = appSettings.filter((setting) => setting.submodule === "theme");
 
@@ -74,27 +76,53 @@ export default function AppSettings() {
         </Card>
         <Card className="relative col-span-1 gap-3 lg:col-span-3">
           <CardHeader>
-            <CardTitle>Idioma</CardTitle>
+            <CardTitle>Idioma y localización</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-1 flex-col gap-2">
-            {localeSettings.map((setting) => (
-              <div className="flex items-center gap-3" key={setting.id}>
-                <label className="select-none hover:cursor-pointer" htmlFor={setting.id}>
-                  {setting.title}
+            {localeSetting && (
+              <div className="flex items-center gap-3" key={localeSetting.id}>
+                <label className="select-none hover:cursor-pointer" htmlFor={localeSetting.id}>
+                  {localeSetting.title}
                 </label>
-                <Select onValueChange={(value) => handleThemeChange(setting.id, value)} value={setting.value}>
-                  <SelectTrigger disabled={!canEditSettings || loadingAppSettings[setting.id]}>
-                    <SelectValue placeholder={setting.title} />
+                <Select
+                  onValueChange={(value) => handleThemeChange(localeSetting.id, value)}
+                  value={localeSetting.value}
+                >
+                  <SelectTrigger disabled={!canEditSettings || loadingAppSettings[localeSetting.id]}>
+                    <SelectValue placeholder={localeSetting.title} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="es">Español</SelectItem>
                     <SelectItem value="en">Inglés</SelectItem>
                   </SelectContent>
                 </Select>
-                {loadingAppSettings[setting.id] && <Loader color="#000" />}
+                {loadingAppSettings[localeSetting.id] && <Loader color="#000" />}
                 {!canEditSettings && <LockKeyhole className="text-muted-foreground h-3.5 w-3.5" />}
               </div>
-            ))}
+            )}
+            {/* FIX: this must be a business rule */}
+            {timezoneSetting && (
+              <div className="flex items-center gap-3" key={timezoneSetting.id}>
+                <label className="select-none hover:cursor-pointer" htmlFor={timezoneSetting.id}>
+                  {timezoneSetting.title}
+                </label>
+                <Select
+                  onValueChange={(value) => handleThemeChange(timezoneSetting.id, value)}
+                  value={timezoneSetting.value}
+                >
+                  <SelectTrigger disabled={!canEditSettings || loadingAppSettings[timezoneSetting.id]}>
+                    <SelectValue placeholder={timezoneSetting.title} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TimezonesConfig.timezones.map((tz) => (
+                      <SelectItem value={tz.value}>{tz.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {loadingAppSettings[timezoneSetting.id] && <Loader color="#000" />}
+                {!canEditSettings && <LockKeyhole className="text-muted-foreground h-3.5 w-3.5" />}
+              </div>
+            )}
           </CardContent>
         </Card>
         <Card className="relative col-span-1 gap-3 lg:col-span-3">
