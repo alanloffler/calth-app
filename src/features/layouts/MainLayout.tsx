@@ -20,7 +20,7 @@ export function MainLayout() {
               <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
               <HeaderBreadcrumb />
             </div>
-            <div className="item-center flex gap-3">
+            <div className="flex items-center gap-3">
               <ModeToggle />
               <BackButton />
             </div>
