@@ -8,7 +8,7 @@ import { Input } from "@components/ui/input";
 import { Textarea } from "@components/ui/textarea";
 
 import type { z } from "zod";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMaskito } from "@maskito/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -73,12 +73,16 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
   const slugField = useWatch({ control, name: "slug" });
   const tradeName = useWatch({ control, name: "tradeName" });
 
-  const slugSuggestions = tradeName
-    ? tradeName
-        .split(" ")
-        .map(toSlug)
-        .filter((s): s is string => s !== null)
-    : [];
+  const slugSuggestions = useMemo(
+    () =>
+      tradeName
+        ? tradeName
+            .split(" ")
+            .map(toSlug)
+            .filter((s): s is string => s !== null)
+        : [],
+    [tradeName],
+  );
 
   useEffect(() => {
     if (slugSuggestions.length === 0) return;
@@ -89,7 +93,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
         setUnavailableSlugs((prev) => new Set(prev).add(slug));
       }
     });
-  }, [tradeName]);
+  }, [slugSuggestions]);
 
   useEffect(() => {
     setIsValid?.(isValid);
