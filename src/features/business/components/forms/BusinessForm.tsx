@@ -304,6 +304,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
           />
         </FieldGroup>
         <FieldGroup>
+          <FieldTitle className="text-base">Configuraciones:</FieldTitle>
           <Controller
             name="slug"
             control={control}
