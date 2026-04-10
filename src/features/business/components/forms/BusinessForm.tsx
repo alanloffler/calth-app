@@ -5,6 +5,7 @@ import { Checkbox } from "@components/ui/checkbox";
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel, FieldTitle } from "@components/ui/field";
 import { Input } from "@components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 import { Textarea } from "@components/ui/textarea";
 
 import type { z } from "zod";
@@ -13,6 +14,7 @@ import { useMaskito } from "@maskito/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { BusinessService } from "@business/services/business.service";
+import { COUNTRIES } from "@core/constants/countries.constant";
 import { createBusinessSchema } from "@business/schemas/create-business.schema";
 import { digitsMask } from "@core/masks/maskito-digits";
 import { tryCatch } from "@core/utils/try-catch";
@@ -127,7 +129,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
       street: "Calle 1º de Abril",
       city: "Wanda",
       province: "Misiones",
-      country: "Argentina",
+      country: "AR",
       zipCode: "3376",
       slug: "clinicawanda",
       timezone: "America/Argentina/Buenos_Aires",
@@ -271,7 +273,18 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
                 <FieldLabel htmlFor="country">
                   País <Asterisk className="size-3" />
                 </FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="country" {...field} />
+                <Select disabled={COUNTRIES.length === 0} value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger aria-invalid={fieldState.invalid} id="country">
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNTRIES.map((country) => (
+                      <SelectItem key={country.code} value={country.code}>
+                        {country.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
