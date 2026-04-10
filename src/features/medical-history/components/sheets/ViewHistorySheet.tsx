@@ -2,6 +2,7 @@ import { FilePenLine, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
+import { HistoryNotes } from "@medical-history/HistoryNotes";
 import { Protected } from "@auth/components/Protected";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
@@ -66,12 +67,8 @@ export function ViewHistorySheet({ eventClick, history, onEdit, onDelete, open, 
               <span className="font-semibold">Receta:</span>
               {history.recipe ? <p>Contiene receta (true)</p> : <p>No contiene receta (false)</p>}
             </li>
-            <li className="bg-muted mt-4 flex min-h-0 flex-1 flex-col gap-3 rounded-md border p-2">
-              <span className="text-center font-semibold">Notas</span>
-              <div
-                className="bg-background min-h-0 flex-1 overflow-y-auto rounded-sm border p-2"
-                dangerouslySetInnerHTML={{ __html: history.comments }}
-              ></div>
+            <li className="mt-3">
+              <HistoryNotes notes={history.comments} />
             </li>
           </ul>
           <div className="flex items-center justify-end gap-3">
