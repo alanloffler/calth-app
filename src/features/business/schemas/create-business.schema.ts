@@ -49,4 +49,9 @@ export const createBusinessSchema = z.object({
     .nonempty("El subdominio es obligatorio")
     .min(3, "El subdominio debe tener al menos 3 caracteres")
     .max(50, "El subdominio debe tener como máximo 50 caracteres"),
+  timezone: z
+    .string()
+    .nonempty("La zona horaria es obligatoria")
+    .min(3, "La zona horaria debe tener al menos 3 caracteres")
+    .max(100, "La zona horaria debe tener como máximo 100 caracteres"),
 });
