@@ -30,9 +30,10 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
   const icRef = useMaskito({ options: digitsMask });
 
   // TODO: find by value === superadmin
-  // Nest.js const roleId = "ac854a41-5862-423d-90b1-942f7d8e5f27";
+  // Nest.js
+  const roleId = "ac854a41-5862-423d-90b1-942f7d8e5f27";
   // Go
-  const roleId = "b290a964-2028-4004-a960-6ea400a32d70";
+  // const roleId = "b290a964-2028-4004-a960-6ea400a32d70";
 
   const adminForm = useForm<AdminFormValues>({
     resolver: zodResolver(createAdminSchema),
