@@ -58,6 +58,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
       country: "",
       zipCode: "",
       slug: "",
+      timezone: "",
     },
     mode: "onChange",
   });
@@ -85,6 +86,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
   );
 
   useEffect(() => {
+    setUnavailableSlugs(new Set());
     if (slugSuggestions.length === 0) return;
     const allSuggestions = [slugSuggestions[0] + (slugSuggestions[1] ?? ""), ...slugSuggestions];
     allSuggestions.forEach(async (slug) => {
@@ -95,9 +97,11 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
     });
   }, [slugSuggestions]);
 
+  const slugUnavailable = !!slugField && unavailableSlugs.has(slugField);
+
   useEffect(() => {
-    setIsValid?.(isValid);
-  }, [isValid, setIsValid]);
+    setIsValid?.(isValid && !slugUnavailable);
+  }, [isValid, slugUnavailable, setIsValid]);
 
   function handleFormSubmit(data: BusinessFormValues): void {
     onSubmit?.(data);
@@ -116,6 +120,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
       country: "Argentina",
       zipCode: "3376",
       slug: "clinicawanda",
+      timezone: "America/Argentina/Buenos_Aires",
     });
   }
 
@@ -280,12 +285,14 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             name="slug"
             control={control}
             render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
+              <Field data-invalid={fieldState.invalid || slugUnavailable}>
                 <FieldLabel htmlFor="slug">
                   Subdominio <Asterisk className="size-3" />
                 </FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="slug" {...field} />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                <Input aria-invalid={fieldState.invalid || slugUnavailable} id="slug" {...field} />
+                {(fieldState.invalid || slugUnavailable) && (
+                  <FieldError errors={slugUnavailable ? [{ message: "Este subdominio no está disponible" }] : [fieldState.error]} />
+                )}
               </Field>
             )}
           />
@@ -344,6 +351,19 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
               )}
             />
           )}
+          <Controller
+            name="timezone"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="timezone">
+                  Zona horaria <Asterisk className="size-3" />
+                </FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="timezone" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
         </FieldGroup>
       </form>
       <div className="mt-8 flex items-center gap-3 text-sm">
