@@ -77,6 +77,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
 
   const slugField = useWatch({ control, name: "slug" });
   const tradeName = useWatch({ control, name: "tradeName" });
+  const selectedCountry = useWatch({ control, name: "country" });
 
   const debouncedTradeName = useDebounce(tradeName, 500);
 
@@ -111,6 +112,15 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
 
   const slugUnavailable = !!slugField && unavailableSlugs.has(slugField);
 
+  const selectedCountryTimezones = useMemo(
+    () => COUNTRIES.find((c) => c.code === selectedCountry)?.timezones ?? [],
+    [selectedCountry],
+  );
+
+  useEffect(() => {
+    businessForm.setValue("timezone", "");
+  }, [selectedCountry, businessForm]);
+
   useEffect(() => {
     setIsValid?.(isValid && !slugUnavailable);
   }, [isValid, slugUnavailable, setIsValid]);
@@ -132,7 +142,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
       country: "AR",
       zipCode: "3376",
       slug: "clinicawanda",
-      timezone: "America/Argentina/Buenos_Aires",
+      timezone: "",
     });
   }
 
@@ -365,7 +375,22 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
                 <FieldLabel htmlFor="timezone">
                   Zona horaria <Asterisk className="size-3" />
                 </FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="timezone" {...field} />
+                <Select
+                  disabled={selectedCountryTimezones.length === 0}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger aria-invalid={fieldState.invalid} id="timezone" onBlur={field.onBlur}>
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedCountryTimezones.map((tz) => (
+                      <SelectItem key={tz.value} value={tz.value}>
+                        {tz.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
