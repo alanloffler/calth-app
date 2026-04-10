@@ -41,6 +41,7 @@ interface IProps {
 }
 
 export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: IProps) {
+  const [rand] = useState<number>(() => Math.floor(Math.random() * 1000));
   const [taxIdError, setTaxIdError] = useState<string | null>(null);
   const [unavailableSlugs, setUnavailableSlugs] = useState<Set<string>>(new Set());
   const taxRef = useMaskito({ options: digitsMask });
@@ -85,17 +86,23 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
     [tradeName],
   );
 
+  const allSlugSuggestions = useMemo(() => {
+    if (slugSuggestions.length < 2) return slugSuggestions;
+    const combined = slugSuggestions[0] + slugSuggestions[1];
+    const combinedRand = combined + rand;
+    return [combined, combinedRand, ...slugSuggestions];
+  }, [rand, slugSuggestions]);
+
   useEffect(() => {
     setUnavailableSlugs(new Set());
-    if (slugSuggestions.length === 0) return;
-    const allSuggestions = [slugSuggestions[0] + (slugSuggestions[1] ?? ""), ...slugSuggestions];
-    allSuggestions.forEach(async (slug) => {
+    if (allSlugSuggestions.length === 0) return;
+    allSlugSuggestions.forEach(async (slug) => {
       const [response] = await tryCatch(BusinessService.checkSlugAvailability(slug));
       if (response?.data === false) {
         setUnavailableSlugs((prev) => new Set(prev).add(slug));
       }
     });
-  }, [slugSuggestions]);
+  }, [allSlugSuggestions]);
 
   const slugUnavailable = !!slugField && unavailableSlugs.has(slugField);
 
@@ -291,7 +298,9 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
                 </FieldLabel>
                 <Input aria-invalid={fieldState.invalid || slugUnavailable} id="slug" {...field} />
                 {(fieldState.invalid || slugUnavailable) && (
-                  <FieldError errors={slugUnavailable ? [{ message: "Este subdominio no está disponible" }] : [fieldState.error]} />
+                  <FieldError
+                    errors={slugUnavailable ? [{ message: "Este subdominio no está disponible" }] : [fieldState.error]}
+                  />
                 )}
               </Field>
             )}
@@ -299,7 +308,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
           {slugField && slugField.length > 2 && (
             <span className="text-muted-foreground text-sm">Tu dirección será: https://{slugField}.calth.app</span>
           )}
-          {slugSuggestions.length > 0 && (
+          {allSlugSuggestions.length > 0 && (
             <Controller
               name="slug"
               control={control}
@@ -307,27 +316,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
                 <div className="text-sm">
                   <h3 className="mb-2">Sugerencias:</h3>
                   <ul className="space-y-2">
-                    {(() => {
-                      const composed = slugSuggestions[0] + (slugSuggestions[1] ?? "");
-                      const isUnavailable = unavailableSlugs.has(composed);
-                      return (
-                        <li key="composed-slug" className="flex items-center gap-2">
-                          <Checkbox
-                            id="slug-composed-slug"
-                            disabled={isUnavailable}
-                            checked={field.value === composed}
-                            onCheckedChange={(checked) => field.onChange(checked ? composed : "")}
-                          />
-                          <label
-                            htmlFor="slug-composed-slug"
-                            className={isUnavailable ? "text-muted-foreground line-through" : "cursor-pointer"}
-                          >
-                            {composed}
-                          </label>
-                        </li>
-                      );
-                    })()}
-                    {slugSuggestions.map((suggestion) => {
+                    {allSlugSuggestions.map((suggestion) => {
                       const isUnavailable = unavailableSlugs.has(suggestion);
                       return (
                         <li key={suggestion} className="flex items-center gap-2">
