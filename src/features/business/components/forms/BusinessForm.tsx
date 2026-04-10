@@ -16,6 +16,7 @@ import { BusinessService } from "@business/services/business.service";
 import { createBusinessSchema } from "@business/schemas/create-business.schema";
 import { digitsMask } from "@core/masks/maskito-digits";
 import { tryCatch } from "@core/utils/try-catch";
+import { useDebounce } from "@core/hooks/useDebounce";
 
 function toSlug(value: string): string | null {
   const slug = value
@@ -75,15 +76,17 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
   const slugField = useWatch({ control, name: "slug" });
   const tradeName = useWatch({ control, name: "tradeName" });
 
+  const debouncedTradeName = useDebounce(tradeName, 500);
+
   const slugSuggestions = useMemo(
     () =>
-      tradeName
-        ? tradeName
+      debouncedTradeName
+        ? debouncedTradeName
             .split(" ")
             .map(toSlug)
             .filter((s): s is string => s !== null)
         : [],
-    [tradeName],
+    [debouncedTradeName],
   );
 
   const allSlugSuggestions = useMemo(() => {
@@ -118,8 +121,8 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
   function completeForm(): void {
     businessForm.reset({
       taxId: "20301011029",
-      tradeName: "Clínica Wanda S.R.L.",
-      companyName: "Clínica Wanda",
+      companyName: "Clínica Wanda S.R.L.",
+      tradeName: "Clínica Wanda",
       description: "Centro médico especializado en pediatría y obstetricia.",
       street: "Calle 1º de Abril",
       city: "Wanda",
@@ -180,27 +183,27 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
             )}
           />
           <Controller
-            name="tradeName"
-            control={control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="tradeName">
-                  Razón social <Asterisk className="size-3" />
-                </FieldLabel>
-                <Input aria-invalid={fieldState.invalid} id="tradeName" {...field} />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-          <Controller
             name="companyName"
             control={control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="companyName">
-                  Nombre comercial <Asterisk className="size-3" />
+                  Razón social <Asterisk className="size-3" />
                 </FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="companyName" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="tradeName"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="tradeName">
+                  Nombre comercial <Asterisk className="size-3" />
+                </FieldLabel>
+                <Input aria-invalid={fieldState.invalid} id="tradeName" {...field} />
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
