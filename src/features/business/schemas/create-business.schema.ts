@@ -34,11 +34,7 @@ export const createBusinessSchema = z.object({
     .nonempty("La provincia es obligatoria")
     .min(3, "La provincia debe tener al menos 3 caracteres")
     .max(50, "La provincia debe tener como máximo 50 caracteres"),
-  country: z
-    .string()
-    .nonempty("El país es obligatorio")
-    .min(3, "El país debe tener al menos 3 caracteres")
-    .max(50, "El país debe tener como máximo 50 caracteres"),
+  country: z.string().nonempty("El país es obligatorio").min(2, "El país es obligatorio"),
   zipCode: z
     .string()
     .nonempty("El código postal es obligatorio")
