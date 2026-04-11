@@ -54,9 +54,14 @@ export function ShareModal({ image, open, setOpen }: IProps) {
             </div>
             <div className="flex items-center gap-3">
               <Input className="" placeholder="Ingresar número" />
-              <Button variant="outline">
-                <Send />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline">
+                    <Send />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Enviar</TooltipContent>
+              </Tooltip>
             </div>
           </div>
         </div>
