@@ -15,12 +15,35 @@ export function QRCodeGenerator({ value }: IProps) {
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    QRCode.toCanvas(canvasRef.current, value, {
-      width: 200,
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const qrSize = 300;
+    const padding = 20;
+
+    canvas.width = qrSize;
+    canvas.height = qrSize + padding;
+
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const tempCanvas = document.createElement("canvas");
+
+    QRCode.toCanvas(tempCanvas, value, {
+      width: qrSize,
       margin: 2,
-    }).catch((err: Error) => {
-      console.error("QR generation failed:", err);
-    });
+    })
+      .then(() => {
+        ctx.drawImage(tempCanvas, 0, padding);
+        ctx.fillStyle = "#000";
+        ctx.font = "12px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(value, canvas.width / 2, 20);
+      })
+      .catch((err: Error) => {
+        console.error("QR generation failed:", err);
+      });
   }, [value]);
 
   function handleDownload() {
@@ -32,6 +55,8 @@ export function QRCodeGenerator({ value }: IProps) {
     link.download = "qr-code.png";
     link.click();
   }
+
+  // TODO: helper png generation, then share with email and whatsapp
 
   return (
     <div className="flex flex-col items-center justify-center gap-2">
