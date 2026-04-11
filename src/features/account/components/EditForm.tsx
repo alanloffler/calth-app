@@ -71,7 +71,8 @@ export function EditForm() {
     async function findOneWithCredentials(): Promise<void> {
       if (!ownAdmin) return;
 
-      const [admin, adminError] = await tryCatchAdmin(UsersService.findOneWithCredentials(ownAdmin.id));
+      // const [admin, adminError] = await tryCatchAdmin(UsersService.findOneWithCredentials(ownAdmin.id));
+      const [admin, adminError] = await tryCatchAdmin(AccountService.get());
 
       if (adminError) {
         toast.error(adminError.message);
