@@ -11,24 +11,18 @@ interface IProps {
 
 export function AppInitializer({ children }: IProps) {
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
-  const admin = useAuthStore((state) => state.admin);
-  const isInitializing = useRef(false);
-  const lastAdminId = useRef<string | null>(null);
-  const loadAppSettings = useSettingsStore((state) => state.loadAppSettings);
-  const loadDashboardSettings = useSettingsStore((state) => state.loadDashboardSettings);
-  const loadNotificationsSettings = useSettingsStore((state) => state.loadNotificationsSettings);
+  const hasRun = useRef(false);
   const setAdmin = useAuthStore((state) => state.setAdmin);
   const { setTheme } = useTheme();
 
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     let isMounted = true;
 
     async function initAuth() {
-      if (isInitializing.current || (admin && lastAdminId.current === admin.id)) {
-        return;
-      }
-
-      isInitializing.current = true;
+      const admin = useAuthStore.getState().admin;
 
       const storedTheme = localStorage.getItem("calth-app-theme");
       if (storedTheme && (storedTheme === "light" || storedTheme === "dark" || storedTheme === "system")) {
@@ -39,6 +33,7 @@ export function AppInitializer({ children }: IProps) {
         if (admin) {
           const response = await AuthService.getMe();
 
+          const { loadAppSettings, loadDashboardSettings, loadNotificationsSettings } = useSettingsStore.getState();
           await loadAppSettings();
           await loadDashboardSettings();
           await loadNotificationsSettings(true);
@@ -54,19 +49,12 @@ export function AppInitializer({ children }: IProps) {
 
           if (isMounted && response.data) {
             setAdmin(response.data);
-            lastAdminId.current = response.data.id;
           }
-        } else {
-          lastAdminId.current = null;
         }
       } catch {
-        if (isMounted) {
-          setAdmin(undefined);
-          lastAdminId.current = null;
-        }
+        if (isMounted) setAdmin(undefined);
       } finally {
         if (isMounted) setIsInitialized(true);
-        isInitializing.current = false;
       }
     }
 
@@ -75,7 +63,7 @@ export function AppInitializer({ children }: IProps) {
     return () => {
       isMounted = false;
     };
-  }, [admin, setTheme, setAdmin, loadAppSettings, loadDashboardSettings, loadNotificationsSettings]);
+  }, [setTheme, setAdmin]);
 
   if (!isInitialized) {
     return null;
