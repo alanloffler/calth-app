@@ -19,6 +19,7 @@ import { AuthService } from "@auth/services/auth.service";
 import { cn } from "@core/lib/utils";
 import { loginSchema } from "@login/schemas/login.schema";
 import { useAuthStore } from "@auth/stores/auth.store";
+import { useSettingsStore } from "@settings/stores/settings.store";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
@@ -60,6 +61,12 @@ export function LoginForm({ className, type }: IProps) {
       if (userResponse && userResponse.statusCode === 200) {
         useAuthStore.getState().setAdmin(userResponse.data);
         useAuthStore.getState().setType(loginResponse.data?.type as TAuthType);
+
+        const { loadAppSettings, loadDashboardSettings, loadNotificationsSettings } = useSettingsStore.getState();
+        await loadAppSettings();
+        await loadDashboardSettings();
+        await loadNotificationsSettings(true);
+
         toast.success(`Bienvenido ${userResponse.data?.firstName} ${userResponse.data?.lastName}`);
         navigate("/dashboard");
       }
