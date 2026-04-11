@@ -2,11 +2,16 @@ import { Moon, SunMedium } from "lucide-react";
 
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 
+import { cn } from "@core/lib/utils";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useSettingsStore } from "@settings/stores/settings.store";
 import { useTheme } from "@core/providers/theme-provider";
 
-export function ModeToggle() {
+interface IProps {
+  className?: string;
+}
+
+export function ModeToggle({ className }: IProps) {
   const admin = useAuthStore((state) => state.admin);
   const { appSettings, updateAppSetting } = useSettingsStore();
   const { setTheme, theme } = useTheme();
@@ -27,7 +32,10 @@ export function ModeToggle() {
       checked={theme === "dark"}
       onCheckedChange={(checked) => handleThemeChange(checked ? "dark" : "light")}
       data-slot="switch"
-      className="peer data-[state=checked]:bg-secondary data-[state=unchecked]:bg-secondary focus-visible:border-ring focus-visible:ring-ring/50 dark:data-[state=unchecked]:bg-secondary inline-flex h-8 w-14 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+      className={cn(
+        "peer data-[state=checked]:bg-secondary data-[state=unchecked]:bg-secondary focus-visible:border-ring focus-visible:ring-ring/50 dark:data-[state=unchecked]:bg-secondary inline-flex h-8 w-14 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
     >
       <SwitchPrimitive.Thumb
         data-slot="switch-thumb"
