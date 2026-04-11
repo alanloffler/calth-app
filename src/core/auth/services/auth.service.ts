@@ -21,7 +21,7 @@ class AuthModuleService {
   }
 
   public async signOut(): Promise<IApiResponse<null>> {
-    const response = await apiClient.get<IApiResponse<null>>("/auth/logout");
+    const response = await apiClient.post<IApiResponse<null>>("/auth/logout");
     return response.data;
   }
 
