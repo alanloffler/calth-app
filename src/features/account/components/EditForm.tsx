@@ -280,7 +280,7 @@ export function EditForm() {
                       {passwordField ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
                     </button>
                   </div>
-                  {fieldState.invalid && true && <FieldError errors={[{ message: "fieldState.error" }]} />}
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
