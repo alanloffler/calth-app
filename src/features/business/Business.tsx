@@ -32,7 +32,7 @@ export default function Business() {
     if (response && response.statusCode === 200 && response.data) {
       setBusiness(response.data);
     }
-  }, [tryCatchBusiness]);
+  }, [admin, tryCatchBusiness]);
 
   useEffect(() => {
     fetchBusiness();
