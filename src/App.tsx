@@ -1,8 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { lazy, Suspense } from "react";
 
-import { useSettingsStore } from "@settings/stores/settings.store";
-
 import { AdminLogin } from "@login/AdminLogin";
 import { AppInitializer } from "@auth/components/AppInitializer";
 import { GuestRoute } from "@auth/components/GuestRoute";
@@ -11,6 +9,7 @@ import { ProtectedLayout } from "@auth/components/ProtectedLayout";
 import { ProtectedRoute } from "@auth/components/ProtectedRoute";
 import { Toaster } from "@components/ui/sonner";
 import { UserLogin } from "@login/UserLogin";
+import { useTheme } from "@core/providers/theme-provider";
 
 const Dashboard = lazy(() => import("./features/dashboard/Dashboard"));
 
@@ -488,8 +487,7 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  const settings = useSettingsStore((state) => state.appSettings);
-  const theme = settings.find((s) => s.key === "theme")?.value as "light" | "dark" | "system";
+  const { theme } = useTheme();
 
   return (
     <AppInitializer>
