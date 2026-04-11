@@ -1,7 +1,5 @@
-import { Download } from "lucide-react";
-
-import { Button } from "@components/ui/button";
 import { Card, CardContent } from "@components/ui/card";
+import { QRCodeGenerator } from "@components/QRCodeGenerator";
 
 import type { IBusiness } from "@business/interfaces/business.interface";
 import { formatPhone } from "@core/formatters/phone.formatter";
@@ -39,13 +37,7 @@ export function ContactCard({ business, className }: IProps) {
               </li>
             )}
           </ul>
-          <div className="flex flex-col items-center justify-center gap-2">
-            <div className="flex size-36 items-center justify-center bg-gray-100">QR Code</div>
-            <Button size="sm" variant="outline">
-              <Download />
-              Descargar
-            </Button>
-          </div>
+          <QRCodeGenerator value="https://centro.calth.app" />
         </div>
       </CardContent>
     </Card>
