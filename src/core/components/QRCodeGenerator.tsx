@@ -1,4 +1,4 @@
-import { Download } from "lucide-react";
+import { Download, Share2 } from "lucide-react";
 
 import { Button } from "@core/components/ui/button";
 
@@ -59,14 +59,20 @@ export function QRCodeGenerator({ value }: IProps) {
   // TODO: helper png generation, then share with email and whatsapp
 
   return (
-    <div className="flex flex-col items-center justify-center gap-2">
+    <div className="flex flex-col items-center justify-center gap-3">
       <div className="bg-accent flex h-fit w-fit items-center justify-center rounded-lg p-4">
         <canvas ref={canvasRef} />
       </div>
-      <Button onClick={handleDownload} size="sm" variant="outline">
-        <Download />
-        Descargar
-      </Button>
+      <div className="flex items-center gap-3">
+        <Button onClick={handleDownload} size="sm" variant="outline">
+          <Download />
+          Descargar
+        </Button>
+        <Button size="sm" variant="outline">
+          <Share2 />
+          Compartir
+        </Button>
+      </div>
     </div>
   );
 }
