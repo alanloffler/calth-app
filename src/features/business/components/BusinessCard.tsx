@@ -2,6 +2,7 @@ import { Card, CardContent } from "@components/ui/card";
 
 import type { IBusiness } from "@business/interfaces/business.interface";
 import { formatTaxId } from "@core/formatters/tax-id.formatter";
+import { getCountry } from "@core/utils/getCountry";
 
 interface IProps {
   business: IBusiness;
@@ -28,7 +29,7 @@ export function BusinessCard({ business, className }: IProps) {
           </li>
           <li className="flex justify-start gap-3">
             <h3 className="font-medium">Dirección:</h3>
-            <span>{`${business.street}, ${business.city}, ${business.province}, ${business.zipCode}`}</span>
+            <span>{`${business.street}, ${business.city}, ${business.province}, ${business.zipCode}, ${getCountry(business.country)}`}</span>
           </li>
         </ul>
       </CardContent>
