@@ -39,6 +39,7 @@ async function drawQRCode(canvas: HTMLCanvasElement, value: string, tempCanvas: 
 
 export function QRCodeGenerator({ value }: IProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const [qrBase64, setQrBase64] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const tempCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -70,6 +71,11 @@ export function QRCodeGenerator({ value }: IProps) {
   }, [value]);
 
   const handleOpenShare = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const base64 = canvas.toDataURL("image/png");
+    setQrBase64(base64);
     setOpen(true);
   }, []);
 
@@ -90,7 +96,7 @@ export function QRCodeGenerator({ value }: IProps) {
           </Button>
         </div>
       </div>
-      <ShareModal open={open} setOpen={setOpen} />
+      <ShareModal image={qrBase64} open={open} setOpen={setOpen} />
     </>
   );
 }
