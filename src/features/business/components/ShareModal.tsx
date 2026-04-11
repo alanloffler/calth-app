@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@components/ui/dialog";
 import { Input } from "@components/ui/input";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import type { Dispatch, SetStateAction } from "react";
 
@@ -35,9 +36,14 @@ export function ShareModal({ image, open, setOpen }: IProps) {
             </div>
             <div className="flex items-center gap-3">
               <Input className="" placeholder="Ingresar email" />
-              <Button variant="outline">
-                <Send />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline">
+                    <Send />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Enviar</TooltipContent>
+              </Tooltip>
             </div>
           </div>
           {/* TODO: add tooltips */}
