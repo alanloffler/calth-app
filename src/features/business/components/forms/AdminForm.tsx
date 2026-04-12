@@ -31,9 +31,9 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
 
   // TODO: find by value === superadmin
   // Nest.js
-  // const roleId = "ac854a41-5862-423d-90b1-942f7d8e5f27";
+  const roleId = "ac854a41-5862-423d-90b1-942f7d8e5f27";
   // Go
-  const roleId = "b290a964-2028-4004-a960-6ea400a32d70";
+  // const roleId = "b290a964-2028-4004-a960-6ea400a32d70";
 
   const adminForm = useForm<AdminFormValues>({
     resolver: zodResolver(createAdminSchema),
@@ -69,12 +69,12 @@ export function AdminForm({ setIsValid, formId, onStepComplete, onSubmit }: IPro
 
   function completeForm(): void {
     adminForm.reset({
-      email: "vanesa@gmail.com",
-      firstName: "Vanesa",
-      ic: "29100200",
-      lastName: "Suárez",
-      phoneNumber: "3757998877",
-      userName: "@vanesa",
+      email: "alanmatiasloffler@gmail.com",
+      firstName: "Alan",
+      ic: "29007358",
+      lastName: "Löffler",
+      phoneNumber: "3764692898",
+      userName: "@alan",
       password: "admin123",
       roleId: roleId,
     });
