@@ -142,7 +142,7 @@ export function BusinessForm({ setIsValid, formId, onStepComplete, onSubmit }: I
       country: "AR",
       zipCode: "3376",
       slug: "clinicawanda",
-      timezone: "",
+      timezone: "America/Argentina/Buenos_Aires",
     });
   }
 
