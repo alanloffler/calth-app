@@ -3,12 +3,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: "Inter";
+  src: url("./assets/fonts/InterVariable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: "Inter", system-ui, ui-sans-serif, sans-serif;
+}
+
 :root {
-  font-family: Inter, system-ui, sans-serif;
-  font-feature-settings:
-    "liga" 1,
-    "calt" 1;
-  /*"cv11" 1;*/
   line-height: 1.5;
   font-weight: 400;
 
@@ -65,12 +72,6 @@
   --recurrent: oklch(0.667 0.295 322.15); /* fuchsia-500 */
   --font-size-xxs: 0.625rem; /* 10px */
   --font-size-xxs--line-height: 1.5; /* 15px */
-}
-
-@supports (font-variation-settings: normal) {
-  :root {
-    font-family: InterVariable, sans-serif;
-  }
 }
 
 html,
@@ -192,6 +193,16 @@ body {
 }
 
 @layer base {
+  html {
+    font-family: var(--font-sans);
+    font-feature-settings:
+      "liga" 1,
+      "calt" 1;
+    /*"cv11" 1;*/
+    --webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
