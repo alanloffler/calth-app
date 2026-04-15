@@ -54,7 +54,7 @@ export function ContactForm({ setIsValid, formId, onStepComplete, onSubmit }: IP
 
   function completeForm(): void {
     contactForm.reset({
-      email: "alanmatiasloffler@gmail.com",
+      email: "alanloffler@gmail.com",
       phoneNumber: "3757470101",
       whatsAppNumber: "3757101010",
     });
