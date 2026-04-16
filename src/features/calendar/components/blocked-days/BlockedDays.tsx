@@ -7,6 +7,7 @@ import { DataTable } from "@components/data-table/DataTable";
 import { Field, FieldError } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
+import { SortableHeader } from "@components/data-table/SortableHeader";
 
 import z from "zod";
 import { es } from "react-day-picker/locale";
@@ -27,22 +28,30 @@ export function BlockedDays({ userId }: IProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   const blockedDays = [
-    { date: "2026-03-06T00:00:00-03:00", reason: "Blocked day" },
-    { date: "2026-03-06T00:00:00-03:00", reason: "Blocked day" },
-    { date: "2026-03-06T00:00:00-03:00", reason: "Blocked day" },
-    { date: "2026-03-06T00:00:00-03:00", reason: "Blocked day" },
-    { date: "2026-03-06T00:00:00-03:00", reason: "Blocked day" },
-    { date: "2026-03-06T00:00:00-03:00", reason: "Blocked day" },
+    { date: "2026-03-06T00:00:00-03:00", reason: "Blocked day 3" },
+    { date: "2026-03-07T00:00:00-03:00", reason: "Blocked day 4" },
+    { date: "2026-03-08T00:00:00-03:00", reason: "Blocked day 5" },
+    { date: "2026-03-09T00:00:00-03:00", reason: "Blocked day 6" },
+    { date: "2026-03-05T00:00:00-03:00", reason: "Blocked day 2" },
+    { date: "2026-03-04T00:00:00-03:00", reason: "Blocked day 1" },
   ];
   const columns: ColumnDef<{ date: string; reason: string }>[] = [
     {
       accessorKey: "date",
-      header: "Date",
+      header: ({ column }) => (
+        <SortableHeader alignment="left" column={column}>
+          Fecha bloqueada
+        </SortableHeader>
+      ),
       cell: ({ row }) => format(row.original.date, "P", { locale: esDateFns }),
     },
     {
       accessorKey: "reason",
-      header: "Reason",
+      header: ({ column }) => (
+        <SortableHeader alignment="left" column={column}>
+          Motivo
+        </SortableHeader>
+      ),
     },
   ];
 
@@ -121,6 +130,7 @@ export function BlockedDays({ userId }: IProps) {
         className="**:data-[slot=table-container]:min-h-58"
         columns={columns}
         data={blockedDays}
+        defaultSorting={[{ id: "date", desc: false }]}
         searchable={false}
       />
     </section>
