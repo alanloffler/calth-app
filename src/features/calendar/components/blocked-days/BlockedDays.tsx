@@ -17,11 +17,15 @@ import z from "zod";
 import { es as esDateFns } from "date-fns/locale";
 import { es } from "react-day-picker/locale";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { CalendarService } from "@calendar/services/calendar.service";
 import { blockedDaysSchema } from "@calendar/schemas/blocked-days.schema";
+import { queryClient } from "@core/lib/query-client";
 
 interface IProps {
   userId: string;
@@ -122,13 +126,25 @@ export function BlockedDays({ userId }: IProps) {
     },
   });
 
-  function onSubmit(data: z.infer<typeof blockedDaysSchema>) {
-    console.log(data);
-  }
+  const { mutate: createBlockedDay, isPending } = useMutation({
+    mutationKey: ["blocked-days", "create"],
+    mutationFn: (data: z.infer<typeof blockedDaysSchema>) => CalendarService.createBlockedDay(data),
+    onSuccess: (response) => {
+      if (response.statusCode === 201) {
+        toast.success(response.message);
+        queryClient.invalidateQueries({ queryKey: ["blocked-days", userId] });
+        form.reset();
+      }
+    },
+  });
 
   return (
     <section className="flex flex-col gap-6">
-      <form className="flex items-start gap-4" id="create-blocked-day" onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        className="flex items-start gap-4"
+        id="create-blocked-day"
+        onSubmit={form.handleSubmit((data) => createBlockedDay(data))}
+      >
         <Controller
           name="date"
           control={form.control}
@@ -178,7 +194,7 @@ export function BlockedDays({ userId }: IProps) {
           )}
         />
         <div>
-          <Button form="create-blocked-day" size="default" type="submit" variant="outline">
+          <Button disabled={isPending} form="create-blocked-day" size="default" type="submit" variant="outline">
             <Plus />
             Crear
           </Button>
