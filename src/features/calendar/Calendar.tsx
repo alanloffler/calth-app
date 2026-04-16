@@ -194,7 +194,7 @@ export default function Calendar() {
 
   return (
     <>
-      <div className="flex h-screen flex-col gap-8">
+      <div className="flex flex-1 flex-col gap-8">
         <div className="flex items-center gap-4">
           <Select
             disabled={!professionals}
