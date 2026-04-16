@@ -20,6 +20,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { blockedDaysSchema } from "@calendar/schemas/blocked-days.schema";
+import { Badge } from "@components/Badge";
 
 interface IProps {
   userId: string;
@@ -29,19 +30,32 @@ export function BlockedDays({ userId }: IProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   const blockedDays = [
-    { date: "2026-03-06T00:00:00-03:00", reason: "Blocked day 3" },
-    { date: "2026-03-07T00:00:00-03:00", reason: "Blocked day 4" },
-    { date: "2026-03-08T00:00:00-03:00", reason: "Blocked day 5" },
-    { date: "2026-03-09T00:00:00-03:00", reason: "Blocked day 6" },
-    { date: "2026-03-05T00:00:00-03:00", reason: "Blocked day 2" },
-    { date: "2026-03-04T00:00:00-03:00", reason: "Blocked day 1" },
+    { id: "a9vd90fvd9fva98x0c9v9xz", date: "2026-03-06T00:00:00-03:00", reason: "Blocked day 3" },
+    { id: "b9vd90fvd9fva98x0c9v9xz", date: "2026-03-07T00:00:00-03:00", reason: "Blocked day 4" },
+    { id: "c9vd90fvd9fva98x0c9v9xz", date: "2026-03-08T00:00:00-03:00", reason: "Blocked day 5" },
+    { id: "d9vd90fvd9fva98x0c9v9xz", date: "2026-03-09T00:00:00-03:00", reason: "Blocked day 6" },
+    { id: "39vd90fvd9fva98x0c9v9xz", date: "2026-03-05T00:00:00-03:00", reason: "Blocked day 2" },
+    { id: "f9vd90fvd9fva98x0c9v9xz", date: "2026-03-04T00:00:00-03:00", reason: "Blocked day 1" },
   ];
-  const columns: ColumnDef<{ date: string; reason: string }>[] = [
+  const columns: ColumnDef<{ id: string; date: string; reason: string }>[] = [
+    {
+      accessorKey: "id",
+      header: ({ column }) => (
+        <SortableHeader alignment="center" column={column}>
+          ID
+        </SortableHeader>
+      ),
+      cell: ({ row }) => (
+        <div className="text-center">
+          <Badge variant="id">{row.original.id.slice(0, 5)}</Badge>
+        </div>
+      ),
+    },
     {
       accessorKey: "date",
       header: ({ column }) => (
         <SortableHeader alignment="left" column={column}>
-          Fecha bloqueada
+          Fecha
         </SortableHeader>
       ),
       cell: ({ row }) => format(row.original.date, "P", { locale: esDateFns }),
