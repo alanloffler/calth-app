@@ -155,9 +155,7 @@ export function DataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
-        {!loading && (
-          <Pagination table={table} setPagination={setPagination} pagination={pagination} pageSizes={pageSizes} />
-        )}
+        {!loading && <Pagination table={table} pageSizes={pageSizes} />}
       </div>
     </div>
   );
