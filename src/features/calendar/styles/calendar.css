@@ -203,12 +203,6 @@
   width: fit-content !important;
 }
 
-/*.rbc-event:hover {
-  background-color: var(--event-bg-hover, var(--color-event-hover)) !important;
-  border-color: var(--event-bg-hover, var(--color-event-hover)) !important;
-  transition: all 0.2s ease-out;
-}*/
-
 .rbc-event:focus {
   background-color: var(--event-bg-hover, var(--color-event-hover)) !important;
   outline: none !important;
