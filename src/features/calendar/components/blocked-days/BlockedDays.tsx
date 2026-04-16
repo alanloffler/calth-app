@@ -19,7 +19,7 @@ import { es } from "react-day-picker/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -34,14 +34,13 @@ interface IProps {
 export function BlockedDays({ userId }: IProps) {
   const [open, setOpen] = useState<boolean>(false);
 
-  const blockedDays = [
-    { id: "a9vd90fvd9fva98x0c9v9xz", date: "2026-03-06T00:00:00-03:00", reason: "Blocked day 3" },
-    { id: "b9vd90fvd9fva98x0c9v9xz", date: "2026-03-07T00:00:00-03:00", reason: "Blocked day 4" },
-    { id: "c9vd90fvd9fva98x0c9v9xz", date: "2026-03-08T00:00:00-03:00", reason: "Blocked day 5" },
-    { id: "d9vd90fvd9fva98x0c9v9xz", date: "2026-03-09T00:00:00-03:00", reason: "Blocked day 6" },
-    { id: "39vd90fvd9fva98x0c9v9xz", date: "2026-03-05T00:00:00-03:00", reason: "Blocked day 2" },
-    { id: "f9vd90fvd9fva98x0c9v9xz", date: "2026-03-04T00:00:00-03:00", reason: "Blocked day 1" },
-  ];
+  // TODO: handle isLoading on screen
+  const { data: blockedDays = [] } = useQuery({
+    queryKey: ["blocked-days", userId],
+    queryFn: () => CalendarService.findAllBlockedDays(userId),
+    select: (response) => response.data,
+  });
+
   const columns: ColumnDef<{ id: string; date: string; reason: string }>[] = [
     {
       accessorKey: "id",
@@ -126,6 +125,7 @@ export function BlockedDays({ userId }: IProps) {
     },
   });
 
+  // TODO: handle isPending on button icon
   const { mutate: createBlockedDay, isPending } = useMutation({
     mutationKey: ["blocked-days", "create"],
     mutationFn: (data: z.infer<typeof blockedDaysSchema>) => CalendarService.createBlockedDay(data),
