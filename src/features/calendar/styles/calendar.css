@@ -192,6 +192,10 @@
   text-overflow: ellipsis;
 }
 
+.rbc-event {
+  padding-left: 0 !important;
+}
+
 .rbc-row .rbc-event {
   margin: 0px 4px !important;
   width: 100% !important;
@@ -209,9 +213,6 @@
 }
 
 .rbc-event-label {
-  /*font-size: 11px !important;
-  font-weight: 400;
-  line-height: 14px !important;*/
   display: none !important;
 }
 
