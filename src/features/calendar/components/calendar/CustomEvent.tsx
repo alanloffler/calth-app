@@ -8,7 +8,8 @@ export function CustomEvent({ event, view }: { event: ICalendarEvent; view: TVie
   return (
     // <div className={cn("flex items-start gap-1", view === "month" ? "flex-row" : "flex-col")}>
     <div className={cn("flex flex-row items-start gap-1")}>
-      <div className={cn("flex w-full items-center gap-1", view === "week" ? "justify-between" : "justify-start")}>
+      {/*<div className={cn("flex w-full items-center gap-1", view === "week" ? "justify-between" : "justify-start")}>*/}
+      <div className={cn("flex w-full items-center justify-start gap-1")}>
         {event.recurrentId && (
           <span
             className={cn(
