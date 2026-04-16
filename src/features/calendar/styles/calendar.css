@@ -63,7 +63,6 @@
   min-height: 27px !important;
 }
 
-
 .rbc-events-container {
   margin-right: 0 !important;
 }
@@ -73,7 +72,6 @@
   background: transparent !important;
   border: none !important;
   padding: 6px 4px 4px 6px !important;
-  margin: 0 !important;
 }
 
 .rbc-events-container .rbc-event::before {
@@ -87,15 +85,19 @@
   z-index: 0;
 }
 
-.rbc-events-container .rbc-event:hover::before {
-  background: var(--event-bg-hover, var(--color-event-hover));
-  border-color: var(--event-bg-hover, var(--color-event-hover));
+.rbc-events-container .rbc-event:hover::before,
+.rbc-row-segment .rbc-event:hover {
+  background: var(--event-bg-hover, var(--color-event-hover)) !important;
+  border-color: var(--event-bg-hover, var(--color-event-hover)) !important;
+  transition: all 0.2s ease-out;
 }
 
 .rbc-events-container .rbc-event-label,
 .rbc-events-container .rbc-event-content {
   position: relative;
   z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 /* Day slot off range */
@@ -201,11 +203,11 @@
   width: fit-content !important;
 }
 
-.rbc-event:hover {
+/*.rbc-event:hover {
   background-color: var(--event-bg-hover, var(--color-event-hover)) !important;
   border-color: var(--event-bg-hover, var(--color-event-hover)) !important;
   transition: all 0.2s ease-out;
-}
+}*/
 
 .rbc-event:focus {
   background-color: var(--event-bg-hover, var(--color-event-hover)) !important;
