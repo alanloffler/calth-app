@@ -1,4 +1,4 @@
-import { Calendar1, Plus } from "lucide-react";
+import { Calendar1, FilePenLine, Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
@@ -7,18 +7,19 @@ import { DataTable } from "@components/data-table/DataTable";
 import { Field, FieldError } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
+import { Protected } from "@auth/components/Protected";
 import { SortableHeader } from "@components/data-table/SortableHeader";
 
+import type { ColumnDef } from "@tanstack/react-table";
 import z from "zod";
-import { es } from "react-day-picker/locale";
 import { es as esDateFns } from "date-fns/locale";
+import { es } from "react-day-picker/locale";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { blockedDaysSchema } from "@calendar/schemas/blocked-days.schema";
-import type { ColumnDef } from "@tanstack/react-table";
 
 interface IProps {
   userId: string;
@@ -51,6 +52,38 @@ export function BlockedDays({ userId }: IProps) {
         <SortableHeader alignment="left" column={column}>
           Motivo
         </SortableHeader>
+      ),
+    },
+    {
+      id: "actions",
+      minSize: 168,
+      cell: ({ row }) => (
+        <div className="flex justify-end gap-2">
+          <Protected requiredPermission="patient-update">
+            <Button
+              className="hover:text-edit"
+              onClick={() => {
+                console.log(`edit ${row.original.date}`);
+              }}
+              size="icon-sm"
+              variant="outline"
+            >
+              <FilePenLine className="h-4 w-4" />
+            </Button>
+          </Protected>
+          <Protected requiredPermission="patient-update">
+            <Button
+              className="hover:text-delete"
+              onClick={() => {
+                console.log(`delete ${row.original.date}`);
+              }}
+              size="icon-sm"
+              variant="outline"
+            >
+              <Trash2 />
+            </Button>
+          </Protected>
+        </div>
       ),
     },
   ];
@@ -127,7 +160,7 @@ export function BlockedDays({ userId }: IProps) {
         </div>
       </form>
       <DataTable
-        className="**:data-[slot=table-container]:min-h-58"
+        className="**:data-[slot=table-container]:min-h-75"
         columns={columns}
         data={blockedDays}
         defaultSorting={[{ id: "date", desc: false }]}
