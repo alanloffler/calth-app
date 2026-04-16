@@ -1,5 +1,6 @@
 import { Calendar1, FilePenLine, Plus, Trash2 } from "lucide-react";
 
+import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import { Controller } from "react-hook-form";
@@ -9,6 +10,7 @@ import { Input } from "@components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { Protected } from "@auth/components/Protected";
 import { SortableHeader } from "@components/data-table/SortableHeader";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import type { ColumnDef } from "@tanstack/react-table";
 import z from "zod";
@@ -20,7 +22,6 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { blockedDaysSchema } from "@calendar/schemas/blocked-days.schema";
-import { Badge } from "@components/Badge";
 
 interface IProps {
   userId: string;
@@ -74,28 +75,38 @@ export function BlockedDays({ userId }: IProps) {
       cell: ({ row }) => (
         <div className="flex justify-end gap-2">
           <Protected requiredPermission="patient-update">
-            <Button
-              className="hover:text-edit"
-              onClick={() => {
-                console.log(`edit ${row.original.date}`);
-              }}
-              size="icon-sm"
-              variant="outline"
-            >
-              <FilePenLine className="h-4 w-4" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  className="hover:text-edit"
+                  onClick={() => {
+                    console.log(`edit ${row.original.date}`);
+                  }}
+                  size="icon-sm"
+                  variant="outline"
+                >
+                  <FilePenLine className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Editar</TooltipContent>
+            </Tooltip>
           </Protected>
           <Protected requiredPermission="patient-update">
-            <Button
-              className="hover:text-delete"
-              onClick={() => {
-                console.log(`delete ${row.original.date}`);
-              }}
-              size="icon-sm"
-              variant="outline"
-            >
-              <Trash2 />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  className="hover:text-delete"
+                  onClick={() => {
+                    console.log(`delete ${row.original.date}`);
+                  }}
+                  size="icon-sm"
+                  variant="outline"
+                >
+                  <Trash2 />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Eliminar</TooltipContent>
+            </Tooltip>
           </Protected>
         </div>
       ),
