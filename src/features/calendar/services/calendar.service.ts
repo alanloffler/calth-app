@@ -5,6 +5,7 @@ import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interfa
 import type { TEventStatus } from "@calendar/enums/event-status.enum";
 import type { eventSchema } from "@calendar/schemas/event.schema";
 import { apiClient } from "@core/client/client";
+import { blockedDaysSchema } from "@calendar/schemas/blocked-days.schema";
 
 class CalendarModuleService {
   private static instance: CalendarModuleService;
@@ -88,6 +89,24 @@ class CalendarModuleService {
     return response.data;
   }
 
+  // Blocked days => professional calendar config
+  // TODO: type api response
+  public async createBlockedDay(data: z.infer<typeof blockedDaysSchema>): Promise<IApiResponse<any>> {
+    const response = await apiClient.post(`/blocked-days`, data);
+    return response.data;
+  }
+
+  public async updateBlockedDay(id: string, data: z.infer<typeof blockedDaysSchema>): Promise<IApiResponse<any>> {
+    const response = await apiClient.patch(`/blocked-days/${id}`, data);
+    return response.data;
+  }
+
+  public async findAllBlockedDays(): Promise<IApiResponse<any>> {
+    const response = await apiClient.get(`/blocked-days`);
+    return response.data;
+  }
+
+  // Private helpers
   private toDate(events: ICalendarEvent[]) {
     if (events) {
       return events.map((event: any) => ({
