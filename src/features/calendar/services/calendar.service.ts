@@ -101,8 +101,8 @@ class CalendarModuleService {
     return response.data;
   }
 
-  public async findAllBlockedDays(): Promise<IApiResponse<any>> {
-    const response = await apiClient.get(`/blocked-days`);
+  public async findAllBlockedDays(id: string): Promise<IApiResponse<any>> {
+    const response = await apiClient.get(`/blocked-days/${id}`);
     return response.data;
   }
 
