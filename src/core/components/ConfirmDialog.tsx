@@ -72,10 +72,9 @@ export function ConfirmDialog({
             Cancelar
           </Button>
           <Button
-            disabled={showAlert && !accepted}
+            disabled={(showAlert && !accepted) || loader}
             onClick={() => {
               callback();
-              setOpen(false);
             }}
             variant={variant}
           >
