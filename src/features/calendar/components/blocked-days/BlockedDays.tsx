@@ -152,8 +152,11 @@ export function BlockedDays({ userId }: IProps) {
       if (response.statusCode === 200) {
         toast.success(response.message);
         queryClient.invalidateQueries({ queryKey: ["blocked-days", userId] });
-        setOpenRemoveHardDialog(false);
       }
+    },
+    onSettled: () => {
+      setSelectedBlockedDay(null);
+      setOpenRemoveHardDialog(false);
     },
   });
 
