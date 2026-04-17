@@ -54,11 +54,13 @@ export default function Permissions() {
 
     if (error) {
       toast.error(error.message);
+      setOpenRemoveDialog(false);
       return;
     }
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
+      setOpenRemoveDialog(false);
       await refreshAdmin();
       fetchPermissions();
     }
@@ -69,11 +71,13 @@ export default function Permissions() {
 
     if (error) {
       toast.error(error.message);
+      setOpenRestoreDialog(false);
       return;
     }
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
+      setOpenRestoreDialog(false);
       await refreshAdmin();
       fetchPermissions();
     }
@@ -84,11 +88,13 @@ export default function Permissions() {
 
     if (error) {
       toast.error(error.message);
+      setOpenRemoveHardDialog(false);
       return;
     }
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
+      setOpenRemoveHardDialog(false);
       await refreshAdmin();
       fetchPermissions();
     }
