@@ -4,7 +4,7 @@ import { Activity } from "react";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
-import { ConfirmDialog } from "@components/ConfirmDialog";
+import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { CreateHistorySheet } from "@medical-history/components/sheets/CreateHistorySheet";
 import { CreatedAt } from "@components/CreatedAt";
 import { DisplayWorkingDays } from "@components/DisplayWorkingDays";

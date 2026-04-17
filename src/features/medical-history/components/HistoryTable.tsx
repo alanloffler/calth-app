@@ -3,7 +3,7 @@ import { X, Check, FilePenLine, FileText, Trash2, RotateCcw, Ban } from "lucide-
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
-import { ConfirmDialog } from "@components/ConfirmDialog";
+import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { DataTable } from "@components/data-table/DataTable";
 import { EditHistorySheet } from "@medical-history/components/sheets/EditHistorySheet";
 import { EventDetailsDialog } from "@calendar/components/EventDetailsDialog";

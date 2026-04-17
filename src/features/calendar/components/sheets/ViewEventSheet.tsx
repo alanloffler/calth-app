@@ -6,7 +6,7 @@ import { Activity } from "react";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
-import { ConfirmDialog } from "@components/ConfirmDialog";
+import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@components/ui/dropdown-menu";
 import { EditEventSheet } from "@calendar/components/sheets/EditEventSheet";
 import { EventStatus } from "@calendar/components/ui/EventStatus";

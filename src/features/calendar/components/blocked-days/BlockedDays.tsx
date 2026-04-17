@@ -3,7 +3,7 @@ import { Calendar1, FilePenLine, Plus, Trash2 } from "lucide-react";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
-import { ConfirmDialog } from "@components/ConfirmDialog";
+import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { Controller } from "react-hook-form";
 import { DataTable } from "@components/data-table/DataTable";
 import { Field, FieldError } from "@components/ui/field";

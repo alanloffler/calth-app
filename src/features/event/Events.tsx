@@ -2,7 +2,7 @@ import { FilePenLine, FileText, Plus, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
-import { ConfirmDialog } from "@components/ConfirmDialog";
+import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { DataTablePaginated } from "@components/data-table/DataTablePaginated";
 import { EventStatus } from "@calendar/components/ui/EventStatus";
 import { Filters } from "@event/components/Filters";

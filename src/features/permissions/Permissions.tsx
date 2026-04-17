@@ -2,7 +2,7 @@ import { Ban, FilePenLine, FileText, Plus, RotateCcw, Trash2 } from "lucide-reac
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
-import { ConfirmDialog } from "@components/ConfirmDialog";
+import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { DataTable } from "@components/data-table/DataTable";
 import { Link } from "react-router";
 import { PageHeader } from "@components/pages/PageHeader";
