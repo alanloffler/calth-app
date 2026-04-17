@@ -114,12 +114,14 @@ export default function ViewUser() {
 
     if (error) {
       toast.error(error.message);
+      setOpenRemoveDialog(false);
       return;
     }
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
       findOneUser(id);
+      setOpenRemoveDialog(false);
     }
   }
 
@@ -129,9 +131,11 @@ export default function ViewUser() {
     if (error) {
       if (error.status === 409) {
         toast.warning(error.message);
+        setOpenRemoveHardDialog(false);
         return;
       } else {
         toast.error(error.message);
+        setOpenRemoveHardDialog(false);
         return;
       }
     }
@@ -147,12 +151,14 @@ export default function ViewUser() {
 
     if (error) {
       toast.error(error.message);
+      setOpenRestoreDialog(false);
       return;
     }
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
       findOneUser(id);
+      setOpenRestoreDialog(false);
     }
   }
 
