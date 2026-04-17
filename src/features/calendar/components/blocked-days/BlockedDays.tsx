@@ -4,7 +4,7 @@ import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import { ConfirmDialog } from "@components/ConfirmDialog";
-import { Controller, set } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { DataTable } from "@components/data-table/DataTable";
 import { Field, FieldError } from "@components/ui/field";
 import { Input } from "@components/ui/input";
@@ -40,8 +40,7 @@ export function BlockedDays({ userId }: IProps) {
     null,
   );
 
-  // TODO: handle isLoading on screen
-  const { data: blockedDays = [] } = useQuery({
+  const { data: blockedDays = [], isLoading: isLoadingBlockedDays } = useQuery({
     queryKey: ["blocked-days", userId],
     queryFn: () => CalendarService.findAllBlockedDays(userId),
     select: (response) => response.data,
@@ -144,7 +143,6 @@ export function BlockedDays({ userId }: IProps) {
     },
   });
 
-  // TODO: handle isDeleting on button icon
   const { mutate: deleteBlockedDay, isPending: isRemovingHard } = useMutation({
     mutationKey: ["blocked-days", "delete"],
     mutationFn: (id: string) => CalendarService.deleteBlockedDay(id),
@@ -223,13 +221,17 @@ export function BlockedDays({ userId }: IProps) {
             </Button>
           </div>
         </form>
-        <DataTable
-          className="**:data-[slot=table-container]:min-h-75"
-          columns={columns}
-          data={blockedDays}
-          defaultSorting={[{ id: "date", desc: false }]}
-          searchable={false}
-        />
+        {isLoadingBlockedDays ? (
+          <Loader className="justify-center" color="black" text="Cargando días bloqueados" />
+        ) : (
+          <DataTable
+            className="**:data-[slot=table-container]:min-h-75"
+            columns={columns}
+            data={blockedDays}
+            defaultSorting={[{ id: "date", desc: false }]}
+            searchable={false}
+          />
+        )}
       </section>
       {selectedBlockedDay && (
         <ConfirmDialog
