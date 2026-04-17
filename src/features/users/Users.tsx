@@ -69,11 +69,13 @@ export default function Users() {
 
     if (error) {
       toast.error(error.message);
+      setOpenRemoveDialog(false);
       return;
     }
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
+      setOpenRemoveDialog(false);
       fetchUsers();
     }
   }
@@ -83,27 +85,29 @@ export default function Users() {
 
     if (error) {
       toast.error(error.message);
-
+      setOpenRestoreDialog(false);
       return;
     }
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
+      setOpenRestoreDialog(false);
       fetchUsers();
     }
   }
 
   async function hardRemoveUser(id: string): Promise<void> {
-    console.log("remove hard");
     const [response, error] = await tryCatchRemoveHard(UsersService.remove(id, role as TUserRole));
 
     if (error) {
       toast.error(error.message);
+      setOpenRemoveHardDialog(false);
       return;
     }
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
+      setOpenRemoveHardDialog(false);
       fetchUsers();
     }
   }
