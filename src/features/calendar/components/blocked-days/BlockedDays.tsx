@@ -162,10 +162,6 @@ export function BlockedDays({ userId }: IProps) {
     },
   });
 
-  function updateBlockedDay() {
-    alert("update blocked day");
-  }
-
   return (
     <>
       <section className="flex flex-col gap-6">
@@ -242,37 +238,39 @@ export function BlockedDays({ userId }: IProps) {
         )}
       </section>
       {selectedBlockedDay && (
-        <ConfirmDialog
-          title="Eliminar día bloqueado"
-          description="¿Seguro que querés eliminar este día bloqueado?"
-          alertMessage="El día bloqueado relacionado al profesional, será eliminado de la base de datos. Esta acción es irreversible."
-          callback={() => selectedBlockedDay && deleteBlockedDay(selectedBlockedDay.id)}
-          loader={isRemovingHard}
-          open={openRemoveHardDialog}
-          setOpen={setOpenRemoveHardDialog}
-          showAlert
-          variant="destructive"
-        >
-          <ul className="flex flex-col gap-1">
-            <li className="flex items-center gap-2">
-              <span className="font-semibold">Fecha:</span>
-              {format(selectedBlockedDay.date, "dd/MM/yyyy", { locale: es })}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="font-semibold">Motivo:</span>
-              {selectedBlockedDay.reason}
-            </li>
-          </ul>
-        </ConfirmDialog>
+        <>
+          <ConfirmDialog
+            title="Eliminar día bloqueado"
+            description="¿Seguro que querés eliminar este día bloqueado?"
+            alertMessage="El día bloqueado relacionado al profesional, será eliminado de la base de datos. Esta acción es irreversible."
+            callback={() => selectedBlockedDay && deleteBlockedDay(selectedBlockedDay.id)}
+            loader={isRemovingHard}
+            open={openRemoveHardDialog}
+            setOpen={setOpenRemoveHardDialog}
+            showAlert
+            variant="destructive"
+          >
+            <ul className="flex flex-col gap-1">
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Fecha:</span>
+                {format(selectedBlockedDay.date, "dd/MM/yyyy", { locale: es })}
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="font-semibold">Motivo:</span>
+                {selectedBlockedDay.reason}
+              </li>
+            </ul>
+          </ConfirmDialog>
+          <EditDialog title="Editar día bloqueado" open={openEditDialog} setOpen={setOpenEditDialog}>
+            <EditBlockedDayForm
+              blockedDay={selectedBlockedDay}
+              dayId={selectedBlockedDay.id}
+              professionalId={userId}
+              setOpen={setOpenEditDialog}
+            />
+          </EditDialog>
+        </>
       )}
-      <EditDialog
-        callback={() => updateBlockedDay()}
-        title="Editar día bloqueado"
-        open={openEditDialog}
-        setOpen={setOpenEditDialog}
-      >
-        <EditBlockedDayForm />
-      </EditDialog>
     </>
   );
 }
