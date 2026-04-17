@@ -84,6 +84,9 @@ export default function ViewRole() {
         queryClient.invalidateQueries({ queryKey: ["roles", "find-one"] });
       }
     },
+    onSettled: () => {
+      setOpenRemoveDialog(false);
+    },
   });
 
   const { mutate: removeHardRole, isPending: isRemovingHard } = useMutation({
@@ -96,6 +99,9 @@ export default function ViewRole() {
         navigate(-1);
       }
     },
+    onSettled: () => {
+      setOpenRemoveHardDialog(false);
+    },
   });
 
   const { mutate: restoreRole, isPending: isRestoring } = useMutation({
@@ -106,6 +112,9 @@ export default function ViewRole() {
         toast.success(response.message);
         queryClient.invalidateQueries({ queryKey: ["roles", "find-one"] });
       }
+    },
+    onSettled: () => {
+      setOpenRestoreDialog(false);
     },
   });
 
