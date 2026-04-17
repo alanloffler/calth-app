@@ -7,6 +7,7 @@ import { Controller } from "react-hook-form";
 import { DataTable } from "@components/data-table/DataTable";
 import { Field, FieldError } from "@components/ui/field";
 import { Input } from "@components/ui/input";
+import { Loader } from "@components/Loader";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { Protected } from "@auth/components/Protected";
 import { SortableHeader } from "@components/data-table/SortableHeader";
@@ -123,8 +124,7 @@ export function BlockedDays({ userId }: IProps) {
     },
   });
 
-  // TODO: handle isPending on button icon
-  const { mutate: createBlockedDay, isPending: isCreating } = useMutation({
+  const { mutate: createBlockedDay, isPending: isSaving } = useMutation({
     mutationKey: ["blocked-days", "create"],
     mutationFn: (data: z.infer<typeof blockedDaysSchema>) => CalendarService.createBlockedDay(data),
     onSuccess: (response) => {
@@ -136,6 +136,7 @@ export function BlockedDays({ userId }: IProps) {
     },
   });
 
+  // TODO: handle isDeleting on button icon
   const { mutate: deleteBlockedDay, isPending: isDeleting } = useMutation({
     mutationKey: ["blocked-days", "delete"],
     mutationFn: (id: string) => CalendarService.deleteBlockedDay(id),
@@ -203,8 +204,8 @@ export function BlockedDays({ userId }: IProps) {
           )}
         />
         <div>
-          <Button disabled={isCreating} form="create-blocked-day" size="default" type="submit" variant="outline">
-            <Plus />
+          <Button disabled={isSaving} form="create-blocked-day" size="default" type="submit" variant="outline">
+            {isSaving ? <Loader color="black" /> : <Plus />}
             Crear
           </Button>
         </div>
