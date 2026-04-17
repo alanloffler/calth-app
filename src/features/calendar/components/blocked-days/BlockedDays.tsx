@@ -6,6 +6,8 @@ import { Calendar } from "@components/ui/calendar";
 import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { Controller } from "react-hook-form";
 import { DataTable } from "@components/data-table/DataTable";
+import { EditBlockedDayForm } from "@calendar/components/blocked-days/EditBlockedDayForm";
+import { EditDialog } from "@components/dialogs/EditDialog";
 import { Field, FieldError } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 import { Loader } from "@components/Loader";
@@ -35,6 +37,7 @@ interface IProps {
 
 export function BlockedDays({ userId }: IProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [selectedBlockedDay, setSelectedBlockedDay] = useState<{ id: string; date: string; reason: string } | null>(
     null,
@@ -88,7 +91,8 @@ export function BlockedDays({ userId }: IProps) {
                 <Button
                   className="hover:text-edit"
                   onClick={() => {
-                    console.log(`edit ${row.original.date}`);
+                    setSelectedBlockedDay(row.original);
+                    setOpenEditDialog(true);
                   }}
                   size="icon-sm"
                   variant="outline"
@@ -157,6 +161,10 @@ export function BlockedDays({ userId }: IProps) {
       setOpenRemoveHardDialog(false);
     },
   });
+
+  function updateBlockedDay() {
+    alert("update blocked day");
+  }
 
   return (
     <>
@@ -257,6 +265,14 @@ export function BlockedDays({ userId }: IProps) {
           </ul>
         </ConfirmDialog>
       )}
+      <EditDialog
+        callback={() => updateBlockedDay()}
+        title="Editar día bloqueado"
+        open={openEditDialog}
+        setOpen={setOpenEditDialog}
+      >
+        <EditBlockedDayForm />
+      </EditDialog>
     </>
   );
 }
