@@ -210,6 +210,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
 
     if (error) {
       toast.error(error.message);
+      setOpenRemoveDialog(false);
       return;
     }
 
@@ -217,6 +218,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
       toast.success(response.message);
       onUpdated();
       setOpenSheet(false);
+      setOpenRemoveDialog(false);
     }
   }
 
@@ -227,12 +229,14 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
 
     if (error) {
       toast.error(error.message);
+      setOpenRestoreDialog(false);
       return;
     }
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
       onUpdated();
+      setOpenRestoreDialog(false);
     }
   }
 
@@ -243,12 +247,14 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
 
     if (error) {
       toast.error(error.message);
+      setOpenRemoveHardDialog(false);
       return;
     }
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
       onUpdated();
+      setOpenRemoveHardDialog(false);
     }
   }
 
