@@ -99,9 +99,7 @@ export function BlockedDays({ userId }: IProps) {
               <TooltipTrigger asChild>
                 <Button
                   className="hover:text-delete"
-                  onClick={() => {
-                    console.log(`delete ${row.original.date}`);
-                  }}
+                  onClick={() => deleteBlockedDay(row.original.id)}
                   size="icon-sm"
                   variant="outline"
                 >
@@ -126,7 +124,7 @@ export function BlockedDays({ userId }: IProps) {
   });
 
   // TODO: handle isPending on button icon
-  const { mutate: createBlockedDay, isPending } = useMutation({
+  const { mutate: createBlockedDay, isPending: isCreating } = useMutation({
     mutationKey: ["blocked-days", "create"],
     mutationFn: (data: z.infer<typeof blockedDaysSchema>) => CalendarService.createBlockedDay(data),
     onSuccess: (response) => {
@@ -134,6 +132,17 @@ export function BlockedDays({ userId }: IProps) {
         toast.success(response.message);
         queryClient.invalidateQueries({ queryKey: ["blocked-days", userId] });
         form.reset();
+      }
+    },
+  });
+
+  const { mutate: deleteBlockedDay, isPending: isDeleting } = useMutation({
+    mutationKey: ["blocked-days", "delete"],
+    mutationFn: (id: string) => CalendarService.deleteBlockedDay(id),
+    onSuccess: (response) => {
+      if (response.statusCode === 200) {
+        toast.success(response.message);
+        queryClient.invalidateQueries({ queryKey: ["blocked-days", userId] });
       }
     },
   });
@@ -194,7 +203,7 @@ export function BlockedDays({ userId }: IProps) {
           )}
         />
         <div>
-          <Button disabled={isPending} form="create-blocked-day" size="default" type="submit" variant="outline">
+          <Button disabled={isCreating} form="create-blocked-day" size="default" type="submit" variant="outline">
             <Plus />
             Crear
           </Button>
