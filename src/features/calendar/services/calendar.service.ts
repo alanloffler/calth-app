@@ -96,13 +96,18 @@ class CalendarModuleService {
     return response.data;
   }
 
+  public async findAllBlockedDays(id: string): Promise<IApiResponse<any>> {
+    const response = await apiClient.get(`/blocked-days/${id}`);
+    return response.data;
+  }
+
   public async updateBlockedDay(id: string, data: z.infer<typeof blockedDaysSchema>): Promise<IApiResponse<any>> {
     const response = await apiClient.patch(`/blocked-days/${id}`, data);
     return response.data;
   }
 
-  public async findAllBlockedDays(id: string): Promise<IApiResponse<any>> {
-    const response = await apiClient.get(`/blocked-days/${id}`);
+  public async deleteBlockedDay(id: string): Promise<IApiResponse<any>> {
+    const response = await apiClient.delete(`/blocked-days/${id}`);
     return response.data;
   }
 
