@@ -48,6 +48,10 @@ export default function Roles() {
         queryClient.invalidateQueries({ queryKey: ["roles", "list"] });
       }
     },
+    onSettled: () => {
+      setSelectedRole(undefined);
+      setOpenRemoveDialog(false);
+    },
   });
 
   const { mutate: restoreRole, isPending: isRestoring } = useMutation({
@@ -59,6 +63,10 @@ export default function Roles() {
         toast.success(response.message);
       }
     },
+    onSettled: () => {
+      setSelectedRole(undefined);
+      setOpenRestoreDialog(false);
+    },
   });
 
   const { mutate: removeHardRole, isPending: isRemovingHard } = useMutation({
@@ -69,6 +77,10 @@ export default function Roles() {
         toast.success(response.message);
         queryClient.invalidateQueries({ queryKey: ["roles", "list"] });
       }
+    },
+    onSettled: () => {
+      setSelectedRole(undefined);
+      setOpenRemoveHardDialog(false);
     },
   });
 
