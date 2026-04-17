@@ -3,7 +3,8 @@ import { Calendar1, FilePenLine, Plus, Trash2 } from "lucide-react";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
-import { Controller } from "react-hook-form";
+import { ConfirmDialog } from "@components/ConfirmDialog";
+import { Controller, set } from "react-hook-form";
 import { DataTable } from "@components/data-table/DataTable";
 import { Field, FieldError } from "@components/ui/field";
 import { Input } from "@components/ui/input";
@@ -34,6 +35,10 @@ interface IProps {
 
 export function BlockedDays({ userId }: IProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
+  const [selectedBlockedDay, setSelectedBlockedDay] = useState<{ id: string; date: string; reason: string } | null>(
+    null,
+  );
 
   // TODO: handle isLoading on screen
   const { data: blockedDays = [] } = useQuery({
@@ -100,7 +105,10 @@ export function BlockedDays({ userId }: IProps) {
               <TooltipTrigger asChild>
                 <Button
                   className="hover:text-delete"
-                  onClick={() => deleteBlockedDay(row.original.id)}
+                  onClick={() => {
+                    setSelectedBlockedDay(row.original);
+                    setOpenRemoveHardDialog(true);
+                  }}
                   size="icon-sm"
                   variant="outline"
                 >
@@ -137,86 +145,113 @@ export function BlockedDays({ userId }: IProps) {
   });
 
   // TODO: handle isDeleting on button icon
-  const { mutate: deleteBlockedDay, isPending: isDeleting } = useMutation({
+  const { mutate: deleteBlockedDay, isPending: isRemovingHard } = useMutation({
     mutationKey: ["blocked-days", "delete"],
     mutationFn: (id: string) => CalendarService.deleteBlockedDay(id),
     onSuccess: (response) => {
       if (response.statusCode === 200) {
         toast.success(response.message);
         queryClient.invalidateQueries({ queryKey: ["blocked-days", userId] });
+        setOpenRemoveHardDialog(false);
       }
     },
   });
 
   return (
-    <section className="flex flex-col gap-6">
-      <form
-        className="flex items-start gap-4"
-        id="create-blocked-day"
-        onSubmit={form.handleSubmit((data) => createBlockedDay(data))}
-      >
-        <Controller
-          name="date"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field className="max-w-40" data-invalid={fieldState.invalid}>
-              <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    aria-invalid={fieldState.invalid}
-                    className="justify-between font-normal"
-                    id="date-picker"
-                    variant="outline"
-                  >
-                    {field.value ? (
-                      format(field.value, "P", { locale: esDateFns })
-                    ) : (
-                      <span className="text-muted-foreground">Fecha</span>
-                    )}
-                    <Calendar1 />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={(date) => {
-                      field.onChange(date);
-                      setOpen(false);
-                    }}
-                    defaultMonth={field.value}
-                    locale={es}
-                  />
-                </PopoverContent>
-              </Popover>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
+    <>
+      <section className="flex flex-col gap-6">
+        <form
+          className="flex items-start gap-4"
+          id="create-blocked-day"
+          onSubmit={form.handleSubmit((data) => createBlockedDay(data))}
+        >
+          <Controller
+            name="date"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field className="max-w-40" data-invalid={fieldState.invalid}>
+                <Popover open={open} onOpenChange={setOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      aria-invalid={fieldState.invalid}
+                      className="justify-between font-normal"
+                      id="date-picker"
+                      variant="outline"
+                    >
+                      {field.value ? (
+                        format(field.value, "P", { locale: esDateFns })
+                      ) : (
+                        <span className="text-muted-foreground">Fecha</span>
+                      )}
+                      <Calendar1 />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={(date) => {
+                        field.onChange(date);
+                        setOpen(false);
+                      }}
+                      defaultMonth={field.value}
+                      locale={es}
+                    />
+                  </PopoverContent>
+                </Popover>
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="reason"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field className="max-w-60" data-invalid={fieldState.invalid}>
+                <Input aria-invalid={fieldState.invalid} id="reason" placeholder="Motivo" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <div>
+            <Button disabled={isSaving} form="create-blocked-day" size="default" type="submit" variant="outline">
+              {isSaving ? <Loader color="black" /> : <Plus />}
+              Crear
+            </Button>
+          </div>
+        </form>
+        <DataTable
+          className="**:data-[slot=table-container]:min-h-75"
+          columns={columns}
+          data={blockedDays}
+          defaultSorting={[{ id: "date", desc: false }]}
+          searchable={false}
         />
-        <Controller
-          name="reason"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field className="max-w-60" data-invalid={fieldState.invalid}>
-              <Input aria-invalid={fieldState.invalid} id="reason" placeholder="Motivo" {...field} />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
-        <div>
-          <Button disabled={isSaving} form="create-blocked-day" size="default" type="submit" variant="outline">
-            {isSaving ? <Loader color="black" /> : <Plus />}
-            Crear
-          </Button>
-        </div>
-      </form>
-      <DataTable
-        className="**:data-[slot=table-container]:min-h-75"
-        columns={columns}
-        data={blockedDays}
-        defaultSorting={[{ id: "date", desc: false }]}
-        searchable={false}
-      />
-    </section>
+      </section>
+      {selectedBlockedDay && (
+        <ConfirmDialog
+          title="Eliminar día bloqueado"
+          description="¿Seguro que querés eliminar este día bloqueado?"
+          alertMessage="El día bloqueado relacionado al profesional, será eliminado de la base de datos. Esta acción es irreversible."
+          callback={() => selectedBlockedDay && deleteBlockedDay(selectedBlockedDay.id)}
+          loader={isRemovingHard}
+          open={openRemoveHardDialog}
+          setOpen={setOpenRemoveHardDialog}
+          showAlert
+          variant="destructive"
+        >
+          <ul className="flex flex-col gap-1">
+            <li className="flex items-center gap-2">
+              <span className="font-semibold">Fecha:</span>
+              {format(selectedBlockedDay.date, "dd/MM/yyyy", { locale: es })}
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="font-semibold">Motivo:</span>
+              {selectedBlockedDay.reason}
+            </li>
+          </ul>
+        </ConfirmDialog>
+      )}
+    </>
   );
 }
