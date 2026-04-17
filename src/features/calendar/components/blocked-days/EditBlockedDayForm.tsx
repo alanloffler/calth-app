@@ -8,6 +8,7 @@ import { Input } from "@components/ui/input";
 import { Loader } from "@components/Loader";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 
+import axios from "axios";
 import z from "zod";
 import { es as esDateFns } from "date-fns/locale";
 import { es } from "react-day-picker/locale";
@@ -17,8 +18,10 @@ import { useMutation } from "@tanstack/react-query";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import type { IApiResponse } from "@core/interfaces/api-response.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { blockedDaysSchema } from "@calendar/schemas/blocked-days.schema";
+import { queryClient } from "@core/lib/query-client";
 
 interface IProps {
   blockedDay: { id: string; date: string; reason: string } | null;
@@ -44,9 +47,16 @@ export function EditBlockedDayForm({ blockedDay, dayId, professionalId, setOpen 
     mutationFn: (data: z.infer<typeof blockedDaysSchema>) => CalendarService.updateBlockedDay(dayId, data),
     onSuccess: (response) => {
       toast.success(response.message);
-    },
-    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["blocked-days", professionalId] });
+      form.reset();
       setOpen(false);
+    },
+    onError: (error) => {
+      if (axios.isAxiosError<IApiResponse>(error)) {
+        if (error.response?.status !== 409) {
+          setOpen(false);
+        }
+      }
     },
   });
 
