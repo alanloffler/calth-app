@@ -30,9 +30,10 @@ import { GENDERS } from "@core/constants/genders.constant";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { UsersService } from "@users/services/users.service";
 import { formatIc } from "@core/formatters/ic.formatter";
+import { queryClient } from "@core/lib/query-client";
 import { useAuthStore } from "@auth/stores/auth.store";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { usePermission } from "@permissions/hooks/usePermission";
-import { useQuery } from "@tanstack/react-query";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 // TODO: get from settings store, need db changes
@@ -50,7 +51,6 @@ export default function ViewUser() {
   const userRole = location.state.role;
   const { id } = useParams();
   const { isLoading: isLoadingMedicalHistory, tryCatch: tryCatchMedicalHistory } = useTryCatch();
-  const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
@@ -97,20 +97,19 @@ export default function ViewUser() {
     enabled: !!id,
   });
 
-  async function removeUser(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemove(UsersService.softRemove(id, userRole.value));
-
-    if (error) {
-      toast.error(error.message);
+  const { mutate: removeUser, isPending: isRemoving } = useMutation({
+    mutationKey: ["user", "remove", id],
+    mutationFn: (id: string) => UsersService.softRemove(id, userRole.value),
+    onSuccess: (response) => {
+      if (response && response.statusCode === 200) {
+        toast.success(response.message);
+        queryClient.invalidateQueries({ queryKey: ["user", id, userRole.value] });
+      }
+    },
+    onSettled: () => {
       setOpenRemoveDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      setOpenRemoveDialog(false);
-    }
-  }
+    },
+  });
 
   async function hardRemoveUser(id: string): Promise<void> {
     const [response, error] = await tryCatchRemoveHard(UsersService.remove(id, userRole.value));
