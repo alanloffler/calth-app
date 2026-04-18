@@ -51,7 +51,6 @@ export default function ViewUser() {
   const userRole = location.state.role;
   const { id } = useParams();
   const { isLoading: isLoadingMedicalHistory, tryCatch: tryCatchMedicalHistory } = useTryCatch();
-  const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
 
   const hasPermissions = usePermission(
     [
@@ -124,26 +123,19 @@ export default function ViewUser() {
     },
   });
 
-  async function hardRemoveUser(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemoveHard(UsersService.remove(id, userRole.value));
-
-    if (error) {
-      if (error.status === 409) {
-        toast.warning(error.message);
-        setOpenRemoveHardDialog(false);
-        return;
-      } else {
-        toast.error(error.message);
-        setOpenRemoveHardDialog(false);
-        return;
+  const { mutate: hardRemoveUser, isPending: isRemovingHard } = useMutation({
+    mutationKey: ["user", "remove-hard", id],
+    mutationFn: (id: string) => UsersService.remove(id, userRole.value),
+    onSuccess: (response) => {
+      if (response && response.statusCode === 200) {
+        toast.success(response.message);
+        navigate(-1);
       }
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      navigate(-1);
-    }
-  }
+    },
+    onSettled: () => {
+      setOpenRemoveHardDialog(false);
+    },
+  });
 
   if (!user) return null;
 
