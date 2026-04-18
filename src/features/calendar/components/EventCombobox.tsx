@@ -6,12 +6,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover"
 
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { cn } from "@core/lib/utils";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   "aria-invalid"?: boolean;
@@ -34,28 +34,18 @@ export function EventCombobox({
   value = "",
   width,
 }: IProps) {
-  const [error, setError] = useState<string | null>(null);
-  const [events, setEvents] = useState<ICalendarEvent[] | undefined>(undefined);
   const [open, setOpen] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<ICalendarEvent | null>(null);
-  const { isLoading, tryCatch } = useTryCatch();
 
-  const findUsers = useCallback(async () => {
-    const [response, error] = await tryCatch(CalendarService.findByBusinessProfessionalPatient(professionalId, userId));
-
-    if (error) {
-      setError("Error");
-    }
-
-    if (response && response?.statusCode === 200) {
-      setEvents(response?.data);
-    }
-  }, [tryCatch, onChange]);
-
-  useEffect(() => {
-    if (!professionalId) return;
-    findUsers();
-  }, [findUsers, professionalId]);
+  const {
+    data: events,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["events", professionalId, userId],
+    queryFn: () => CalendarService.findByBusinessProfessionalPatient(professionalId, userId),
+    select: (response) => (response?.statusCode === 200 ? response?.data : undefined),
+  });
 
   useEffect(() => {
     if (!events || !value) return;
@@ -70,8 +60,7 @@ export function EventCombobox({
           aria-expanded={open}
           aria-invalid={ariaInvalid}
           className={cn(
-            "font-normal disabled:opacity-100",
-            value || error || isLoading ? "justify-between!" : "justify-end!",
+            "justify-between font-normal disabled:opacity-100",
             error || ariaInvalid ? "text-destructive border-destructive" : "",
             disabled ? "opacity-50!" : "",
           )}
