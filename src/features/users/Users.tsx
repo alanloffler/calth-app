@@ -12,8 +12,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip"
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 
 import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
@@ -34,35 +35,24 @@ export default function Users() {
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<IUser | undefined>(undefined);
-  const [users, setUsers] = useState<IUser[] | undefined>(undefined);
   const admin = useAuthStore((state) => state.admin);
-  const { isLoading: isLoadingUsers, tryCatch: tryCatchAdmins } = useTryCatch();
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
   const { open: sidebarIsOpen } = useSidebar();
   const { role } = useParams();
 
-  const fetchUsers = useCallback(async () => {
-    const $role = role ? role : "";
-    const isSuperAdmin = admin?.role.value === ERoles.super;
-    const serviceByRole = isSuperAdmin ? UsersService.findAllSoftRemoved($role) : UsersService.findAll($role);
-
-    const [response, error] = await tryCatchAdmins(serviceByRole);
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      setUsers(response.data);
-    }
-  }, [admin?.role.value, role, tryCatchAdmins]);
-
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+  const { data: users, isLoading: isLoadingUsers } = useQuery({
+    queryKey: ["users", role],
+    queryFn: () => {
+      const isSuperAdmin = admin?.role.value === ERoles.super;
+      const serviceByRole = isSuperAdmin
+        ? UsersService.findAllSoftRemoved(role as TUserRole)
+        : UsersService.findAll(role as TUserRole);
+      return serviceByRole;
+    },
+    select: (response) => response.data,
+  });
 
   async function removeUser(id: string): Promise<void> {
     const [response, error] = await tryCatchRemove(UsersService.softRemove(id, role as TUserRole));
@@ -76,7 +66,6 @@ export default function Users() {
     if (response && response.statusCode === 200) {
       toast.success(response.message);
       setOpenRemoveDialog(false);
-      fetchUsers();
     }
   }
 
@@ -92,7 +81,6 @@ export default function Users() {
     if (response && response.statusCode === 200) {
       toast.success(response.message);
       setOpenRestoreDialog(false);
-      fetchUsers();
     }
   }
 
@@ -108,7 +96,7 @@ export default function Users() {
     if (response && response.statusCode === 200) {
       toast.success(response.message);
       setOpenRemoveHardDialog(false);
-      fetchUsers();
+      // fetchUsers();
     }
   }
 
