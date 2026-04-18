@@ -52,7 +52,6 @@ export default function ViewUser() {
   const { id } = useParams();
   const { isLoading: isLoadingMedicalHistory, tryCatch: tryCatchMedicalHistory } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
-  const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   const hasPermissions = usePermission(
     [
@@ -111,6 +110,20 @@ export default function ViewUser() {
     },
   });
 
+  const { mutate: restoreUser, isPending: isRestoring } = useMutation({
+    mutationKey: ["user", "restore", id],
+    mutationFn: (id: string) => UsersService.restore(id, userRole.value),
+    onSuccess: (response) => {
+      if (response && response.statusCode === 200) {
+        toast.success(response.message);
+        queryClient.invalidateQueries({ queryKey: ["user", id, userRole.value] });
+      }
+    },
+    onSettled: () => {
+      setOpenRestoreDialog(false);
+    },
+  });
+
   async function hardRemoveUser(id: string): Promise<void> {
     const [response, error] = await tryCatchRemoveHard(UsersService.remove(id, userRole.value));
 
@@ -129,21 +142,6 @@ export default function ViewUser() {
     if (response && response.statusCode === 200) {
       toast.success(response.message);
       navigate(-1);
-    }
-  }
-
-  async function restoreUser(id: string) {
-    const [response, error] = await tryCatchRestore(UsersService.restore(id, userRole.value));
-
-    if (error) {
-      toast.error(error.message);
-      setOpenRestoreDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      setOpenRestoreDialog(false);
     }
   }
 
