@@ -3,6 +3,7 @@ import { Calendar1, FilePenLine, Plus, Trash2 } from "lucide-react";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
+import { Checkbox } from "@components/ui/checkbox";
 import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { Controller } from "react-hook-form";
 import { DataTable } from "@components/data-table/DataTable";
@@ -10,6 +11,7 @@ import { EditBlockedDayForm } from "@calendar/components/blocked-days/EditBlocke
 import { EditDialog } from "@components/dialogs/EditDialog";
 import { Field, FieldError } from "@components/ui/field";
 import { Input } from "@components/ui/input";
+import { Label } from "@components/ui/label";
 import { Loader } from "@components/Loader";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { Protected } from "@auth/components/Protected";
@@ -132,6 +134,7 @@ export function BlockedDays({ userId }: IProps) {
       date: undefined,
       reason: "",
       professionalId: userId,
+      recurrent: false,
     },
   });
 
@@ -165,6 +168,7 @@ export function BlockedDays({ userId }: IProps) {
   return (
     <>
       <section className="flex flex-col gap-6">
+        {/* TODO: componetize create form */}
         <form
           className="flex items-start gap-4"
           id="create-blocked-day"
@@ -214,6 +218,20 @@ export function BlockedDays({ userId }: IProps) {
             render={({ field, fieldState }) => (
               <Field className="max-w-60" data-invalid={fieldState.invalid}>
                 <Input aria-invalid={fieldState.invalid} id="reason" placeholder="Motivo" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="recurrent"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field
+                className="my-auto flex w-fit flex-row items-center justify-center gap-2"
+                data-invalid={fieldState.invalid}
+              >
+                <Checkbox className="size-4.5!" aria-invalid={fieldState.invalid} id="recurrent" {...field} />
+                <Label htmlFor="recurrent">Recurrente</Label>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
