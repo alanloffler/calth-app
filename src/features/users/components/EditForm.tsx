@@ -12,17 +12,17 @@ import { toast } from "sonner";
 import { type MouseEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { UsersService } from "@users/services/users.service";
+import { queryClient } from "@core/lib/query-client";
 import { tryCatch } from "@core/utils/try-catch";
 import { updateUserSchema } from "@users/schemas/update-user.schema";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useDebounce } from "@core/hooks/useDebounce";
 import { usePermission } from "@permissions/hooks/usePermission";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   userId: string;
@@ -39,7 +39,6 @@ export function EditForm({ userId }: IProps) {
   const navigate = useNavigate();
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const userRole = location.state.role;
-  const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const debouncedUsername = useDebounce(username, 500);
 
@@ -77,6 +76,19 @@ export function EditForm({ userId }: IProps) {
       });
     }
   }, [form, userToUpdate]);
+
+  const { mutate: updateUser, isPending: isSaving } = useMutation({
+    mutationKey: ["user", "update", userId],
+    mutationFn: (data: Partial<z.infer<typeof updateUserSchema>>) => UsersService.update(userId, userRole, data),
+    onSuccess: (response) => {
+      if (response?.statusCode === 200) {
+        if (userToUpdate?.ic === admin?.ic) refreshAdmin();
+        toast.success(response.message);
+        queryClient.invalidateQueries({ queryKey: ["user", userId] });
+        navigate(`/users/role/${userRole.value}`);
+      }
+    },
+  });
 
   useEffect(() => {
     async function checkUsername() {
@@ -161,20 +173,7 @@ export function EditForm({ userId }: IProps) {
       ? data
       : Object.fromEntries(Object.entries(data).filter(([key]) => key !== "password"));
 
-    const [update, updateError] = await tryCatchSubmit(UsersService.update(userId, userRole, updateData));
-
-    if (updateError) {
-      toast.error(updateError.message);
-      return;
-    }
-
-    if (update?.statusCode === 200) {
-      if (userToUpdate?.ic === admin?.ic) {
-        refreshAdmin();
-      }
-      toast.success(update.message);
-      navigate(`/users/role/${userRole.value}`);
-    }
+    updateUser(updateData as z.infer<typeof updateUserSchema>);
   }
 
   function handleCancel(): void {
