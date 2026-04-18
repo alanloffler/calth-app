@@ -28,7 +28,6 @@ import { queryClient } from "@core/lib/query-client";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useSidebar } from "@components/ui/sidebar";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function Users() {
   const [columnVisibility, setColumnVisibility] = useState<Record<string, boolean> | undefined>(undefined);
@@ -37,7 +36,6 @@ export default function Users() {
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<IUser | undefined>(undefined);
   const admin = useAuthStore((state) => state.admin);
-  const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { open: sidebarIsOpen } = useSidebar();
   const { role } = useParams();
 
@@ -81,21 +79,19 @@ export default function Users() {
     },
   });
 
-  async function hardRemoveUser(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemoveHard(UsersService.remove(id, role as TUserRole));
-
-    if (error) {
-      toast.error(error.message);
-      setOpenRemoveHardDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      setOpenRemoveHardDialog(false);
-      // fetchUsers();
-    }
-  }
+  const { mutate: hardRemoveUser, isPending: isRemovingHard } = useMutation({
+    mutationKey: ["users", "remove-hard", role],
+    mutationFn: (id: string) => UsersService.remove(id, role as TUserRole),
+    onSuccess: (response) => {
+      if (response && response.statusCode === 200) {
+        toast.success(response.message);
+        queryClient.invalidateQueries({ queryKey: ["users", role] });
+      }
+    },
+    onSettled: () => {
+      setOpenRestoreDialog(false);
+    },
+  });
 
   useEffect(() => {
     function getColumnVisibility(width: number): Record<string, boolean> | undefined {
