@@ -6,19 +6,16 @@ import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 import { Loader } from "@components/Loader";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 
 import z from "zod";
 import { toast } from "sonner";
-import { type MouseEvent, useCallback, useEffect, useState } from "react";
+import { type MouseEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import type { IRole } from "@roles/interfaces/role.interface";
-import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
-import { RolesService } from "@roles/services/roles.service";
 import { UsersService } from "@users/services/users.service";
 import { tryCatch } from "@core/utils/try-catch";
 import { updateUserSchema } from "@users/schemas/update-user.schema";
@@ -32,11 +29,9 @@ interface IProps {
 }
 
 export function EditForm({ userId }: IProps) {
-  const [userToUpdate, setUserToUpdate] = useState<IUser | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [icError, setIcError] = useState<string | null>(null);
   const [passwordField, setPasswordField] = useState<boolean>(true);
-  const [roles, setRoles] = useState<IRole[] | undefined>(undefined);
   const [username, setUsername] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const admin = useAuthStore((state) => state.admin);
@@ -44,8 +39,6 @@ export function EditForm({ userId }: IProps) {
   const navigate = useNavigate();
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const userRole = location.state.role;
-  const { isLoading: isLoadingRoles, tryCatch: tryCatchRoles } = useTryCatch();
-  const { isLoading: isLoadingUser, tryCatch: tryCatchUser } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const debouncedUsername = useDebounce(username, 500);
@@ -61,24 +54,29 @@ export function EditForm({ userId }: IProps) {
       lastName: "",
       password: "",
       phoneNumber: "",
-      roleId: "",
       userName: "",
     },
   });
 
-  const getRoles = useCallback(async () => {
-    const [roles, rolesError] = await tryCatchRoles(RolesService.findAll());
+  const { data: userToUpdate, isLoading: isLoadingUser } = useQuery({
+    queryKey: ["user", "update", userId],
+    queryFn: () => UsersService.findOneWithCredentials(userId),
+    select: (data) => data.data,
+  });
 
-    if (rolesError) {
-      toast.error(rolesError.message);
-      form.control.setError("roleId", { message: "Error obteniendo roles" });
-      return;
+  useEffect(() => {
+    if (userToUpdate) {
+      form.reset({
+        ic: userToUpdate.ic,
+        userName: userToUpdate.userName,
+        password: "",
+        firstName: userToUpdate.firstName,
+        lastName: userToUpdate.lastName,
+        email: userToUpdate.email,
+        phoneNumber: userToUpdate.phoneNumber,
+      });
     }
-
-    if (roles && roles.statusCode === 200 && roles.data) {
-      setRoles(roles.data);
-    }
-  }, [form.control, tryCatchRoles]);
+  }, [form, userToUpdate]);
 
   useEffect(() => {
     async function checkUsername() {
@@ -95,37 +93,6 @@ export function EditForm({ userId }: IProps) {
 
     checkUsername();
   }, [debouncedUsername, userToUpdate?.userName, form]);
-
-  useEffect(() => {
-    async function findOneWithCredentials(): Promise<void> {
-      const [user, userError] = await tryCatchUser(UsersService.findOneWithCredentials(userId));
-
-      if (userError) {
-        toast.error(userError.message);
-        return;
-      }
-
-      if (user && user.statusCode === 200) {
-        if (user.data) {
-          form.reset({
-            ic: user.data.ic,
-            userName: user.data.userName,
-            password: "",
-            firstName: user.data.firstName,
-            lastName: user.data.lastName,
-            email: user.data.email,
-            phoneNumber: user.data.phoneNumber,
-            roleId: user.data.roleId,
-          });
-
-          setUserToUpdate(user.data);
-          getRoles();
-        }
-      }
-    }
-
-    findOneWithCredentials();
-  }, [userId, form, getRoles, tryCatchUser]);
 
   function togglePasswordField(event: MouseEvent<HTMLButtonElement>): void {
     event.preventDefault();
@@ -194,7 +161,7 @@ export function EditForm({ userId }: IProps) {
       ? data
       : Object.fromEntries(Object.entries(data).filter(([key]) => key !== "password"));
 
-    const [update, updateError] = await tryCatchSubmit(UsersService.update(userId, updateData));
+    const [update, updateError] = await tryCatchSubmit(UsersService.update(userId, userRole, updateData));
 
     if (updateError) {
       toast.error(updateError.message);
@@ -384,30 +351,6 @@ export function EditForm({ userId }: IProps) {
                 </Field>
               )}
             />
-            <Controller
-              name="roleId"
-              control={form.control}
-              render={({ field, fieldState }) => {
-                return (
-                  <Field data-invalid={fieldState.invalid} className="col-span-3 md:col-span-2">
-                    <FieldLabel htmlFor="roleId">Rol</FieldLabel>
-                    <Select disabled={!roles} key={field.value} value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id="roleId" aria-invalid={fieldState.invalid}>
-                        <SelectValue placeholder="Seleccione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {roles?.map((role) => (
-                          <SelectItem key={role.id} value={role.id}>
-                            {role.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                  </Field>
-                );
-              }}
-            />
           </FieldGroup>
           <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <Controller
@@ -434,10 +377,7 @@ export function EditForm({ userId }: IProps) {
         </form>
       </CardContent>
       <CardFooter className="flex items-center justify-between pt-4">
-        <div>
-          {isLoadingUser && <Loader className="text-sm" size={18} text="Cargando paciente" />}
-          {isLoadingRoles && <Loader className="text-sm" size={18} text="Cargando roles" />}
-        </div>
+        <div>{isLoadingUser && <Loader className="text-sm" size={18} text="Cargando paciente" />}</div>
         <div className="flex gap-4">
           <Button variant="ghost" onClick={handleCancel}>
             Cancelar
