@@ -19,10 +19,9 @@ import { TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { useCallback, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
+import { useState } from "react";
 
-import type { IMedicalHistory } from "@medical-history/interfaces/medical-history.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { ERoles } from "@auth/enums/role.enum";
 import { EUserRole } from "@roles/enums/user-role.enum";
@@ -34,13 +33,11 @@ import { queryClient } from "@core/lib/query-client";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { usePermission } from "@permissions/hooks/usePermission";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 // TODO: get from settings store, need db changes
 const LOCALE = "es";
 
 export default function ViewUser() {
-  const [medicalHistory, setMedicalHistory] = useState<IMedicalHistory[] | undefined>();
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
@@ -50,8 +47,6 @@ export default function ViewUser() {
   const navigate = useNavigate();
   const userRole = location.state.role;
   const { id } = useParams();
-  const { isLoading: isLoadingMedicalHistory, tryCatch: tryCatchMedicalHistory } = useTryCatch();
-
   const hasPermissions = usePermission(
     [
       `${userRole.value}-delete`,
@@ -60,27 +55,6 @@ export default function ViewUser() {
       `${userRole.value}-update`,
     ] as TPermission[],
     "some",
-  );
-
-  const getMedicalHistory = useCallback(
-    async function (id: string): Promise<void> {
-      const isSuperAdmin = adminAuth?.role.value === ERoles.super;
-      const serviceByRole = isSuperAdmin
-        ? MedicalHistoryService.findAllByPatientRemoved(id)
-        : MedicalHistoryService.findAllByPatient(id);
-
-      const [response, error] = await tryCatchMedicalHistory(serviceByRole);
-
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-
-      if (response && response.statusCode === 200) {
-        setMedicalHistory(response.data);
-      }
-    },
-    [adminAuth?.role.value, tryCatchMedicalHistory],
   );
 
   const { data: user, isLoading: isLoadingUser } = useQuery({
@@ -93,6 +67,22 @@ export default function ViewUser() {
     },
     select: (response) => response.data,
     enabled: !!id,
+  });
+
+  const {
+    data: medicalHistory,
+    isLoading: isLoadingMedicalHistory,
+    refetch: refetchMedicalHistory,
+  } = useQuery({
+    queryKey: ["medical-history", user?.id],
+    queryFn: () => {
+      const isSuperAdmin = adminAuth?.role.value === ERoles.super;
+      return isSuperAdmin
+        ? MedicalHistoryService.findAllByPatientRemoved(user!.id)
+        : MedicalHistoryService.findAllByPatient(user!.id);
+    },
+    select: (response) => response.data,
+    enabled: !!user?.id && userRole.value === EUserRole["patient"],
   });
 
   const { mutate: removeUser, isPending: isRemoving } = useMutation({
@@ -403,7 +393,7 @@ export default function ViewUser() {
             <HistoryTable
               history={medicalHistory}
               isLoading={isLoadingMedicalHistory}
-              onUpdated={() => getMedicalHistory(user.id)}
+              onUpdated={() => refetchMedicalHistory()}
             />
           </div>
         )}
@@ -472,7 +462,7 @@ export default function ViewUser() {
       </ConfirmDialog>
       <CreateHistorySheet
         user={user}
-        onCreated={() => getMedicalHistory(user.id)}
+        onCreated={() => refetchMedicalHistory()}
         open={openSheet}
         setOpen={setOpenSheet}
       />
