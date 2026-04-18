@@ -13,8 +13,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip"
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
 
 import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
@@ -24,6 +24,7 @@ import { ERoles } from "@auth/enums/role.enum";
 import { UsersService } from "@users/services/users.service";
 import { UsersTableConfig } from "@core/config/table.config";
 import { formatIc } from "@core/formatters/ic.formatter";
+import { queryClient } from "@core/lib/query-client";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useSidebar } from "@components/ui/sidebar";
@@ -36,7 +37,6 @@ export default function Users() {
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<IUser | undefined>(undefined);
   const admin = useAuthStore((state) => state.admin);
-  const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
   const { open: sidebarIsOpen } = useSidebar();
@@ -54,20 +54,19 @@ export default function Users() {
     select: (response) => response.data,
   });
 
-  async function removeUser(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemove(UsersService.softRemove(id, role as TUserRole));
-
-    if (error) {
-      toast.error(error.message);
+  const { mutate: removeUser, isPending: isRemoving } = useMutation({
+    mutationKey: ["users", "remove", role],
+    mutationFn: (id: string) => UsersService.softRemove(id, role as TUserRole),
+    onSuccess: (response) => {
+      if (response && response.statusCode === 200) {
+        toast.success(response.message);
+        queryClient.invalidateQueries({ queryKey: ["users", role] });
+      }
+    },
+    onSettled: () => {
       setOpenRemoveDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      setOpenRemoveDialog(false);
-    }
-  }
+    },
+  });
 
   async function restoreUser(id: string) {
     const [response, error] = await tryCatchRestore(UsersService.restore(id, role as TUserRole));
