@@ -38,7 +38,6 @@ export default function Users() {
   const [selectedUser, setSelectedUser] = useState<IUser | undefined>(undefined);
   const admin = useAuthStore((state) => state.admin);
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
-  const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
   const { open: sidebarIsOpen } = useSidebar();
   const { role } = useParams();
 
@@ -68,20 +67,19 @@ export default function Users() {
     },
   });
 
-  async function restoreUser(id: string) {
-    const [response, error] = await tryCatchRestore(UsersService.restore(id, role as TUserRole));
-
-    if (error) {
-      toast.error(error.message);
+  const { mutate: restoreUser, isPending: isRestoring } = useMutation({
+    mutationKey: ["users", "restore", role],
+    mutationFn: (id: string) => UsersService.restore(id, role as TUserRole),
+    onSuccess: (response) => {
+      if (response && response.statusCode === 200) {
+        toast.success(response.message);
+        queryClient.invalidateQueries({ queryKey: ["users", role] });
+      }
+    },
+    onSettled: () => {
       setOpenRestoreDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      setOpenRestoreDialog(false);
-    }
-  }
+    },
+  });
 
   async function hardRemoveUser(id: string): Promise<void> {
     const [response, error] = await tryCatchRemoveHard(UsersService.remove(id, role as TUserRole));
