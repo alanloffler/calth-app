@@ -14,8 +14,9 @@ import type z from "zod";
 import { addMinutes, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
@@ -28,7 +29,6 @@ import { isDayAvailable, parseCalendarConfig } from "@calendar/utils/calendar.ut
 import { queryClient } from "@core/lib/query-client";
 import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { useEventStore } from "@calendar/stores/event.store";
-import { useQuery } from "@tanstack/react-query";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function CreateEventSheet() {
@@ -197,6 +197,18 @@ export function CreateEventSheet() {
 
   const withEvents = getDaysWithEventsArray(daysWithEvents?.data);
 
+  const { data: blockedDays = [] } = useQuery({
+    queryKey: ["calendar", "blocked-days", professionalId],
+    queryFn: () => CalendarService.findAllBlockedDays(professionalId),
+    select: (response) => response.data,
+    enabled: Boolean(professionalId),
+  });
+
+  const blockedDates = useMemo(
+    () => (blockedDays ?? []).map((day: { date: string }) => parseISO(day.date)),
+    [blockedDays],
+  );
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent className="sm:min-w-155">
@@ -287,10 +299,15 @@ export function CreateEventSheet() {
                       >
                         <FieldLabel htmlFor="date">Fecha</FieldLabel>
                         <div className="flex-1 rounded-md border shadow-xs">
+                          {/* TODO: get the blocked days on professionalConfig??? at backend instance
+                          and retrieve one object only (not merge here) */}
                           <Calendar
                             aria-invalid={isDateInvalid}
                             className="mx-auto aspect-square h-fit w-full max-w-75"
-                            disabled={professionalConfig ? [{ dayOfWeek: professionalConfig.excludedDays }] : []}
+                            disabled={[
+                              ...(professionalConfig ? [{ dayOfWeek: professionalConfig.excludedDays }] : []),
+                              ...blockedDates,
+                            ]}
                             modifiers={{
                               withEvents: (date) => {
                                 if (professionalConfig?.excludedDays?.includes(date.getDay())) return false;
