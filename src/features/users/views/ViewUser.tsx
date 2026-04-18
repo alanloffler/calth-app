@@ -19,11 +19,10 @@ import { TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 
 import type { IMedicalHistory } from "@medical-history/interfaces/medical-history.interface";
-import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { ERoles } from "@auth/enums/role.enum";
 import { EUserRole } from "@roles/enums/user-role.enum";
@@ -33,6 +32,7 @@ import { UsersService } from "@users/services/users.service";
 import { formatIc } from "@core/formatters/ic.formatter";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { usePermission } from "@permissions/hooks/usePermission";
+import { useQuery } from "@tanstack/react-query";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 // TODO: get from settings store, need db changes
@@ -44,14 +44,12 @@ export default function ViewUser() {
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [openSheet, setOpenSheet] = useState<boolean>(false);
-  const [user, setUser] = useState<IUser | undefined>(undefined);
   const adminAuth = useAuthStore((state) => state.admin);
   const location = useLocation();
   const navigate = useNavigate();
   const userRole = location.state.role;
   const { id } = useParams();
   const { isLoading: isLoadingMedicalHistory, tryCatch: tryCatchMedicalHistory } = useTryCatch();
-  const { isLoading: isLoadingUser, tryCatch: tryCatchUser } = useTryCatch();
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
@@ -87,27 +85,17 @@ export default function ViewUser() {
     [adminAuth?.role.value, tryCatchMedicalHistory],
   );
 
-  const findOneUser = useCallback(
-    async function (id: string) {
+  const { data: user, isLoading: isLoadingUser } = useQuery({
+    queryKey: ["user", id, userRole.value],
+    queryFn: () => {
       const isSuperAdmin = adminAuth?.role.value === ERoles.super;
-      const serviceByRole = isSuperAdmin
-        ? UsersService.findSoftRemovedWithProfile(id, userRole.value)
-        : UsersService.findWithProfile(id, userRole.value);
-
-      const [response, responseError] = await tryCatchUser(serviceByRole);
-
-      if (responseError) {
-        toast.error(responseError.message);
-        return;
-      }
-
-      if (response && response.statusCode === 200) {
-        setUser(response.data);
-        if (response.data) getMedicalHistory(response.data.id);
-      }
+      return isSuperAdmin
+        ? UsersService.findSoftRemovedWithProfile(id!, userRole.value)
+        : UsersService.findWithProfile(id!, userRole.value);
     },
-    [adminAuth?.role.value, getMedicalHistory, tryCatchUser, userRole.value],
-  );
+    select: (response) => response.data,
+    enabled: !!id,
+  });
 
   async function removeUser(id: string): Promise<void> {
     const [response, error] = await tryCatchRemove(UsersService.softRemove(id, userRole.value));
@@ -120,7 +108,6 @@ export default function ViewUser() {
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
-      findOneUser(id);
       setOpenRemoveDialog(false);
     }
   }
@@ -157,14 +144,9 @@ export default function ViewUser() {
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
-      findOneUser(id);
       setOpenRestoreDialog(false);
     }
   }
-
-  useEffect(() => {
-    findOneUser(id!);
-  }, [id, findOneUser]);
 
   if (!user) return null;
 
