@@ -39,6 +39,7 @@ interface IProps {
 const LOCALE = "es";
 
 export function EditPatientForm({ userId }: IProps) {
+  const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [ic, setIc] = useState<string>("");
   const [icError, setIcError] = useState<string | null>(null);
@@ -54,8 +55,9 @@ export function EditPatientForm({ userId }: IProps) {
   const { isLoading: isLoadingPatient, tryCatch: tryCatchPatient } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
-  const debouncedUsername = useDebounce(username, 500);
+  const debouncedEmail = useDebounce(email, 500);
   const debouncedIc = useDebounce(ic, 500);
+  const debouncedUsername = useDebounce(username, 500);
 
   const canUpdatePassword = usePermission(`${userRole}-update-password` as TPermission);
 
@@ -100,7 +102,7 @@ export function EditPatientForm({ userId }: IProps) {
     }
 
     checkUsername();
-  }, [debouncedUsername, userToUpdate?.userName, form]);
+  }, [debouncedUsername, form, userToUpdate?.userName]);
 
   useEffect(() => {
     async function checkIc() {
@@ -116,7 +118,23 @@ export function EditPatientForm({ userId }: IProps) {
     }
 
     checkIc();
-  }, [debouncedIc, userToUpdate?.ic, form]);
+  }, [debouncedIc, form, userToUpdate?.ic]);
+
+  useEffect(() => {
+    async function checkEmail() {
+      if (!debouncedEmail || debouncedEmail.length <= 3) return;
+      if (debouncedEmail === userToUpdate?.email) return;
+
+      const [response, error] = await tryCatch(UsersService.checkEmailAvailability(debouncedEmail));
+      if (response?.data === false || error) {
+        const errorMsg = error ? "Error al comprobar email" : "Email ya registrado";
+        setEmailError(errorMsg);
+        form.setError("email", { message: errorMsg });
+      }
+    }
+
+    checkEmail();
+  }, [debouncedEmail, form, userToUpdate?.email]);
 
   useEffect(() => {
     async function findOneWithCredentials(): Promise<void> {
@@ -409,21 +427,18 @@ export function EditPatientForm({ userId }: IProps) {
                         id="email"
                         {...field}
                         onChange={async (e) => {
-                          field.onChange(e);
                           setEmailError(null);
                           form.clearErrors("email");
 
-                          const emailValue = e.target.value;
-                          const emailValidation = z.email().safeParse(emailValue);
+                          const value = e.target.value;
+                          const emailValidation = z.email().safeParse(value);
 
-                          if (emailValidation.success) {
-                            const [response, error] = await tryCatch(UsersService.checkEmailAvailability(emailValue));
-                            if (response?.data === false || error) {
-                              const errorMsg = error ? "Error al comprobar email" : "Email ya registrado";
-                              setEmailError(errorMsg);
-                              form.setError("email", { message: errorMsg });
-                            }
-                          }
+                          form.setValue("email", value, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+
+                          if (emailValidation.success) setEmail(value);
                         }}
                       />
                       {(fieldState.invalid || emailError) && (
