@@ -1,5 +1,5 @@
-import type { IAdmin } from "@admin/interfaces/admin.interface";
 import type { IApiResponse } from "@core/interfaces/api-response.interface";
+import type { IUser } from "@users/interfaces/user.interface";
 import { apiClient } from "@core/client/client";
 
 class AccountModuleService {
@@ -13,12 +13,12 @@ class AccountModuleService {
     return AccountModuleService.instance;
   }
 
-  public async get(): Promise<IApiResponse<IAdmin>> {
+  public async get(): Promise<IApiResponse<IUser>> {
     const response = await apiClient.get("/users/profile");
     return response.data;
   }
 
-  public async update(data: Partial<IAdmin>): Promise<IApiResponse<IAdmin>> {
+  public async update(data: Partial<IUser>): Promise<IApiResponse<IUser>> {
     const response = await apiClient.patch("/users/profile", data);
     return response.data;
   }
