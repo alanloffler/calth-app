@@ -11,7 +11,7 @@ import { WorkingDays } from "@components/WorkingDays";
 
 import z from "zod";
 import { toast } from "sonner";
-import { type MouseEvent, useEffect, useState } from "react";
+import { type MouseEvent, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,10 +31,12 @@ interface IProps {
 }
 
 export function EditProfessionalForm({ userId }: IProps) {
-  const [userToUpdate, setUserToUpdate] = useState<IUser | null>(null);
+  const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [ic, setIc] = useState<string>("");
   const [icError, setIcError] = useState<string | null>(null);
   const [passwordField, setPasswordField] = useState<boolean>(true);
+  const [userToUpdate, setUserToUpdate] = useState<IUser | null>(null);
   const [username, setUsername] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const admin = useAuthStore((state) => state.admin);
@@ -45,6 +47,8 @@ export function EditProfessionalForm({ userId }: IProps) {
   const { isLoading: isLoadingProfessional, tryCatch: tryCatchProfessional } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
+  const debouncedEmail = useDebounce(email, 500);
+  const debouncedIc = useDebounce(ic, 500);
   const debouncedUsername = useDebounce(username, 500);
 
   const canUpdatePassword = usePermission(`${userRole}-update-password` as TPermission);
@@ -72,21 +76,69 @@ export function EditProfessionalForm({ userId }: IProps) {
     },
   });
 
-  useEffect(() => {
-    async function checkUsername() {
-      if (!debouncedUsername || debouncedUsername.length <= 3) return;
-      if (debouncedUsername === userToUpdate?.userName) return;
+  const checkEmail = useCallback(
+    async (value: string) => {
+      if (!value || value.length <= 3) return true;
+      if (value === userToUpdate?.email) return true;
 
-      const [response, error] = await tryCatch(UsersService.checkUsernameAvailability(debouncedUsername));
+      const [response, error] = await tryCatch(UsersService.checkEmailAvailability(value));
+      if (response?.data === false || error) {
+        const message = error ? "Error al comprobar email" : "Email ya registrado";
+        setEmailError(message);
+        form.setError("email", { message });
+        return false;
+      }
+      return true;
+    },
+    [form, userToUpdate?.email],
+  );
+
+  const checkIc = useCallback(
+    async (value: string) => {
+      if (!value || value.length <= 7) return true;
+      if (value === userToUpdate?.ic) return true;
+
+      const [response, error] = await tryCatch(UsersService.checkIcAvailability(value));
+      if (response?.data === false || error) {
+        const message = error ? "Error al comprobar DNI" : "DNI ya registrado";
+        setIcError(message);
+        form.setError("ic", { message });
+        return false;
+      }
+      return true;
+    },
+    [form, userToUpdate?.ic],
+  );
+
+  const checkUsername = useCallback(
+    async (value: string): Promise<boolean> => {
+      if (!value || value.length <= 3) return true;
+      if (value === userToUpdate?.userName) return true;
+
+      const [response, error] = await tryCatch(UsersService.checkUsernameAvailability(value));
       if (response?.data === false || error) {
         const message = error ? "Error al comprobar nombre de usuario" : "Nombre de usuario ya registrado";
         setUsernameError(message);
         form.setError("userName", { message });
+        return false;
       }
-    }
+      return true;
+    },
+    [form, userToUpdate?.userName],
+  );
 
-    checkUsername();
-  }, [debouncedUsername, userToUpdate?.userName, form]);
+  // Writting validations
+  useEffect(() => {
+    checkEmail(debouncedEmail);
+  }, [checkEmail, debouncedEmail]);
+
+  useEffect(() => {
+    checkIc(debouncedIc);
+  }, [checkIc, debouncedIc]);
+
+  useEffect(() => {
+    checkUsername(debouncedUsername);
+  }, [checkUsername, debouncedUsername]);
 
   useEffect(() => {
     async function findOneWithCredentials(): Promise<void> {
@@ -135,62 +187,13 @@ export function EditProfessionalForm({ userId }: IProps) {
   }
 
   async function onSubmit(data: z.infer<typeof updateProfessionalSchema>): Promise<void> {
-    if (emailError) {
-      form.setError("email", { message: emailError });
-      return;
-    }
+    const [emailOk, icOk, usernameOk] = await Promise.all([
+      checkEmail(data.email),
+      checkIc(data.ic),
+      checkUsername(data.userName),
+    ]);
 
-    if (icError) {
-      form.setError("ic", { message: icError });
-      return;
-    }
-
-    if (usernameError) {
-      form.setError("userName", { message: usernameError });
-      return;
-    }
-
-    // Check again for race condition: before first check another admin use same ic
-    if (data.email !== userToUpdate?.email) {
-      const [emailAvailableResponse, emailAvailableError] = await tryCatch(
-        UsersService.checkEmailAvailability(data.email),
-      );
-
-      if (emailAvailableResponse?.data === false || emailAvailableError) {
-        const errorMsg = emailAvailableError ? "Error al comprobar email" : "Email ya registrado";
-        setEmailError(errorMsg);
-        form.setError("email", { message: errorMsg });
-        return;
-      }
-    }
-
-    // Check again for race condition: before first check another admin use same ic
-    if (data.ic !== userToUpdate?.ic) {
-      const [icAvailableResponse, icAvailableError] = await tryCatch(UsersService.checkIcAvailability(data.ic));
-
-      if (icAvailableResponse?.data === false || icAvailableError) {
-        const errorMsg = icAvailableError ? "Error al comprobar DNI" : "DNI ya registrado";
-        setIcError(errorMsg);
-        form.setError("ic", { message: errorMsg });
-        return;
-      }
-    }
-
-    // Check again for race condition: before first check another admin use same username
-    if (data.userName !== userToUpdate?.userName) {
-      const [usernameAvailableResponse, usernameAvailableError] = await tryCatch(
-        UsersService.checkUsernameAvailability(data.userName),
-      );
-
-      if (usernameAvailableResponse?.data === false || usernameAvailableError) {
-        const errorMsg = usernameAvailableError
-          ? "Error al comprobar nombre de usuario"
-          : "Nombre de usuario ya registrado";
-        setUsernameError(errorMsg);
-        form.setError("userName", { message: errorMsg });
-        return;
-      }
-    }
+    if (!emailOk || !icOk || !usernameOk) return;
 
     const updateData = data.password
       ? data
@@ -311,20 +314,16 @@ export function EditProfessionalForm({ userId }: IProps) {
                           maxLength={9}
                           {...field}
                           onChange={async (e) => {
-                            const value = e.target.value.replace(/\D/g, "");
-                            field.onChange(value);
-
                             setIcError(null);
                             form.clearErrors("ic");
 
-                            if (value.length > 7) {
-                              const [response, error] = await tryCatch(UsersService.checkIcAvailability(value));
-                              if (response?.data === false || error) {
-                                const errorMsg = error ? "Error al comprobar DNI" : "DNI ya registrado";
-                                setIcError(errorMsg);
-                                form.setError("ic", { message: errorMsg });
-                              }
-                            }
+                            const value = e.target.value;
+                            form.setValue("ic", value, {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
+
+                            setIc(value);
                           }}
                         />
                         {(fieldState.invalid || icError) && (
@@ -393,21 +392,18 @@ export function EditProfessionalForm({ userId }: IProps) {
                           id="email"
                           {...field}
                           onChange={async (e) => {
-                            field.onChange(e);
                             setEmailError(null);
                             form.clearErrors("email");
 
-                            const emailValue = e.target.value;
-                            const emailValidation = z.email().safeParse(emailValue);
+                            const value = e.target.value;
+                            const emailValidation = z.email().safeParse(value);
 
-                            if (emailValidation.success) {
-                              const [response, error] = await tryCatch(UsersService.checkEmailAvailability(emailValue));
-                              if (response?.data === false || error) {
-                                const errorMsg = error ? "Error al comprobar email" : "Email ya registrado";
-                                setEmailError(errorMsg);
-                                form.setError("email", { message: errorMsg });
-                              }
-                            }
+                            form.setValue("email", value, {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
+
+                            if (emailValidation.success) setEmail(value);
                           }}
                         />
                         {(fieldState.invalid || emailError) && (
