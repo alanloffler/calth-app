@@ -14,11 +14,13 @@ import { toast } from "sonner";
 import { type MouseEvent, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
+import { useMaskito } from "@maskito/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { UsersService } from "@users/services/users.service";
+import { digitsMask } from "@core/masks/maskito-digits";
 import { tryCatch } from "@core/utils/try-catch";
 import { updateProfessionalSchema } from "@users/schemas/update-professional.schema";
 import { useAuthStore } from "@auth/stores/auth.store";
@@ -52,6 +54,8 @@ export function EditProfessionalForm({ userId }: IProps) {
   const debouncedUsername = useDebounce(username, 500);
 
   const canUpdatePassword = usePermission(`${userRole}-update-password` as TPermission);
+
+  const phoneRef = useMaskito({ options: digitsMask });
 
   const form = useForm<z.infer<typeof updateProfessionalSchema>>({
     resolver: zodResolver(updateProfessionalSchema),
@@ -423,9 +427,9 @@ export function EditProfessionalForm({ userId }: IProps) {
                           aria-invalid={fieldState.invalid}
                           id="phone"
                           maxLength={11}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, "");
-                            field.onChange(value);
+                          ref={(node) => {
+                            field.ref(node);
+                            phoneRef(node);
                           }}
                         />
                         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
