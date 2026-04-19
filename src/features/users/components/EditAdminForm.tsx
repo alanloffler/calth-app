@@ -20,7 +20,7 @@ import type { TPermission } from "@permissions/interfaces/permission.type";
 import { UsersService } from "@users/services/users.service";
 import { digitsMask } from "@core/masks/maskito-digits";
 import { tryCatch } from "@core/utils/try-catch";
-import { updateAdminSchema } from "@admin/schemas/update-admin.schema";
+import { updateAdminSchema } from "@users/schemas/update-admin.schema";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useDebounce } from "@core/hooks/useDebounce";
 import { usePermission } from "@permissions/hooks/usePermission";
@@ -62,6 +62,7 @@ export function EditAdminForm({ userId }: IProps) {
       password: "",
       phoneNumber: "",
       userName: "",
+      // FIX: DEPRECATED?
       roleId: "",
     },
   });
@@ -101,6 +102,7 @@ export function EditAdminForm({ userId }: IProps) {
             password: "",
             phoneNumber: user.data.phoneNumber,
             userName: user.data.userName,
+            // FIX: DEPRECATED?
             roleId: user.data.roleId || "",
           });
 
