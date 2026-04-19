@@ -13,11 +13,11 @@ import { Protected } from "@core/auth/components/Protected";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import { toast } from "sonner";
-import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
-import type { IPermission } from "@permissions/interfaces/permission.interface";
 import { PermissionsService } from "@permissions/services/permissions.service";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { usePermission } from "@permissions/hooks/usePermission";
@@ -27,7 +27,6 @@ export default function ViewPermission() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
-  const [permission, setPermission] = useState<IPermission | undefined>(undefined);
   const hasPermissions = usePermission(
     ["permissions-delete", "permissions-delete-hard", "permissions-restore", "permissions-update"],
     "some",
@@ -35,32 +34,16 @@ export default function ViewPermission() {
   const navigate = useNavigate();
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const { id } = useParams();
-  const { isLoading: isLoadingPermission, tryCatch: tryCatchPermission } = useTryCatch();
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
-  const findOnePermission = useCallback(
-    async function (id: string) {
-      const [response, responseError] = await tryCatchPermission(PermissionsService.findOne(id));
-
-      if (responseError) {
-        toast.error(responseError.message);
-        return;
-      }
-
-      if (response && response.statusCode === 200) {
-        setPermission(response.data);
-      }
-    },
-    [tryCatchPermission],
-  );
-
-  useEffect(() => {
-    if (id) {
-      findOnePermission(id);
-    }
-  }, [id, findOnePermission]);
+  const { data: permission, isLoading: isLoadingPermission } = useQuery({
+    queryKey: ["permissions", id],
+    queryFn: () => PermissionsService.findOne(id!),
+    select: (response) => response?.data,
+    enabled: !!id,
+  });
 
   async function removePermission(id: string): Promise<void> {
     const [response, error] = await tryCatchRemove(PermissionsService.softRemove(id));
