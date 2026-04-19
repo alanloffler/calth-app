@@ -17,9 +17,6 @@ const Business = lazy(() => import("./features/business/Business"));
 const BusinessCreate = lazy(() => import("./features/business/views/CreateBusiness"));
 const Calendar = lazy(() => import("./features/calendar/Calendar"));
 
-const Admin = lazy(() => import("./features/admin/Admin"));
-const EditAdmin = lazy(() => import("./features/admin/views/EditAdmin"));
-
 const Events = lazy(() => import("./features/event/Events"));
 
 const Roles = lazy(() => import("./features/roles/Roles"));
@@ -128,38 +125,6 @@ const router = createBrowserRouter([
             }
           >
             <Events />
-          </Suspense>
-        ),
-      },
-      {
-        path: "admin",
-        element: (
-          <Suspense
-            fallback={
-              <div className="relative h-full w-full">
-                <PageLoader className="-mt-8" />
-              </div>
-            }
-          >
-            <ProtectedRoute requiredPermission="admin-view">
-              <Admin />
-            </ProtectedRoute>
-          </Suspense>
-        ),
-      },
-      {
-        path: "admin/edit/:id",
-        element: (
-          <Suspense
-            fallback={
-              <div className="relative h-full w-full">
-                <PageLoader className="-mt-8" />
-              </div>
-            }
-          >
-            <ProtectedRoute requiredPermission={["admin-view", "admin-update"]}>
-              <EditAdmin />
-            </ProtectedRoute>
           </Suspense>
         ),
       },
