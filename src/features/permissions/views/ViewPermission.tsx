@@ -46,9 +46,9 @@ export default function ViewPermission() {
     mutationKey: ["permissions", "soft-remove", id],
     mutationFn: (id: string) => PermissionsService.softRemove(id),
     onSuccess: async (response) => {
-      toast.success(response.message);
-      queryClient.invalidateQueries({ queryKey: ["permissions", id] });
       await refreshAdmin();
+      queryClient.invalidateQueries({ queryKey: ["permissions", id] });
+      toast.success(response.message);
     },
     onSettled: () => {
       setOpenRemoveDialog(false);
@@ -59,9 +59,9 @@ export default function ViewPermission() {
     mutationKey: ["permissions", "restore", id],
     mutationFn: (id: string) => PermissionsService.restore(id),
     onSuccess: async (response) => {
-      toast.success(response.message);
-      queryClient.invalidateQueries({ queryKey: ["permissions", id] });
       await refreshAdmin();
+      queryClient.invalidateQueries({ queryKey: ["permissions", id] });
+      toast.success(response.message);
     },
     onSettled: () => {
       setOpenRestoreDialog(false);
@@ -72,9 +72,9 @@ export default function ViewPermission() {
     mutationKey: ["permissions", "remove", id],
     mutationFn: (id: string) => PermissionsService.remove(id),
     onSuccess: async (response) => {
-      toast.success(response.message);
-      queryClient.invalidateQueries({ queryKey: ["permissions", id] });
       await refreshAdmin();
+      queryClient.invalidateQueries({ queryKey: ["permissions", id] });
+      toast.success(response.message);
       navigate(-1);
     },
     onSettled: () => {
