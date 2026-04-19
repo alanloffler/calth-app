@@ -13,12 +13,13 @@ import { Protected } from "@core/auth/components/Protected";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import { toast } from "sonner";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { PermissionsService } from "@permissions/services/permissions.service";
+import { queryClient } from "@core/lib/query-client";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useTryCatch } from "@core/hooks/useTryCatch";
@@ -34,7 +35,6 @@ export default function ViewPermission() {
   const navigate = useNavigate();
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const { id } = useParams();
-  const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
@@ -45,22 +45,18 @@ export default function ViewPermission() {
     enabled: !!id,
   });
 
-  async function removePermission(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemove(PermissionsService.softRemove(id));
-
-    if (error) {
-      toast.error(error.message);
-      setOpenRemoveDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
+  const { mutate: removePermission, isPending: isRemoving } = useMutation({
+    mutationKey: ["permissions", "soft-remove", id],
+    mutationFn: () => PermissionsService.softRemove(id!),
+    onSuccess: async (response) => {
       toast.success(response.message);
-      setOpenRemoveDialog(false);
+      queryClient.invalidateQueries({ queryKey: ["permissions", id] });
       await refreshAdmin();
-      findOnePermission(id);
-    }
-  }
+    },
+    onSettled: () => {
+      setOpenRemoveDialog(false);
+    },
+  });
 
   async function hardRemovePermission(id: string): Promise<void> {
     const [response, error] = await tryCatchRemoveHard(PermissionsService.remove(id));
