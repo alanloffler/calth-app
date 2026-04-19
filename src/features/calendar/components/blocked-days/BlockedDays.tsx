@@ -25,8 +25,8 @@ import { es } from "react-day-picker/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { CalendarService } from "@calendar/services/calendar.service";
@@ -45,88 +45,91 @@ export function BlockedDays({ userId }: IProps) {
     null,
   );
 
-  const { data: blockedDays = [], isLoading: isLoadingBlockedDays } = useQuery({
+  const { data: blockedDays, isLoading: isLoadingBlockedDays } = useQuery({
     queryKey: ["blocked-days", userId],
     queryFn: () => CalendarService.findAllBlockedDays(userId),
-    select: (response) => response.data,
+    select: (response) => response.data ?? [],
   });
 
-  const columns: ColumnDef<{ id: string; date: string; reason: string }>[] = [
-    {
-      accessorKey: "id",
-      header: ({ column }) => (
-        <SortableHeader alignment="center" column={column}>
-          ID
-        </SortableHeader>
-      ),
-      cell: ({ row }) => (
-        <div className="text-center">
-          <Badge variant="id">{row.original.id.slice(0, 5)}</Badge>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "date",
-      header: ({ column }) => (
-        <SortableHeader alignment="left" column={column}>
-          Fecha
-        </SortableHeader>
-      ),
-      cell: ({ row }) => format(row.original.date, "P", { locale: esDateFns }),
-    },
-    {
-      accessorKey: "reason",
-      header: ({ column }) => (
-        <SortableHeader alignment="left" column={column}>
-          Motivo
-        </SortableHeader>
-      ),
-    },
-    {
-      id: "actions",
-      minSize: 168,
-      cell: ({ row }) => (
-        <div className="flex justify-end gap-2">
-          <Protected requiredPermission="patient-update">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  className="hover:text-edit"
-                  onClick={() => {
-                    setSelectedBlockedDay(row.original);
-                    setOpenEditDialog(true);
-                  }}
-                  size="icon-sm"
-                  variant="outline"
-                >
-                  <FilePenLine className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Editar</TooltipContent>
-            </Tooltip>
-          </Protected>
-          <Protected requiredPermission="patient-update">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  className="hover:text-delete"
-                  onClick={() => {
-                    setSelectedBlockedDay(row.original);
-                    setOpenRemoveHardDialog(true);
-                  }}
-                  size="icon-sm"
-                  variant="outline"
-                >
-                  <Trash2 />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Eliminar</TooltipContent>
-            </Tooltip>
-          </Protected>
-        </div>
-      ),
-    },
-  ];
+  const columns = useMemo<ColumnDef<{ id: string; date: string; reason: string }>[]>(
+    () => [
+      {
+        accessorKey: "id",
+        header: ({ column }) => (
+          <SortableHeader alignment="center" column={column}>
+            ID
+          </SortableHeader>
+        ),
+        cell: ({ row }) => (
+          <div className="text-center">
+            <Badge variant="id">{row.original.id.slice(0, 5)}</Badge>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "date",
+        header: ({ column }) => (
+          <SortableHeader alignment="left" column={column}>
+            Fecha
+          </SortableHeader>
+        ),
+        cell: ({ row }) => format(row.original.date, "P", { locale: esDateFns }),
+      },
+      {
+        accessorKey: "reason",
+        header: ({ column }) => (
+          <SortableHeader alignment="left" column={column}>
+            Motivo
+          </SortableHeader>
+        ),
+      },
+      {
+        id: "actions",
+        minSize: 168,
+        cell: ({ row }) => (
+          <div className="flex justify-end gap-2">
+            <Protected requiredPermission="patient-update">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    className="hover:text-edit"
+                    onClick={() => {
+                      setSelectedBlockedDay(row.original);
+                      setOpenEditDialog(true);
+                    }}
+                    size="icon-sm"
+                    variant="outline"
+                  >
+                    <FilePenLine className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Editar</TooltipContent>
+              </Tooltip>
+            </Protected>
+            <Protected requiredPermission="patient-update">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    className="hover:text-delete"
+                    onClick={() => {
+                      setSelectedBlockedDay(row.original);
+                      setOpenRemoveHardDialog(true);
+                    }}
+                    size="icon-sm"
+                    variant="outline"
+                  >
+                    <Trash2 />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Eliminar</TooltipContent>
+              </Tooltip>
+            </Protected>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
 
   const form = useForm<z.infer<typeof blockedDaysSchema>>({
     resolver: zodResolver(blockedDaysSchema),
@@ -230,7 +233,16 @@ export function BlockedDays({ userId }: IProps) {
                 className="my-auto flex w-fit flex-row items-center justify-center gap-2"
                 data-invalid={fieldState.invalid}
               >
-                <Checkbox className="size-4.5!" aria-invalid={fieldState.invalid} id="recurrent" {...field} />
+                <Checkbox
+                  className="size-4.5!"
+                  aria-invalid={fieldState.invalid}
+                  id="recurrent"
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(checked === true)}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                />
                 <Label htmlFor="recurrent">Recurrente</Label>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
