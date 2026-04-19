@@ -36,7 +36,6 @@ export default function ViewPermission() {
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const { id } = useParams();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
-  const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   const { data: permission, isLoading: isLoadingPermission } = useQuery({
     queryKey: ["permissions", id],
@@ -75,22 +74,18 @@ export default function ViewPermission() {
     }
   }
 
-  async function restorePermission(id: string): Promise<void> {
-    const [response, error] = await tryCatchRestore(PermissionsService.restore(id));
-
-    if (error) {
-      toast.error(error.message);
-      setOpenRestoreDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
+  const { mutate: restorePermission, isPending: isRestoring } = useMutation({
+    mutationKey: ["permissions", "restore", id],
+    mutationFn: () => PermissionsService.restore(id!),
+    onSuccess: async (response) => {
       toast.success(response.message);
-      setOpenRestoreDialog(false);
+      queryClient.invalidateQueries({ queryKey: ["permissions", id] });
       await refreshAdmin();
-      findOnePermission(id);
-    }
-  }
+    },
+    onSettled: () => {
+      setOpenRestoreDialog(false);
+    },
+  });
 
   return (
     <>
