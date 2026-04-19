@@ -1,18 +1,17 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import type { IAdmin } from "@admin/interfaces/admin.interface";
 import type { IUser } from "@users/interfaces/user.interface";
 import type { TAuthType } from "@auth/interfaces/auth.type";
 import { AuthService } from "@auth/services/auth.service";
 
 interface AuthState {
-  admin?: IAdmin | IUser;
+  admin?: IUser;
   loadingAdmin: boolean;
   type?: TAuthType;
   clearAdmin: () => void;
   refreshAdmin: () => Promise<void>;
-  setAdmin: (admin?: IAdmin) => void;
+  setAdmin: (admin?: IUser) => void;
   setLoadingAdmin: (loading: boolean) => void;
   setType: (type?: TAuthType) => void;
 }
