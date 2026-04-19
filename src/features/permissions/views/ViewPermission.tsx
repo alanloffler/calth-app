@@ -46,7 +46,7 @@ export default function ViewPermission() {
 
   const { mutate: removePermission, isPending: isRemoving } = useMutation({
     mutationKey: ["permissions", "soft-remove", id],
-    mutationFn: () => PermissionsService.softRemove(id!),
+    mutationFn: (id: string) => PermissionsService.softRemove(id),
     onSuccess: async (response) => {
       toast.success(response.message);
       queryClient.invalidateQueries({ queryKey: ["permissions", id] });
@@ -76,7 +76,7 @@ export default function ViewPermission() {
 
   const { mutate: restorePermission, isPending: isRestoring } = useMutation({
     mutationKey: ["permissions", "restore", id],
-    mutationFn: () => PermissionsService.restore(id!),
+    mutationFn: (id: string) => PermissionsService.restore(id),
     onSuccess: async (response) => {
       toast.success(response.message);
       queryClient.invalidateQueries({ queryKey: ["permissions", id] });
