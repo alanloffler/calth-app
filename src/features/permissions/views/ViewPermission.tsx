@@ -22,7 +22,6 @@ import { PermissionsService } from "@permissions/services/permissions.service";
 import { queryClient } from "@core/lib/query-client";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { usePermission } from "@permissions/hooks/usePermission";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export default function ViewPermission() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
@@ -35,7 +34,6 @@ export default function ViewPermission() {
   const navigate = useNavigate();
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const { id } = useParams();
-  const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
 
   const { data: permission, isLoading: isLoadingPermission } = useQuery({
     queryKey: ["permissions", id],
@@ -57,23 +55,6 @@ export default function ViewPermission() {
     },
   });
 
-  async function hardRemovePermission(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemoveHard(PermissionsService.remove(id));
-
-    if (error) {
-      toast.error(error.message);
-      setOpenRemoveHardDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      setOpenRemoveHardDialog(false);
-      await refreshAdmin();
-      navigate(-1);
-    }
-  }
-
   const { mutate: restorePermission, isPending: isRestoring } = useMutation({
     mutationKey: ["permissions", "restore", id],
     mutationFn: (id: string) => PermissionsService.restore(id),
@@ -84,6 +65,20 @@ export default function ViewPermission() {
     },
     onSettled: () => {
       setOpenRestoreDialog(false);
+    },
+  });
+
+  const { mutate: hardRemovePermission, isPending: isRemovingHard } = useMutation({
+    mutationKey: ["permissions", "remove", id],
+    mutationFn: (id: string) => PermissionsService.remove(id),
+    onSuccess: async (response) => {
+      toast.success(response.message);
+      queryClient.invalidateQueries({ queryKey: ["permissions", id] });
+      await refreshAdmin();
+      navigate(-1);
+    },
+    onSettled: () => {
+      setOpenRemoveHardDialog(false);
     },
   });
 
