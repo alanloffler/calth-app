@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import type { IAdmin } from "@admin/interfaces/admin.interface";
+import type { IUser } from "@users/interfaces/user.interface";
 import { AccountService } from "@account/services/profile.service";
 import { UsersService } from "@users/services/users.service";
 import { profileSchema } from "@account/schemas/profile.schema";
@@ -24,7 +24,7 @@ import { useDebounce } from "@core/hooks/useDebounce";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function EditForm() {
-  const [adminToUpdate, setAdminToUpdate] = useState<IAdmin | undefined>(undefined);
+  const [adminToUpdate, setAdminToUpdate] = useState<IUser | undefined>(undefined);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [icError, setIcError] = useState<string | null>(null);
   const [passwordField, setPasswordField] = useState<boolean>(true);
