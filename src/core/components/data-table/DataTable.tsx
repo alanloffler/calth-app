@@ -20,6 +20,8 @@ import {
 
 import { cn } from "@core/lib/utils";
 
+const EMPTY_ARRAY: never[] = [];
+
 interface DataTableProps<TData, TValue> {
   className?: string;
   columnVisibility?: any;
@@ -50,7 +52,7 @@ export function DataTable<TData, TValue>({
   const [globalFilter, setGlobalFilter] = useState<string>("");
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
 
-  const tableData = useMemo(() => (loading ? Array(5).fill({}) : data), [loading, data]);
+  const tableData = useMemo(() => (loading ? Array(5).fill({}) : (data ?? EMPTY_ARRAY)), [loading, data]);
   const tableColumns = useMemo(
     () =>
       loading
@@ -64,7 +66,7 @@ export function DataTable<TData, TValue>({
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data: tableData || [],
+    data: tableData,
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
