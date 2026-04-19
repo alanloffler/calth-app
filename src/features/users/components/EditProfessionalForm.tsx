@@ -55,6 +55,7 @@ export function EditProfessionalForm({ userId }: IProps) {
 
   const canUpdatePassword = usePermission(`${userRole}-update-password` as TPermission);
 
+  const icRef = useMaskito({ options: digitsMask });
   const phoneRef = useMaskito({ options: digitsMask });
 
   const form = useForm<z.infer<typeof updateProfessionalSchema>>({
@@ -317,6 +318,10 @@ export function EditProfessionalForm({ userId }: IProps) {
                           id="ic"
                           maxLength={9}
                           {...field}
+                          ref={(node) => {
+                            field.ref(node);
+                            icRef(node);
+                          }}
                           onChange={async (e) => {
                             setIcError(null);
                             form.clearErrors("ic");
