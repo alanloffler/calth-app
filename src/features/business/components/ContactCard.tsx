@@ -10,6 +10,8 @@ interface IProps {
 }
 
 export function ContactCard({ business, className }: IProps) {
+  const APP_URL = import.meta.env.VITE_APP_URL;
+
   return (
     <Card className={className}>
       <CardContent className="flex flex-1 flex-col gap-4">
@@ -37,7 +39,7 @@ export function ContactCard({ business, className }: IProps) {
               </li>
             )}
           </ul>
-          <QRCodeGenerator value="https://centro.calth.app" />
+          <QRCodeGenerator value={APP_URL} />
         </div>
       </CardContent>
     </Card>
