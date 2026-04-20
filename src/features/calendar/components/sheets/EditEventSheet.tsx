@@ -299,7 +299,7 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
                   const isHourInvalid = fieldState.invalid && !hasValidHour;
 
                   return (
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-5 md:grid-rows-1">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-6 md:grid-rows-1">
                       <Field
                         className="md:col-span-3"
                         data-invalid={isDateInvalid}
@@ -325,7 +325,7 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
                         </div>
                       </Field>
                       <Field
-                        className="md:col-span-2"
+                        className="md:col-span-3"
                         data-invalid={isHourInvalid}
                         style={{ position: "relative", zIndex: 1 }}
                       >
