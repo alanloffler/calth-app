@@ -143,14 +143,14 @@ export function EditBlockedDayForm({ blockedDay, dayId, professionalId, setOpen 
                 <Checkbox
                   className="size-4.5!"
                   aria-invalid={fieldState.invalid}
-                  id="recurrent"
+                  id="recurrentId"
                   checked={field.value ?? false}
                   onCheckedChange={(checked) => field.onChange(checked === true)}
                   onBlur={field.onBlur}
                   name={field.name}
                   ref={field.ref}
                 />
-                <Label className="font-normal" htmlFor="recurrent">
+                <Label className="font-normal" htmlFor="recurrentId">
                   Recurrente
                 </Label>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
