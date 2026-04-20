@@ -62,8 +62,6 @@ export function EditAdminForm({ userId }: IProps) {
       password: "",
       phoneNumber: "",
       userName: "",
-      // FIX: DEPRECATED?
-      roleId: "",
     },
   });
 
@@ -102,8 +100,6 @@ export function EditAdminForm({ userId }: IProps) {
             password: "",
             phoneNumber: user.data.phoneNumber,
             userName: user.data.userName,
-            // FIX: DEPRECATED?
-            roleId: user.data.roleId || "",
           });
 
           setUserToUpdate(user.data);
@@ -119,6 +115,7 @@ export function EditAdminForm({ userId }: IProps) {
     setPasswordField(!passwordField);
   }
 
+  // TODO: refactor as in editprofessional/editpatient
   async function onSubmit(data: z.infer<typeof updateAdminSchema>): Promise<void> {
     if (emailError) {
       form.setError("email", { message: emailError });
