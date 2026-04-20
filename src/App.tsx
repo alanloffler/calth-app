@@ -266,10 +266,9 @@ const router = createBrowserRouter([
               </div>
             }
           >
-            {/* TODO: set permissions */}
-            {/* <ProtectedRoute requiredPermission=""> */}
-            <BusinessSettings />
-            {/* </ProtectedRoute> */}
+            <ProtectedRoute requiredPermission="business-update">
+              <BusinessSettings />
+            </ProtectedRoute>
           </Suspense>
         ),
       },
