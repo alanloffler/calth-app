@@ -76,7 +76,10 @@ export function BlockedDays({ userId }: IProps) {
             Fecha
           </SortableHeader>
         ),
-        cell: ({ row }) => format(row.original.date, "P", { locale: esDateFns }),
+        cell: ({ row }) =>
+          format(row.original.date, row.original.recurrent ? "dd/MM" : "P", {
+            locale: esDateFns,
+          }),
       },
       {
         accessorKey: "reason",
