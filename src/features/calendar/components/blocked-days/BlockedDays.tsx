@@ -1,4 +1,4 @@
-import { Calendar1, FilePenLine, Plus, Trash2 } from "lucide-react";
+import { Calendar1, Check, FilePenLine, Plus, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
@@ -41,9 +41,12 @@ export function BlockedDays({ userId }: IProps) {
   const [open, setOpen] = useState<boolean>(false);
   const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
-  const [selectedBlockedDay, setSelectedBlockedDay] = useState<{ id: string; date: string; reason: string } | null>(
-    null,
-  );
+  const [selectedBlockedDay, setSelectedBlockedDay] = useState<{
+    id: string;
+    date: string;
+    reason: string;
+    recurrent: boolean;
+  } | null>(null);
 
   const { data: blockedDays, isLoading: isLoadingBlockedDays } = useQuery({
     queryKey: ["blocked-days", userId],
@@ -51,7 +54,7 @@ export function BlockedDays({ userId }: IProps) {
     select: (response) => response.data ?? [],
   });
 
-  const columns = useMemo<ColumnDef<{ id: string; date: string; reason: string }>[]>(
+  const columns = useMemo<ColumnDef<{ id: string; date: string; reason: string; recurrent: boolean }>[]>(
     () => [
       {
         accessorKey: "id",
@@ -82,6 +85,16 @@ export function BlockedDays({ userId }: IProps) {
             Motivo
           </SortableHeader>
         ),
+      },
+      {
+        accessorKey: "recurrent",
+        header: () => <div className="text-center">Recurrente</div>,
+        cell: ({ row }) =>
+          row.original.recurrent && (
+            <div className="flex w-fit place-self-center rounded-full border border-green-200 bg-green-100 p-0.5 text-green-500 dark:border-green-900/70 dark:bg-green-950">
+              <Check className="size-3.5" />
+            </div>
+          ),
       },
       {
         id: "actions",
