@@ -1,6 +1,7 @@
 import type z from "zod";
 
 import type { IApiResponse } from "@core/interfaces/api-response.interface";
+import type { IBlockedDay } from "@calendar/interfaces/blocked-day.interface";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { TEventStatus } from "@calendar/enums/event-status.enum";
 import type { eventSchema } from "@calendar/schemas/event.schema";
@@ -90,23 +91,22 @@ class CalendarModuleService {
   }
 
   // Blocked days => professional calendar config
-  // TODO: type api response
-  public async createBlockedDay(data: z.infer<typeof blockedDaysSchema>): Promise<IApiResponse<any>> {
+  public async createBlockedDay(data: z.infer<typeof blockedDaysSchema>): Promise<IApiResponse<IBlockedDay>> {
     const response = await apiClient.post(`/blocked-days`, data);
     return response.data;
   }
 
-  public async findAllBlockedDays(id: string): Promise<IApiResponse<any>> {
+  public async findAllBlockedDays(id: string): Promise<IApiResponse<IBlockedDay[]>> {
     const response = await apiClient.get(`/blocked-days/${id}`);
     return response.data;
   }
 
-  public async updateBlockedDay(id: string, data: z.infer<typeof blockedDaysSchema>): Promise<IApiResponse<any>> {
+  public async updateBlockedDay(id: string, data: z.infer<typeof blockedDaysSchema>): Promise<IApiResponse<null>> {
     const response = await apiClient.patch(`/blocked-days/${id}`, data);
     return response.data;
   }
 
-  public async deleteBlockedDay(id: string): Promise<IApiResponse<any>> {
+  public async deleteBlockedDay(id: string): Promise<IApiResponse<null>> {
     const response = await apiClient.delete(`/blocked-days/${id}`);
     return response.data;
   }
