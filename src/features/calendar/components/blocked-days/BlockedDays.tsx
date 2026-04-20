@@ -256,7 +256,9 @@ export function BlockedDays({ userId }: IProps) {
                   name={field.name}
                   ref={field.ref}
                 />
-                <Label htmlFor="recurrent">Recurrente</Label>
+                <Label className="font-normal" htmlFor="recurrent">
+                  Recurrente
+                </Label>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
