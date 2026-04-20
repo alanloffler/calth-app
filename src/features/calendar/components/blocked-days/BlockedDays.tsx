@@ -29,6 +29,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import type { IBlockedDay } from "@calendar/interfaces/blocked-day.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { blockedDaysSchema } from "@calendar/schemas/blocked-days.schema";
 import { queryClient } from "@core/lib/query-client";
@@ -41,12 +42,7 @@ export function BlockedDays({ userId }: IProps) {
   const [open, setOpen] = useState<boolean>(false);
   const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
-  const [selectedBlockedDay, setSelectedBlockedDay] = useState<{
-    id: string;
-    date: string;
-    reason: string;
-    recurrent: boolean;
-  } | null>(null);
+  const [selectedBlockedDay, setSelectedBlockedDay] = useState<IBlockedDay | null>(null);
 
   const { data: blockedDays, isLoading: isLoadingBlockedDays } = useQuery({
     queryKey: ["blocked-days", userId],
@@ -54,7 +50,7 @@ export function BlockedDays({ userId }: IProps) {
     select: (response) => response.data ?? [],
   });
 
-  const columns = useMemo<ColumnDef<{ id: string; date: string; reason: string; recurrent: boolean }>[]>(
+  const columns = useMemo<ColumnDef<IBlockedDay>[]>(
     () => [
       {
         accessorKey: "id",
