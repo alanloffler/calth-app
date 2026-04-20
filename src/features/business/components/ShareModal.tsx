@@ -42,11 +42,10 @@ export function ShareModal({ image, open, setOpen }: IProps) {
                     <Send />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Enviar</TooltipContent>
+                <TooltipContent>Enviar email</TooltipContent>
               </Tooltip>
             </div>
           </div>
-          {/* TODO: add tooltips */}
           <div className="flex flex-col gap-3 rounded-md border p-3 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
               {image && <img src={image} alt="QR Code" className="size-10 object-contain" />}
@@ -60,7 +59,7 @@ export function ShareModal({ image, open, setOpen }: IProps) {
                     <Send />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Enviar</TooltipContent>
+                <TooltipContent>Enviar WhatsApp</TooltipContent>
               </Tooltip>
             </div>
           </div>
