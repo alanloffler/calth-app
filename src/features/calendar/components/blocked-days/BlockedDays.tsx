@@ -91,7 +91,11 @@ export function BlockedDays({ userId }: IProps) {
       },
       {
         accessorKey: "recurrent",
-        header: () => <div className="text-center">Recurrente</div>,
+        header: ({ column }) => (
+          <SortableHeader alignment="center" column={column}>
+            Recurrente
+          </SortableHeader>
+        ),
         cell: ({ row }) =>
           row.original.recurrent && (
             <div className="flex w-fit place-self-center rounded-full border border-green-200 bg-green-100 p-0.5 text-green-500 dark:border-green-900/70 dark:bg-green-950">
