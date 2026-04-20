@@ -21,12 +21,13 @@ import { useState, useEffect, type Dispatch, type SetStateAction } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { IApiResponse } from "@core/interfaces/api-response.interface";
+import type { IBlockedDay } from "@calendar/interfaces/blocked-day.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { blockedDaysSchema } from "@calendar/schemas/blocked-days.schema";
 import { queryClient } from "@core/lib/query-client";
 
 interface IProps {
-  blockedDay: { id: string; date: string; reason: string; recurrent: boolean } | null;
+  blockedDay: IBlockedDay | null;
   dayId: string;
   professionalId: string;
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -45,9 +46,6 @@ export function EditBlockedDayForm({ blockedDay, dayId, professionalId, setOpen 
     },
   });
 
-  // Keep the form in sync with the incoming `blockedDay` prop.
-  // When the prop changes (for example, when opening the edit dialog for a different day),
-  // reset the form values so the UI correctly reflects the current item being edited.
   useEffect(() => {
     form.reset({
       date: blockedDay ? new Date(blockedDay.date) : undefined,
