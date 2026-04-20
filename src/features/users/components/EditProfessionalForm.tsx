@@ -229,16 +229,6 @@ export function EditProfessionalForm({ userId }: IProps) {
     <section className="flex flex-col gap-8">
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Fechas bloqueadas</CardTitle>
-          <CardDescription>Ingresa las fechas especificas que deseas bloquear para este profesional</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <BlockedDays userId={userId} />
-        </CardContent>
-      </Card>
-
-      <Card className="w-full">
-        <CardHeader>
           <CardTitle>Edición de profesional</CardTitle>
           <CardDescription>Actualizá los datos del profesional</CardDescription>
         </CardHeader>
@@ -614,6 +604,15 @@ export function EditProfessionalForm({ userId }: IProps) {
             </Button>
           </div>
         </CardFooter>
+      </Card>
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Fechas bloqueadas</CardTitle>
+          <CardDescription>Ingresa las fechas especificas que deseas bloquear para este profesional</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <BlockedDays userId={userId} />
+        </CardContent>
       </Card>
     </section>
   );
