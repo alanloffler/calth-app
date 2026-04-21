@@ -9,7 +9,7 @@ import { Loader } from "@components/Loader";
 
 import z from "zod";
 import { toast } from "sonner";
-import { type MouseEvent, useEffect, useState } from "react";
+import { type MouseEvent, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { useMaskito } from "@maskito/react";
@@ -65,21 +65,27 @@ export function EditAdminForm({ userId }: IProps) {
     },
   });
 
-  useEffect(() => {
-    async function checkUsername() {
-      if (!debouncedUsername || debouncedUsername.length <= 3) return;
-      if (debouncedUsername === userToUpdate?.userName) return;
+  const checkUsername = useCallback(
+    async (value: string): Promise<boolean> => {
+      if (!value || value.length <= 3) return true;
+      if (value === userToUpdate?.userName) return true;
 
-      const [response, error] = await tryCatch(UsersService.checkUsernameAvailability(debouncedUsername));
+      const [response, error] = await tryCatch(UsersService.checkUsernameAvailability(value));
       if (response?.data === false || error) {
         const message = error ? "Error al comprobar nombre de usuario" : "Nombre de usuario ya registrado";
         setUsernameError(message);
         form.setError("userName", { message });
+        return false;
       }
-    }
+      return true;
+    },
+    [form, userToUpdate?.userName],
+  );
 
-    checkUsername();
-  }, [debouncedUsername, userToUpdate?.userName, form]);
+  // Writting validations
+  useEffect(() => {
+    checkUsername(debouncedUsername);
+  }, [checkUsername, debouncedUsername]);
 
   useEffect(() => {
     async function findOneWithCredentials(): Promise<void> {
@@ -115,7 +121,6 @@ export function EditAdminForm({ userId }: IProps) {
     setPasswordField(!passwordField);
   }
 
-  // TODO: refactor as in editprofessional/editpatient
   async function onSubmit(data: z.infer<typeof updateAdminSchema>): Promise<void> {
     if (emailError) {
       form.setError("email", { message: emailError });
