@@ -33,6 +33,7 @@ interface IProps {
 export function EditAdminForm({ userId }: IProps) {
   const [userToUpdate, setUserToUpdate] = useState<IUser | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [ic, setIc] = useState<string>("");
   const [icError, setIcError] = useState<string | null>(null);
   const [passwordField, setPasswordField] = useState<boolean>(true);
   const [username, setUsername] = useState<string>("");
@@ -45,6 +46,7 @@ export function EditAdminForm({ userId }: IProps) {
   const { isLoading: isLoadingAdmin, tryCatch: tryCatchAdmin } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
+  const debouncedIc = useDebounce(ic, 500);
   const debouncedUsername = useDebounce(username, 500);
 
   const canUpdatePassword = usePermission(`${userRole}-update-password` as TPermission);
@@ -65,6 +67,23 @@ export function EditAdminForm({ userId }: IProps) {
     },
   });
 
+  const checkIc = useCallback(
+    async (value: string) => {
+      if (!value || value.length <= 7) return true;
+      if (value === userToUpdate?.ic) return true;
+
+      const [response, error] = await tryCatch(UsersService.checkIcAvailability(value));
+      if (response?.data === false || error) {
+        const message = error ? "Error al comprobar DNI" : "DNI ya registrado";
+        setIcError(message);
+        form.setError("ic", { message });
+        return false;
+      }
+      return true;
+    },
+    [form, userToUpdate?.ic],
+  );
+
   const checkUsername = useCallback(
     async (value: string): Promise<boolean> => {
       if (!value || value.length <= 3) return true;
@@ -83,6 +102,10 @@ export function EditAdminForm({ userId }: IProps) {
   );
 
   // Writting validations
+  useEffect(() => {
+    checkIc(debouncedIc);
+  }, [checkIc, debouncedIc]);
+
   useEffect(() => {
     checkUsername(debouncedUsername);
   }, [checkUsername, debouncedUsername]);
@@ -287,21 +310,16 @@ export function EditAdminForm({ userId }: IProps) {
                           icRef(node);
                         }}
                         onChange={async (e) => {
-                          field.onChange(e);
-
-                          const value = e.target.value;
-
                           setIcError(null);
                           form.clearErrors("ic");
 
-                          if (value.length > 7) {
-                            const [response, error] = await tryCatch(UsersService.checkIcAvailability(value));
-                            if (response?.data === false || error) {
-                              const errorMsg = error ? "Error al comprobar DNI" : "DNI ya registrado";
-                              setIcError(errorMsg);
-                              form.setError("ic", { message: errorMsg });
-                            }
-                          }
+                          const value = e.target.value;
+                          form.setValue("ic", value, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+
+                          setIc(value);
                         }}
                       />
                       {(fieldState.invalid || icError) && (
