@@ -15,9 +15,9 @@ import { type MouseEvent, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { useMaskito } from "@maskito/react";
+import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { GENDERS } from "@core/constants/genders.constant";
 import { UsersService } from "@users/services/users.service";
@@ -44,7 +44,6 @@ export function EditPatientForm({ userId }: IProps) {
   const [ic, setIc] = useState<string>("");
   const [icError, setIcError] = useState<string | null>(null);
   const [passwordField, setPasswordField] = useState<boolean>(true);
-  const [userToUpdate, setUserToUpdate] = useState<IUser | null>(null);
   const [username, setUsername] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const admin = useAuthStore((state) => state.admin);
@@ -52,7 +51,6 @@ export function EditPatientForm({ userId }: IProps) {
   const navigate = useNavigate();
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const userRole = location.state.role;
-  const { isLoading: isLoadingPatient, tryCatch: tryCatchPatient } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const debouncedEmail = useDebounce(email, 500);
@@ -87,6 +85,37 @@ export function EditPatientForm({ userId }: IProps) {
       emergencyContactPhone: "",
     },
   });
+
+  const { data: userToUpdate, isLoading: isLoadingPatient } = useQuery({
+    queryKey: ["patient", userId],
+    queryFn: () => UsersService.findWithProfile(userId, "patient"),
+    select: (response) => response.data,
+    enabled: !!userId,
+  });
+
+  useEffect(() => {
+    if (userToUpdate) {
+      form.reset({
+        email: userToUpdate.email,
+        firstName: userToUpdate.firstName,
+        ic: userToUpdate.ic,
+        lastName: userToUpdate.lastName,
+        password: "",
+        phoneNumber: userToUpdate.phoneNumber,
+        userName: userToUpdate.userName,
+
+        gender: userToUpdate.patientProfile?.gender ?? "",
+        birthDay: userToUpdate.patientProfile
+          ? format(new Date(userToUpdate.patientProfile.birthDay), "dd/MM/yyyy")
+          : undefined,
+        bloodType: userToUpdate.patientProfile?.bloodType,
+        weight: String(userToUpdate.patientProfile?.weight),
+        height: String(userToUpdate.patientProfile?.height),
+        emergencyContactName: userToUpdate.patientProfile?.emergencyContactName,
+        emergencyContactPhone: userToUpdate.patientProfile?.emergencyContactPhone,
+      });
+    }
+  }, [form, userToUpdate]);
 
   const checkEmail = useCallback(
     async (value: string) => {
@@ -151,45 +180,6 @@ export function EditPatientForm({ userId }: IProps) {
   useEffect(() => {
     checkUsername(debouncedUsername);
   }, [checkUsername, debouncedUsername]);
-
-  useEffect(() => {
-    async function findOneWithCredentials(): Promise<void> {
-      const [user, userError] = await tryCatchPatient(UsersService.findWithProfile(userId, "patient"));
-
-      if (userError) {
-        toast.error(userError.message);
-        return;
-      }
-
-      if (user && user.statusCode === 200) {
-        if (user.data) {
-          form.reset({
-            email: user.data.email,
-            firstName: user.data.firstName,
-            ic: user.data.ic,
-            lastName: user.data.lastName,
-            password: "",
-            phoneNumber: user.data.phoneNumber,
-            userName: user.data.userName,
-
-            gender: user.data.patientProfile?.gender ?? "",
-            birthDay: user.data.patientProfile
-              ? format(new Date(user.data.patientProfile.birthDay), "dd/MM/yyyy")
-              : undefined,
-            bloodType: user.data.patientProfile?.bloodType,
-            weight: String(user.data.patientProfile?.weight),
-            height: String(user.data.patientProfile?.height),
-            emergencyContactName: user.data.patientProfile?.emergencyContactName,
-            emergencyContactPhone: user.data.patientProfile?.emergencyContactPhone,
-          });
-
-          setUserToUpdate(user.data);
-        }
-      }
-    }
-
-    findOneWithCredentials();
-  }, [userId, form, tryCatchPatient]);
 
   function togglePasswordField(event: MouseEvent<HTMLButtonElement>): void {
     event.preventDefault();
