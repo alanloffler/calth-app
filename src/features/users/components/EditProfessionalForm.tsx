@@ -15,9 +15,9 @@ import { type MouseEvent, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { useMaskito } from "@maskito/react";
+import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { UsersService } from "@users/services/users.service";
 import { digitsMask } from "@core/masks/maskito-digits";
@@ -38,7 +38,6 @@ export function EditProfessionalForm({ userId }: IProps) {
   const [ic, setIc] = useState<string>("");
   const [icError, setIcError] = useState<string | null>(null);
   const [passwordField, setPasswordField] = useState<boolean>(true);
-  const [userToUpdate, setUserToUpdate] = useState<IUser | null>(null);
   const [username, setUsername] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const admin = useAuthStore((state) => state.admin);
@@ -46,7 +45,6 @@ export function EditProfessionalForm({ userId }: IProps) {
   const navigate = useNavigate();
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const userRole = location.state.role;
-  const { isLoading: isLoadingProfessional, tryCatch: tryCatchProfessional } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const debouncedEmail = useDebounce(email, 500);
@@ -80,6 +78,39 @@ export function EditProfessionalForm({ userId }: IProps) {
       workingDays: [] as number[],
     },
   });
+
+  const { data: userToUpdate, isLoading: isLoadingProfessional } = useQuery({
+    queryKey: ["professional", userId],
+    queryFn: () => UsersService.findWithProfile(userId, "professional"),
+    select: (response) => response.data,
+    enabled: !!userId,
+  });
+
+  useEffect(() => {
+    if (userToUpdate) {
+      const _workingDays = userToUpdate.professionalProfile?.workingDays.map(Number);
+
+      form.reset({
+        email: userToUpdate.email,
+        firstName: userToUpdate.firstName,
+        ic: userToUpdate.ic,
+        lastName: userToUpdate.lastName,
+        password: "",
+        phoneNumber: userToUpdate.phoneNumber,
+        userName: userToUpdate.userName,
+
+        dailyExceptionEnd: userToUpdate.professionalProfile?.dailyExceptionEnd ?? "",
+        dailyExceptionStart: userToUpdate.professionalProfile?.dailyExceptionStart ?? "",
+        endHour: userToUpdate.professionalProfile?.endHour,
+        licenseId: userToUpdate.professionalProfile?.licenseId,
+        professionalPrefix: userToUpdate.professionalProfile?.professionalPrefix,
+        slotDuration: userToUpdate.professionalProfile?.slotDuration,
+        specialty: userToUpdate.professionalProfile?.specialty,
+        startHour: userToUpdate.professionalProfile?.startHour,
+        workingDays: _workingDays ?? [],
+      });
+    }
+  }, [form, userToUpdate]);
 
   const checkEmail = useCallback(
     async (value: string) => {
@@ -144,47 +175,6 @@ export function EditProfessionalForm({ userId }: IProps) {
   useEffect(() => {
     checkUsername(debouncedUsername);
   }, [checkUsername, debouncedUsername]);
-
-  useEffect(() => {
-    async function findOneWithCredentials(): Promise<void> {
-      const [user, userError] = await tryCatchProfessional(UsersService.findWithProfile(userId, "professional"));
-
-      if (userError) {
-        toast.error(userError.message);
-        return;
-      }
-
-      if (user && user.statusCode === 200) {
-        if (user.data) {
-          const _workingDays = user.data.professionalProfile?.workingDays.map(Number);
-
-          form.reset({
-            email: user.data.email,
-            firstName: user.data.firstName,
-            ic: user.data.ic,
-            lastName: user.data.lastName,
-            password: "",
-            phoneNumber: user.data.phoneNumber,
-            userName: user.data.userName,
-
-            dailyExceptionEnd: user.data.professionalProfile?.dailyExceptionEnd ?? "",
-            dailyExceptionStart: user.data.professionalProfile?.dailyExceptionStart ?? "",
-            endHour: user.data.professionalProfile?.endHour,
-            licenseId: user.data.professionalProfile?.licenseId,
-            professionalPrefix: user.data.professionalProfile?.professionalPrefix,
-            slotDuration: user.data.professionalProfile?.slotDuration,
-            specialty: user.data.professionalProfile?.specialty,
-            startHour: user.data.professionalProfile?.startHour,
-            workingDays: _workingDays ?? [],
-          });
-
-          setUserToUpdate(user.data);
-        }
-      }
-    }
-
-    findOneWithCredentials();
-  }, [userId, form, tryCatchProfessional]);
 
   function togglePasswordField(event: MouseEvent<HTMLButtonElement>): void {
     event.preventDefault();
