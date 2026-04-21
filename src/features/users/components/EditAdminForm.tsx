@@ -177,20 +177,6 @@ export function EditAdminForm({ userId }: IProps) {
 
     if (!icOk || !usernameOk) return;
 
-    // Check again for race condition: before first check another admin use same ic
-    if (data.email !== userToUpdate?.email) {
-      const [emailAvailableResponse, emailAvailableError] = await tryCatch(
-        UsersService.checkEmailAvailability(data.email),
-      );
-
-      if (emailAvailableResponse?.data === false || emailAvailableError) {
-        const errorMsg = emailAvailableError ? "Error al comprobar email" : "Email ya registrado";
-        setEmailError(errorMsg);
-        form.setError("email", { message: errorMsg });
-        return;
-      }
-    }
-
     const updateData = data.password
       ? data
       : Object.fromEntries(Object.entries(data).filter(([key]) => key !== "password"));
