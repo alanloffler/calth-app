@@ -41,6 +41,7 @@ export function CreateProfessionalForm() {
   const debouncedUsername = useDebounce(username, 500);
 
   const icRef = useMaskito({ options: digitsMask });
+  const phoneRef = useMaskito({ options: digitsMask });
 
   const form = useForm<z.infer<typeof createProfessionalSchema>>({
     resolver: zodResolver(createProfessionalSchema),
@@ -344,9 +345,9 @@ export function CreateProfessionalForm() {
                         aria-invalid={fieldState.invalid}
                         id="phone"
                         maxLength={11}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, "");
-                          field.onChange(value);
+                        ref={(node) => {
+                          field.ref(node);
+                          phoneRef(node);
                         }}
                       />
                       {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
