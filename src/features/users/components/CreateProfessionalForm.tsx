@@ -11,12 +11,14 @@ import { toast } from "sonner";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
+import { useMaskito } from "@maskito/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { TUserRole } from "@roles/interfaces/user-role.type";
 import { ERoles } from "@auth/enums/role.enum";
 import { UsersService } from "@users/services/users.service";
 import { createProfessionalSchema } from "@users/schemas/create-professional.schema";
+import { digitsMask } from "@core/masks/maskito-digits";
 import { tryCatch } from "@core/utils/try-catch";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { useDebounce } from "@core/hooks/useDebounce";
@@ -37,6 +39,8 @@ export function CreateProfessionalForm() {
   const debouncedEmail = useDebounce(email, 500);
   const debouncedIc = useDebounce(ic, 500);
   const debouncedUsername = useDebounce(username, 500);
+
+  const icRef = useMaskito({ options: digitsMask });
 
   const form = useForm<z.infer<typeof createProfessionalSchema>>({
     resolver: zodResolver(createProfessionalSchema),
@@ -226,6 +230,10 @@ export function CreateProfessionalForm() {
                         id="ic"
                         maxLength={9}
                         {...field}
+                        ref={(node) => {
+                          field.ref(node);
+                          icRef(node);
+                        }}
                         onChange={async (e) => {
                           setIcError(null);
                           form.clearErrors("ic");
