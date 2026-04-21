@@ -134,23 +134,13 @@ export function CreatePatientForm() {
   }, [checkUsername, debouncedUsername]);
 
   async function onSubmit(data: z.output<typeof createPatientSchema>) {
-    if (icError) {
-      form.setError("ic", { message: icError });
-      return;
-    }
+    const [emailOk, icOk, usernameOk] = await Promise.all([
+      checkEmail(data.email),
+      checkIc(data.ic),
+      checkUsername(data.userName),
+    ]);
 
-    const [emailOk, usernameOk] = await Promise.all([checkEmail(data.email), checkUsername(data.userName)]);
-
-    if (!emailOk || !usernameOk) return;
-
-    // Check again for race condition: before first check another admin use same ic
-    const [icAvailableResponse, icAvailableError] = await tryCatch(UsersService.checkIcAvailability(data.ic));
-    if (icAvailableResponse?.data === false || icAvailableError) {
-      const errorMsg = icAvailableError ? "Error al comprobar DNI" : "DNI ya registrado";
-      setIcError(errorMsg);
-      form.setError("ic", { message: errorMsg });
-      return;
-    }
+    if (!emailOk || !icOk || !usernameOk) return;
 
     const [create, createError] = await tryCatchPatient(UsersService.createPatient(data));
 
