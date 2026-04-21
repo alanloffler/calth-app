@@ -150,15 +150,14 @@ export function EditAdminForm({ userId }: IProps) {
       return;
     }
 
-    if (icError) {
-      form.setError("ic", { message: icError });
-      return;
-    }
-
     if (usernameError) {
       form.setError("userName", { message: usernameError });
       return;
     }
+
+    const [icOk] = await Promise.all([checkIc(data.email)]);
+
+    if (!icOk) return;
 
     // Check again for race condition: before first check another admin use same ic
     if (data.email !== userToUpdate?.email) {
@@ -170,18 +169,6 @@ export function EditAdminForm({ userId }: IProps) {
         const errorMsg = emailAvailableError ? "Error al comprobar email" : "Email ya registrado";
         setEmailError(errorMsg);
         form.setError("email", { message: errorMsg });
-        return;
-      }
-    }
-
-    // Check again for race condition: before first check another admin use same ic
-    if (data.ic !== userToUpdate?.ic) {
-      const [icAvailableResponse, icAvailableError] = await tryCatch(UsersService.checkIcAvailability(data.ic));
-
-      if (icAvailableResponse?.data === false || icAvailableError) {
-        const errorMsg = icAvailableError ? "Error al comprobar DNI" : "DNI ya registrado";
-        setIcError(errorMsg);
-        form.setError("ic", { message: errorMsg });
         return;
       }
     }
