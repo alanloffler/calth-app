@@ -8,7 +8,7 @@ import { WorkingDays } from "@components/WorkingDays";
 
 import z from "zod";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,6 +55,27 @@ export function CreateProfessionalForm() {
       slotDuration: "",
     },
   });
+
+  const checkUsername = useCallback(
+    async (value: string): Promise<boolean> => {
+      if (!value || value.length <= 3) return true;
+
+      const [response, error] = await tryCatch(UsersService.checkUsernameAvailability(value));
+      if (response?.data === false || error) {
+        const message = error ? "Error al comprobar nombre de usuario" : "Nombre de usuario ya registrado";
+        setUsernameError(message);
+        form.setError("userName", { message });
+        return false;
+      }
+      return true;
+    },
+    [form],
+  );
+
+  // Writting validations
+  useEffect(() => {
+    checkUsername(debouncedUsername);
+  }, [checkUsername, debouncedUsername]);
 
   async function onSubmit(data: z.infer<typeof createProfessionalSchema>) {
     if (emailError) {
@@ -119,21 +140,6 @@ export function CreateProfessionalForm() {
       navigate("/users/role/professional");
     }
   }
-
-  useEffect(() => {
-    async function checkUsername() {
-      if (!debouncedUsername || debouncedUsername.length <= 3) return;
-
-      const [response, error] = await tryCatch(UsersService.checkUsernameAvailability(debouncedUsername));
-      if (response?.data === false || error) {
-        const message = error ? "Error al comprobar nombre de usuario" : "Nombre de usuario ya registrado";
-        setUsernameError(message);
-        form.setError("userName", { message });
-      }
-    }
-
-    checkUsername();
-  }, [debouncedUsername, form]);
 
   function resetForm(): void {
     form.reset();
