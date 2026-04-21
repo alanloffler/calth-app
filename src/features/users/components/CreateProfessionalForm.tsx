@@ -88,10 +88,9 @@ export function CreateProfessionalForm() {
       return;
     }
 
-    if (usernameError) {
-      form.setError("userName", { message: usernameError });
-      return;
-    }
+    const [usernameOk] = await Promise.all([checkUsername(data.userName)]);
+
+    if (!usernameOk) return;
 
     // Check again for race condition: before first check another admin use same ic
     const [emailAvailableResponse, emailAvailableError] = await tryCatch(
@@ -111,20 +110,6 @@ export function CreateProfessionalForm() {
       const errorMsg = icAvailableError ? "Error al comprobar DNI" : "DNI ya registrado";
       setIcError(errorMsg);
       form.setError("ic", { message: errorMsg });
-      return;
-    }
-
-    // Check again for race condition: before first check another admin use same username
-    const [usernameAvailableResponse, usernameAvailableError] = await tryCatch(
-      UsersService.checkUsernameAvailability(data.userName),
-    );
-
-    if (usernameAvailableResponse?.data === false || usernameAvailableError) {
-      const errorMsg = usernameAvailableError
-        ? "Error al comprobar nombre de usuario"
-        : "Nombre de usuario ya registrado";
-      setUsernameError(errorMsg);
-      form.setError("userName", { message: errorMsg });
       return;
     }
 
