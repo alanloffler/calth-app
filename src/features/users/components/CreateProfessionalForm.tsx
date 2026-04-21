@@ -25,6 +25,7 @@ import { useTryCatch } from "@core/hooks/useTryCatch";
 export function CreateProfessionalForm() {
   const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [ic, setIc] = useState<string>("");
   const [icError, setIcError] = useState<string | null>(null);
   const [username, setUsername] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string | null>(null);
@@ -34,6 +35,7 @@ export function CreateProfessionalForm() {
   const { isLoading: isSaving, tryCatch: tryCatchUser } = useTryCatch();
 
   const debouncedEmail = useDebounce(email, 500);
+  const debouncedIc = useDebounce(ic, 500);
   const debouncedUsername = useDebounce(username, 500);
 
   const form = useForm<z.infer<typeof createProfessionalSchema>>({
@@ -74,6 +76,22 @@ export function CreateProfessionalForm() {
     [form],
   );
 
+  const checkIc = useCallback(
+    async (value: string) => {
+      if (!value || value.length <= 7) return true;
+
+      const [response, error] = await tryCatch(UsersService.checkIcAvailability(value));
+      if (response?.data === false || error) {
+        const message = error ? "Error al comprobar DNI" : "DNI ya registrado";
+        setIcError(message);
+        form.setError("ic", { message });
+        return false;
+      }
+      return true;
+    },
+    [form],
+  );
+
   const checkUsername = useCallback(
     async (value: string): Promise<boolean> => {
       if (!value || value.length <= 3) return true;
@@ -94,6 +112,10 @@ export function CreateProfessionalForm() {
   useEffect(() => {
     checkEmail(debouncedEmail);
   }, [checkEmail, debouncedEmail]);
+
+  useEffect(() => {
+    checkIc(debouncedIc);
+  }, [checkIc, debouncedIc]);
 
   useEffect(() => {
     checkUsername(debouncedUsername);
@@ -215,20 +237,16 @@ export function CreateProfessionalForm() {
                         maxLength={9}
                         {...field}
                         onChange={async (e) => {
-                          const value = e.target.value.replace(/\D/g, "");
-                          field.onChange(value);
-
                           setIcError(null);
                           form.clearErrors("ic");
 
-                          if (value.length > 7) {
-                            const [response, error] = await tryCatch(UsersService.checkIcAvailability(value));
-                            if (response?.data === false || error) {
-                              const errorMsg = error ? "Error al comprobar DNI" : "DNI ya registrado";
-                              setIcError(errorMsg);
-                              form.setError("ic", { message: errorMsg });
-                            }
-                          }
+                          const value = e.target.value;
+                          form.setValue("ic", value, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+
+                          setIc(value);
                         }}
                       />
                       {(fieldState.invalid || icError) && (
