@@ -100,16 +100,9 @@ export function CreateAdminForm() {
       return;
     }
 
-    if (icError) {
-      form.setError("ic", { message: icError });
-      return;
-    }
+    const [icOk, usernameOk] = await Promise.all([checkIc(data.ic), checkUsername(data.userName)]);
 
-    const [usernameOk] = await Promise.all([checkUsername(data.userName)]);
-
-    if (!usernameOk) {
-      return;
-    }
+    if (!icOk || !usernameOk) return;
 
     // Check again for race condition: before first check another admin use same ic
     const [emailAvailableResponse, emailAvailableError] = await tryCatch(
@@ -120,15 +113,6 @@ export function CreateAdminForm() {
       const errorMsg = emailAvailableError ? "Error al comprobar email" : "Email ya registrado";
       setEmailError(errorMsg);
       form.setError("email", { message: errorMsg });
-      return;
-    }
-
-    // Check again for race condition: before first check another admin use same ic
-    const [icAvailableResponse, icAvailableError] = await tryCatch(UsersService.checkIcAvailability(data.ic));
-    if (icAvailableResponse?.data === false || icAvailableError) {
-      const errorMsg = icAvailableError ? "Error al comprobar DNI" : "DNI ya registrado";
-      setIcError(errorMsg);
-      form.setError("ic", { message: errorMsg });
       return;
     }
 
