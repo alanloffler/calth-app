@@ -168,14 +168,13 @@ export function EditAdminForm({ userId }: IProps) {
   }
 
   async function onSubmit(data: z.infer<typeof updateAdminSchema>): Promise<void> {
-    if (emailError) {
-      form.setError("email", { message: emailError });
-      return;
-    }
+    const [emailOk, icOk, usernameOk] = await Promise.all([
+      checkEmail(data.email),
+      checkIc(data.ic),
+      checkUsername(data.userName),
+    ]);
 
-    const [icOk, usernameOk] = await Promise.all([checkIc(data.email), checkUsername(data.userName)]);
-
-    if (!icOk || !usernameOk) return;
+    if (!emailOk || !icOk || !usernameOk) return;
 
     const updateData = data.password
       ? data
