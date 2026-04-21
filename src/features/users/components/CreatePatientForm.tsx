@@ -100,10 +100,9 @@ export function CreatePatientForm() {
       return;
     }
 
-    if (usernameError) {
-      form.setError("userName", { message: usernameError });
-      return;
-    }
+    const [usernameOk] = await Promise.all([checkUsername(data.userName)]);
+
+    if (!usernameOk) return;
 
     // Check again for race condition: before first check another admin use same ic
     const [emailAvailableResponse, emailAvailableError] = await tryCatch(
@@ -126,20 +125,6 @@ export function CreatePatientForm() {
       return;
     }
 
-    // Check again for race condition: before first check another admin use same username
-    const [usernameAvailableResponse, usernameAvailableError] = await tryCatch(
-      UsersService.checkUsernameAvailability(data.userName),
-    );
-
-    if (usernameAvailableResponse?.data === false || usernameAvailableError) {
-      const errorMsg = usernameAvailableError
-        ? "Error al comprobar nombre de usuario"
-        : "Nombre de usuario ya registrado";
-      setUsernameError(errorMsg);
-      form.setError("userName", { message: errorMsg });
-      return;
-    }
-
     const [create, createError] = await tryCatchPatient(UsersService.createPatient(data));
 
     if (createError) {
@@ -147,7 +132,7 @@ export function CreatePatientForm() {
       return;
     }
 
-    if (create && create.data && create.statusCode === 201) {
+    if (create?.statusCode === 201) {
       toast.success(create.message);
       navigate("/users/role/patient");
     }
