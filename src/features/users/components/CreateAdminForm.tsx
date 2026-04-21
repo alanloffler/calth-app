@@ -117,26 +117,13 @@ export function CreateAdminForm() {
   }, [checkUsername, debouncedUsername]);
 
   async function onSubmit(data: z.output<typeof createAdminSchema>) {
-    if (emailError) {
-      form.setError("email", { message: emailError });
-      return;
-    }
+    const [emailOk, icOk, usernameOk] = await Promise.all([
+      checkEmail(data.email),
+      checkIc(data.ic),
+      checkUsername(data.userName),
+    ]);
 
-    const [icOk, usernameOk] = await Promise.all([checkIc(data.ic), checkUsername(data.userName)]);
-
-    if (!icOk || !usernameOk) return;
-
-    // Check again for race condition: before first check another admin use same ic
-    const [emailAvailableResponse, emailAvailableError] = await tryCatch(
-      UsersService.checkEmailAvailability(data.email),
-    );
-
-    if (emailAvailableResponse?.data === false || emailAvailableError) {
-      const errorMsg = emailAvailableError ? "Error al comprobar email" : "Email ya registrado";
-      setEmailError(errorMsg);
-      form.setError("email", { message: errorMsg });
-      return;
-    }
+    if (!emailOk || !icOk || !usernameOk) return;
 
     const [create, createError] = await tryCatchAdmin(UsersService.createAdmin(data));
 
@@ -145,7 +132,7 @@ export function CreateAdminForm() {
       return;
     }
 
-    if (create && create.data && create.statusCode === 201) {
+    if (create?.statusCode === 201) {
       toast.success(create.message);
       navigate("/users/role/admin");
     }
