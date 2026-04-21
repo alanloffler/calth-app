@@ -31,11 +31,12 @@ interface IProps {
 }
 
 export function EditAdminForm({ userId }: IProps) {
-  const [userToUpdate, setUserToUpdate] = useState<IUser | null>(null);
+  const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [ic, setIc] = useState<string>("");
   const [icError, setIcError] = useState<string | null>(null);
   const [passwordField, setPasswordField] = useState<boolean>(true);
+  const [userToUpdate, setUserToUpdate] = useState<IUser | null>(null);
   const [username, setUsername] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const admin = useAuthStore((state) => state.admin);
@@ -46,6 +47,7 @@ export function EditAdminForm({ userId }: IProps) {
   const { isLoading: isLoadingAdmin, tryCatch: tryCatchAdmin } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
+  const debouncedEmail = useDebounce(email, 500);
   const debouncedIc = useDebounce(ic, 500);
   const debouncedUsername = useDebounce(username, 500);
 
@@ -66,6 +68,23 @@ export function EditAdminForm({ userId }: IProps) {
       userName: "",
     },
   });
+
+  const checkEmail = useCallback(
+    async (value: string) => {
+      if (!value || value.length <= 3) return true;
+      if (value === userToUpdate?.email) return true;
+
+      const [response, error] = await tryCatch(UsersService.checkEmailAvailability(value));
+      if (response?.data === false || error) {
+        const message = error ? "Error al comprobar email" : "Email ya registrado";
+        setEmailError(message);
+        form.setError("email", { message });
+        return false;
+      }
+      return true;
+    },
+    [form, userToUpdate?.email],
+  );
 
   const checkIc = useCallback(
     async (value: string) => {
@@ -102,6 +121,10 @@ export function EditAdminForm({ userId }: IProps) {
   );
 
   // Writting validations
+  useEffect(() => {
+    checkEmail(debouncedEmail);
+  }, [checkEmail, debouncedEmail]);
+
   useEffect(() => {
     checkIc(debouncedIc);
   }, [checkIc, debouncedIc]);
@@ -150,14 +173,9 @@ export function EditAdminForm({ userId }: IProps) {
       return;
     }
 
-    if (usernameError) {
-      form.setError("userName", { message: usernameError });
-      return;
-    }
+    const [icOk, usernameOk] = await Promise.all([checkIc(data.email), checkUsername(data.userName)]);
 
-    const [icOk] = await Promise.all([checkIc(data.email)]);
-
-    if (!icOk) return;
+    if (!icOk || !usernameOk) return;
 
     // Check again for race condition: before first check another admin use same ic
     if (data.email !== userToUpdate?.email) {
@@ -367,21 +385,18 @@ export function EditAdminForm({ userId }: IProps) {
                         id="email"
                         {...field}
                         onChange={async (e) => {
-                          field.onChange(e);
                           setEmailError(null);
                           form.clearErrors("email");
 
-                          const emailValue = e.target.value;
-                          const emailValidation = z.email().safeParse(emailValue);
+                          const value = e.target.value;
+                          const emailValidation = z.email().safeParse(value);
 
-                          if (emailValidation.success) {
-                            const [response, error] = await tryCatch(UsersService.checkEmailAvailability(emailValue));
-                            if (response?.data === false || error) {
-                              const errorMsg = error ? "Error al comprobar email" : "Email ya registrado";
-                              setEmailError(errorMsg);
-                              form.setError("email", { message: errorMsg });
-                            }
-                          }
+                          form.setValue("email", value, {
+                            shouldDirty: true,
+                            shouldValidate: emailValidation.success,
+                          });
+
+                          if (emailValidation.success) setEmail(value);
                         }}
                       />
                       {(fieldState.invalid || emailError) && (
