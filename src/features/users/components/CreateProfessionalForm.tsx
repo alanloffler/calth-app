@@ -23,6 +23,7 @@ import { useDebounce } from "@core/hooks/useDebounce";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function CreateProfessionalForm() {
+  const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [icError, setIcError] = useState<string | null>(null);
   const [username, setUsername] = useState<string>("");
@@ -32,6 +33,7 @@ export function CreateProfessionalForm() {
   const roleTranslated = ERoles[location.state.role as TUserRole];
   const { isLoading: isSaving, tryCatch: tryCatchUser } = useTryCatch();
 
+  const debouncedEmail = useDebounce(email, 500);
   const debouncedUsername = useDebounce(username, 500);
 
   const form = useForm<z.infer<typeof createProfessionalSchema>>({
@@ -56,6 +58,22 @@ export function CreateProfessionalForm() {
     },
   });
 
+  const checkEmail = useCallback(
+    async (value: string) => {
+      if (!value || value.length <= 3) return true;
+
+      const [response, error] = await tryCatch(UsersService.checkEmailAvailability(value));
+      if (response?.data === false || error) {
+        const message = error ? "Error al comprobar email" : "Email ya registrado";
+        setEmailError(message);
+        form.setError("email", { message });
+        return false;
+      }
+      return true;
+    },
+    [form],
+  );
+
   const checkUsername = useCallback(
     async (value: string): Promise<boolean> => {
       if (!value || value.length <= 3) return true;
@@ -73,6 +91,10 @@ export function CreateProfessionalForm() {
   );
 
   // Writting validations
+  useEffect(() => {
+    checkEmail(debouncedEmail);
+  }, [checkEmail, debouncedEmail]);
+
   useEffect(() => {
     checkUsername(debouncedUsername);
   }, [checkUsername, debouncedUsername]);
@@ -292,21 +314,18 @@ export function CreateProfessionalForm() {
                         id="email"
                         {...field}
                         onChange={async (e) => {
-                          field.onChange(e);
                           setEmailError(null);
                           form.clearErrors("email");
 
-                          const emailValue = e.target.value;
-                          const emailValidation = z.email().safeParse(emailValue);
+                          const value = e.target.value;
+                          const emailValidation = z.email().safeParse(value);
 
-                          if (emailValidation.success) {
-                            const [response, error] = await tryCatch(UsersService.checkEmailAvailability(emailValue));
-                            if (response?.data === false || error) {
-                              const errorMsg = error ? "Error al comprobar email" : "Email ya registrado";
-                              setEmailError(errorMsg);
-                              form.setError("email", { message: errorMsg });
-                            }
-                          }
+                          form.setValue("email", value, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+
+                          if (emailValidation.success) setEmail(value);
                         }}
                       />
                       {(fieldState.invalid || emailError) && (
