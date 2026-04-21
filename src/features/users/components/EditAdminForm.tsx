@@ -13,9 +13,9 @@ import { type MouseEvent, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { useMaskito } from "@maskito/react";
+import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import type { IUser } from "@users/interfaces/user.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
 import { UsersService } from "@users/services/users.service";
 import { digitsMask } from "@core/masks/maskito-digits";
@@ -36,7 +36,6 @@ export function EditAdminForm({ userId }: IProps) {
   const [ic, setIc] = useState<string>("");
   const [icError, setIcError] = useState<string | null>(null);
   const [passwordField, setPasswordField] = useState<boolean>(true);
-  const [userToUpdate, setUserToUpdate] = useState<IUser | null>(null);
   const [username, setUsername] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const admin = useAuthStore((state) => state.admin);
@@ -44,7 +43,6 @@ export function EditAdminForm({ userId }: IProps) {
   const navigate = useNavigate();
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const userRole = location.state.role;
-  const { isLoading: isLoadingAdmin, tryCatch: tryCatchAdmin } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const debouncedEmail = useDebounce(email, 500);
@@ -68,6 +66,26 @@ export function EditAdminForm({ userId }: IProps) {
       userName: "",
     },
   });
+
+  const { data: userToUpdate, isLoading: isLoadingAdmin } = useQuery({
+    queryKey: ["admin", userId],
+    queryFn: () => UsersService.findWithProfile(userId, "admin"),
+    select: (response) => response?.data,
+    enabled: !!userId,
+  });
+
+  useEffect(() => {
+    if (userToUpdate) {
+      form.reset({
+        email: userToUpdate.email,
+        firstName: userToUpdate.firstName,
+        ic: userToUpdate.ic,
+        lastName: userToUpdate.lastName,
+        phoneNumber: userToUpdate.phoneNumber,
+        userName: userToUpdate.userName,
+      });
+    }
+  }, [form, userToUpdate]);
 
   const checkEmail = useCallback(
     async (value: string) => {
@@ -132,35 +150,6 @@ export function EditAdminForm({ userId }: IProps) {
   useEffect(() => {
     checkUsername(debouncedUsername);
   }, [checkUsername, debouncedUsername]);
-
-  useEffect(() => {
-    async function findOneWithCredentials(): Promise<void> {
-      const [user, userError] = await tryCatchAdmin(UsersService.findWithProfile(userId, "admin"));
-
-      if (userError) {
-        toast.error(userError.message);
-        return;
-      }
-
-      if (user && user.statusCode === 200) {
-        if (user.data) {
-          form.reset({
-            email: user.data.email,
-            firstName: user.data.firstName,
-            ic: user.data.ic,
-            lastName: user.data.lastName,
-            password: "",
-            phoneNumber: user.data.phoneNumber,
-            userName: user.data.userName,
-          });
-
-          setUserToUpdate(user.data);
-        }
-      }
-    }
-
-    findOneWithCredentials();
-  }, [userId, form, tryCatchAdmin]);
 
   function togglePasswordField(event: MouseEvent<HTMLButtonElement>): void {
     event.preventDefault();
