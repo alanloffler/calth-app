@@ -191,22 +191,6 @@ export function EditAdminForm({ userId }: IProps) {
       }
     }
 
-    // Check again for race condition: before first check another admin use same username
-    if (data.userName !== userToUpdate?.userName) {
-      const [usernameAvailableResponse, usernameAvailableError] = await tryCatch(
-        UsersService.checkUsernameAvailability(data.userName),
-      );
-
-      if (usernameAvailableResponse?.data === false || usernameAvailableError) {
-        const errorMsg = usernameAvailableError
-          ? "Error al comprobar nombre de usuario"
-          : "Nombre de usuario ya registrado";
-        setUsernameError(errorMsg);
-        form.setError("userName", { message: errorMsg });
-        return;
-      }
-    }
-
     const updateData = data.password
       ? data
       : Object.fromEntries(Object.entries(data).filter(([key]) => key !== "password"));
