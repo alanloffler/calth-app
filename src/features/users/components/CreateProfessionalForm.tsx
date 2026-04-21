@@ -100,31 +100,14 @@ export function CreateProfessionalForm() {
   }, [checkUsername, debouncedUsername]);
 
   async function onSubmit(data: z.infer<typeof createProfessionalSchema>) {
-    if (emailError) {
-      form.setError("email", { message: emailError });
-      return;
-    }
-
     if (icError) {
       form.setError("ic", { message: icError });
       return;
     }
 
-    const [usernameOk] = await Promise.all([checkUsername(data.userName)]);
+    const [emailOk, usernameOk] = await Promise.all([checkEmail(data.email), checkUsername(data.userName)]);
 
-    if (!usernameOk) return;
-
-    // Check again for race condition: before first check another admin use same ic
-    const [emailAvailableResponse, emailAvailableError] = await tryCatch(
-      UsersService.checkEmailAvailability(data.email),
-    );
-
-    if (emailAvailableResponse?.data === false || emailAvailableError) {
-      const errorMsg = emailAvailableError ? "Error al comprobar email" : "Email ya registrado";
-      setEmailError(errorMsg);
-      form.setError("email", { message: errorMsg });
-      return;
-    }
+    if (!emailOk && !usernameOk) return;
 
     // Check again for race condition: before first check another admin use same ic
     const [icAvailableResponse, icAvailableError] = await tryCatch(UsersService.checkIcAvailability(data.ic));
