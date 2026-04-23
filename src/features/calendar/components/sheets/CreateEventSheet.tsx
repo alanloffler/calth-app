@@ -16,10 +16,12 @@ import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import type { IApiResponse } from "@core/interfaces/api-response.interface";
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
+import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IRecurrentDayResponse } from "@event/interfaces/recurrent-day.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { EventsService } from "@event/services/events.service";
@@ -29,14 +31,12 @@ import { parseCalendarConfig } from "@calendar/utils/calendar.utils";
 import { queryClient } from "@core/lib/query-client";
 import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { useEventStore } from "@calendar/stores/event.store";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function CreateEventSheet() {
   const [isRecurringActive, setIsRecurringActive] = useState<boolean>(false);
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [recurringDays, setRecurringDays] = useState<IRecurrentDayResponse | undefined>(undefined);
-  const { isLoading: isSaving, tryCatch: tryCatchCreateEvent } = useTryCatch();
   const { openCreateEventSheet: open, setOpenCreateEventSheet: setOpen } = useEventStore();
   const { selectedProfessional } = useCalendarStore();
 
@@ -163,32 +163,31 @@ export function CreateEventSheet() {
     }
   }, [form, open]);
 
-  async function onSubmit(data: z.infer<typeof eventSchema>): Promise<void> {
-    if (!professionalConfig) return;
+  // Submit handler: create event
+  const { mutate: createEvent, isPending: isSaving } = useMutation<
+    IApiResponse<ICalendarEvent>,
+    Error,
+    z.infer<typeof eventSchema>
+  >({
+    mutationFn: async ({ recurringCount: _, ...data }) => {
+      if (!professionalConfig) throw new Error("No hay configuración del profesional");
 
-    const startDate = parseISO(data.startDate);
-    const endDate = addMinutes(startDate, professionalConfig.step);
+      const startDate = parseISO(data.startDate);
+      const endDate = addMinutes(startDate, professionalConfig.step);
 
-    delete data.recurringCount;
+      const transformedData = {
+        ...data,
+        endDate: format(endDate, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+      };
 
-    const transformedData = {
-      ...data,
-      endDate: format(endDate, "yyyy-MM-dd'T'HH:mm:ssXXX"),
-    };
-
-    const [response, error] = await tryCatchCreateEvent(CalendarService.create(transformedData));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 201) {
-      toast.success("Turno creado exitosamente");
-      setOpen(false);
+      return CalendarService.create(transformedData);
+    },
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
-    }
-  }
+      toast.success(response.message);
+      setOpen(false);
+    },
+  });
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -204,7 +203,11 @@ export function CreateEventSheet() {
           color="blue"
           type="auto"
         >
-          <form className="flex min-h-0 flex-col gap-6 p-4" id="create-event" onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            className="flex min-h-0 flex-col gap-6 p-4"
+            id="create-event"
+            onSubmit={form.handleSubmit((data) => createEvent(data))}
+          >
             <FieldGroup className="grid grid-cols-3 gap-6">
               <Controller
                 name="title"
