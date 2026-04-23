@@ -15,7 +15,7 @@ import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
@@ -31,6 +31,7 @@ import {
   parseCalendarConfig,
 } from "@calendar/utils/calendar.utils";
 import { useTryCatch } from "@core/hooks/useTryCatch";
+import { queryClient } from "@core/lib/query-client";
 
 interface IProps {
   event: ICalendarEvent | null;
@@ -49,7 +50,6 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
 
   // TODO: handle errors for next 3 hooks
   const { tryCatch: tryCatchDayEvents } = useTryCatch();
-  const { isLoading: isUpdating, tryCatch: tryCatchUpdateEvent } = useTryCatch();
 
   const form = useForm<z.infer<typeof eventSchema>>({
     resolver: zodResolver(eventSchema),
@@ -61,50 +61,59 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
     },
   });
 
-  async function onSubmit(data: z.infer<typeof eventSchema>): Promise<void> {
-    if (!event || !professionalConfig) return;
+  const { mutate: update, isPending: isUpdating } = useMutation({
+    mutationFn: async (data: z.infer<typeof eventSchema>) => {
+      if (!event || !professionalConfig) return;
 
-    const startDate = parseISO(data.startDate);
-    const endDate = addMinutes(startDate, professionalConfig.step);
+      const startDate = parseISO(data.startDate);
+      const endDate = addMinutes(startDate, professionalConfig.step);
 
-    const transformedData = {
-      ...data,
-      endDate: format(endDate, "yyyy-MM-dd'T'HH:mm:ssXXX"),
-    };
+      const transformedData = {
+        ...data,
+        endDate: format(endDate, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+      };
 
-    const [response, error] = await tryCatchUpdateEvent(CalendarService.update(event.id, transformedData));
+      const response = await CalendarService.update(event.id, transformedData);
+      if (response.statusCode !== 200) throw new Error("Error al actualizar el turno");
 
-    if (error) {
+      const updatedEventResponse = await CalendarService.findOne(event.id);
+      if (!updatedEventResponse?.data) throw new Error("Error al obtener el turno actualizado");
+
+      const mergedEvent: ICalendarEvent = {
+        ...event,
+        ...updatedEventResponse.data,
+        professional: {
+          ...event.professional,
+          ...updatedEventResponse.data?.professional,
+          professionalProfile: {
+            professionalPrefix: "",
+            ...event.professional.professionalProfile,
+            ...updatedEventResponse.data?.professional.professionalProfile,
+          },
+        },
+        user: {
+          ...event.user,
+          ...updatedEventResponse.data?.user,
+        },
+      };
+
+      return mergedEvent;
+    },
+    onSuccess: (response) => {
+      toast.success("Turno actualizado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["events", "list"] });
+      // TODO: refactor this. Do not emit update event, just invalidate queries.
+      // Must refactor also Events.tsx and Calendar.tsx
+      // Check usage on ViewEventSheet.tsx
+      if (response) onUpdateEvent(response);
+    },
+    onError: (error) => {
       toast.error(error.message);
-      return;
-    }
+    },
+  });
 
-    if (response && response.statusCode === 200) {
-      const [updatedEventResponse] = await tryCatchUpdateEvent(CalendarService.findOne(event.id));
-
-      if (updatedEventResponse?.data) {
-        const mergedEvent: ICalendarEvent = {
-          ...event,
-          ...updatedEventResponse.data,
-          professional: {
-            ...event.professional,
-            ...updatedEventResponse.data.professional,
-            professionalProfile: {
-              professionalPrefix: "",
-              ...event.professional.professionalProfile,
-              ...updatedEventResponse.data.professional?.professionalProfile,
-            },
-          },
-          user: {
-            ...event.user,
-            ...updatedEventResponse.data.user,
-          },
-        };
-
-        toast.success("Turno actualizado exitosamente");
-        onUpdateEvent(mergedEvent);
-      }
-    }
+  async function onSubmit(data: z.infer<typeof eventSchema>): Promise<void> {
+    update(data);
   }
 
   const professionalId = useWatch({
