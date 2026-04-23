@@ -22,26 +22,14 @@ import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interfa
 import { CalendarService } from "@calendar/services/calendar.service";
 import { UsersService } from "@users/services/users.service";
 import { eventSchema } from "@calendar/schemas/event.schema";
-import { isDayAvailable, isHourSlotAvailable, parseCalendarConfig } from "@calendar/utils/calendar.utils";
+import {
+  getEventFormValues,
+  getEventTimeSlot,
+  isDayAvailable,
+  isHourSlotAvailable,
+  parseCalendarConfig,
+} from "@calendar/utils/calendar.utils";
 import { useTryCatch } from "@core/hooks/useTryCatch";
-
-// TODO: refactor to utils?
-function getEventFormValues(event: ICalendarEvent): z.infer<typeof eventSchema> {
-  return {
-    professionalId: event.professionalId,
-    startDate: format(
-      typeof event.startDate === "string" ? parseISO(event.startDate) : event.startDate,
-      "yyyy-MM-dd'T'HH:mm:ssXXX",
-    ),
-    title: event.title,
-    userId: event.userId,
-  };
-}
-function getEventTimeSlot(event: ICalendarEvent | null): string | null {
-  if (!event?.startDate) return null;
-  const date = typeof event.startDate === "string" ? parseISO(event.startDate) : event.startDate;
-  return format(date, "HH:mm");
-}
 
 interface IProps {
   event: ICalendarEvent | null;
