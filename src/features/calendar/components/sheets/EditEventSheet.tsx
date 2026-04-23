@@ -120,7 +120,7 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
     }
   }, [event, form]);
 
-  const { data: professional } = useQuery({
+  const { data: professional, isLoading: isLoadingProfessionalConfig } = useQuery({
     queryKey: ["professional", "config", professionalId],
     queryFn: () => UsersService.findProfessional(professionalId),
     select: (response) => response.data,
@@ -315,13 +315,19 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
                         style={{ position: "relative", zIndex: 1 }}
                       >
                         <FieldLabel>Horario</FieldLabel>
-                        {professionalConfig && (
-                          <HourGrid
-                            form={form}
-                            isInvalid={isHourInvalid}
-                            professionalConfig={professionalConfig}
-                            takenSlots={takenSlots}
-                          />
+                        {isLoadingProfessionalConfig ? (
+                          <div className="relative flex flex-1 flex-col items-start gap-3 rounded-md border p-3 shadow-xs">
+                            <Loader absolute fontSize="text-xs" text="Cargando horarios" />
+                          </div>
+                        ) : (
+                          professionalConfig && (
+                            <HourGrid
+                              form={form}
+                              isInvalid={isHourInvalid}
+                              professionalConfig={professionalConfig}
+                              takenSlots={takenSlots}
+                            />
+                          )
                         )}
                         {isHourInvalid && <FieldError errors={[fieldState.error]} />}
                       </Field>
