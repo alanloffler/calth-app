@@ -275,7 +275,7 @@ export function CreateEventSheet() {
                   const isHourInvalid = fieldState.invalid && !hasValidHour;
 
                   return (
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-5 md:grid-rows-1">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-6 md:grid-rows-1">
                       <Field
                         className="md:col-span-3"
                         data-invalid={isDateInvalid}
@@ -287,7 +287,7 @@ export function CreateEventSheet() {
                           and retrieve one object only (not merge here) */}
                           <Calendar
                             aria-invalid={isDateInvalid}
-                            className="mx-auto aspect-square h-fit w-full max-w-75"
+                            className="mx-auto aspect-square h-fit w-full rounded-md"
                             disabled={[
                               ...(professionalConfig ? [{ dayOfWeek: professionalConfig.excludedDays }] : []),
                               ...blockedDates,
@@ -326,7 +326,7 @@ export function CreateEventSheet() {
                         {isDateInvalid && <FieldError errors={[fieldState.error]} />}
                       </Field>
                       <Field
-                        className="md:col-span-2"
+                        className="md:col-span-3"
                         data-invalid={isHourInvalid}
                         style={{ position: "relative", zIndex: 1 }}
                       >
