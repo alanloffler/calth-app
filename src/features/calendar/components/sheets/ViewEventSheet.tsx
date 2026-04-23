@@ -23,6 +23,7 @@ import { useState } from "react";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { formatIc } from "@core/formatters/ic.formatter";
+import { queryClient } from "@core/lib/query-client";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { useEventStore } from "@calendar/stores/event.store";
 import { usePermission } from "@permissions/hooks/usePermission";
@@ -34,19 +35,9 @@ export function ViewEventSheet() {
     setOpenEditEventSheet,
     setOpenViewEventSheet,
     setSelectedEvent,
-    triggerRefresh,
   } = useEventStore();
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
-  const [hasChanges, setHasChanges] = useState<boolean>(false);
   const hasPermissions = usePermission(["events-delete-hard", "events-update", "events-notify"], "some");
-
-  function handleOpenChange(isOpen: boolean): void {
-    setOpenViewEventSheet(isOpen);
-    if (!isOpen) {
-      if (hasChanges) triggerRefresh();
-      setHasChanges(false);
-    }
-  }
 
   function removeEventDialog(): void {
     setOpenRemoveDialog(true);
@@ -56,10 +47,10 @@ export function ViewEventSheet() {
     mutationKey: ["events", "remove"],
     mutationFn: (id: string) => CalendarService.remove(id),
     onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
       toast.success(response.message);
       setOpenViewEventSheet(false);
       setSelectedEvent(null);
-      triggerRefresh();
     },
     onSettled: () => {
       setOpenRemoveDialog(false);
@@ -72,14 +63,13 @@ export function ViewEventSheet() {
 
   function handleStatusChange(updatedEvent: ICalendarEvent): void {
     setSelectedEvent(updatedEvent);
-    setHasChanges(true);
   }
 
   if (!event) return null;
 
   return (
     <>
-      <Sheet open={openViewEventSheet} onOpenChange={handleOpenChange}>
+      <Sheet open={openViewEventSheet} onOpenChange={setOpenViewEventSheet}>
         <SheetTrigger asChild></SheetTrigger>
         <SheetContent className="sm:min-w-120" onOpenAutoFocus={(e) => e.preventDefault()}>
           <SheetHeader className="pt-8">
