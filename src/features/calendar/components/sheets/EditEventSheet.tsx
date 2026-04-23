@@ -13,7 +13,7 @@ import type z from "zod";
 import { addMinutes, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,7 +39,6 @@ export function EditEventSheet() {
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const originalStartDateRef = useRef<string | null>(null);
   const { openEditEventSheet, openViewEventSheet, selectedEvent: event, setOpenEditEventSheet } = useEventStore();
 
   // Form
@@ -77,8 +76,9 @@ export function EditEventSheet() {
     const config = parseCalendarConfig(professional.professionalProfile);
     setProfessionalConfig(config);
 
-    if (!originalStartDateRef.current) return;
-    const originalDate = parseISO(originalStartDateRef.current);
+    if (!event) return;
+    const originalStartDate = getEventFormValues(event).startDate;
+    const originalDate = parseISO(originalStartDate);
 
     if (!isDayAvailable(originalDate, config.excludedDays)) {
       form.setValue("startDate", "");
@@ -86,12 +86,17 @@ export function EditEventSheet() {
     }
 
     if (isHourSlotAvailable(originalDate, config)) {
-      form.setValue("startDate", originalStartDateRef.current);
+      form.setValue("startDate", originalStartDate);
     } else {
       originalDate.setHours(0, 0, 0, 0);
       form.setValue("startDate", format(originalDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
     }
-  }, [form, professional, professionalId]);
+  }, [event, form, professional, professionalId]);
+
+  // Form reset on event change
+  useEffect(() => {
+    if (event) form.reset(getEventFormValues(event));
+  }, [event, form]);
 
   // Calendar: days with events
   const { data: daysWithEvents } = useQuery({
@@ -117,23 +122,12 @@ export function EditEventSheet() {
     enabled: !!professionalId && !!startDate,
   });
 
-  useEffect(() => {
-    if (!startDate || !professionalId) return;
-
+  const filteredTakenSlots = useMemo(() => {
+    if (!takenSlots) return [];
     const isOriginalProfessional = event?.professionalId === professionalId;
     const currentEventSlot = isOriginalProfessional ? getEventTimeSlot(event) : null;
-
-    const filtered = currentEventSlot ? takenSlots?.filter((slot: string) => slot !== currentEventSlot) : takenSlots;
-
-    const selectedDate = parseISO(startDate);
-    const selectedHour = format(selectedDate, "HH:mm");
-    const hasHour = selectedDate.getHours() !== 0 || selectedDate.getMinutes() !== 0;
-
-    if (hasHour && filtered?.includes(selectedHour)) {
-      selectedDate.setHours(0, 0, 0, 0);
-      form.setValue("startDate", format(selectedDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
-    }
-  }, [event, form, professionalId, startDate, takenSlots]);
+    return currentEventSlot ? takenSlots.filter((slot: string) => slot !== currentEventSlot) : takenSlots;
+  }, [event, professionalId, takenSlots]);
 
   // Submit handler: update event
   const { mutate: updateEvent, isPending: isUpdating } = useMutation<
@@ -160,14 +154,6 @@ export function EditEventSheet() {
       setOpenEditEventSheet(false);
     },
   });
-
-  useEffect(() => {
-    if (event) {
-      const values = getEventFormValues(event);
-      form.reset(values);
-      originalStartDateRef.current = values.startDate;
-    }
-  }, [event, form]);
 
   return (
     <Sheet open={openEditEventSheet} onOpenChange={setOpenEditEventSheet}>
@@ -317,7 +303,7 @@ export function EditEventSheet() {
                               form={form}
                               isInvalid={isHourInvalid}
                               professionalConfig={professionalConfig}
-                              takenSlots={takenSlots}
+                              takenSlots={filteredTakenSlots}
                             />
                           )
                         )}
