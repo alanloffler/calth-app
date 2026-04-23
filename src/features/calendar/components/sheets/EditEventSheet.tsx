@@ -15,6 +15,7 @@ import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
@@ -45,10 +46,10 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
   const closeRef = useRef<HTMLButtonElement>(null);
   const originalStartDateRef = useRef<string | null>(null);
+
   // TODO: handle errors for next 3 hooks
   const { tryCatch: tryCatchDayEvents } = useTryCatch();
   const { isLoading: isUpdating, tryCatch: tryCatchUpdateEvent } = useTryCatch();
-  const { tryCatch: tryCatchProfessional } = useTryCatch();
 
   const form = useForm<z.infer<typeof eventSchema>>({
     resolver: zodResolver(eventSchema),
@@ -119,41 +120,37 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
     }
   }, [event, form]);
 
+  const { data: professional } = useQuery({
+    queryKey: ["professional", "config", professionalId],
+    queryFn: () => UsersService.findProfessional(professionalId),
+    select: (response) => response.data,
+    enabled: !!professionalId,
+  });
+
   useEffect(() => {
-    if (!professionalId) {
+    if (!professionalId || !professional?.professionalProfile) {
       setProfessionalConfig(null);
       return;
     }
 
-    async function fetchProfessionalConfig() {
-      const [response, error] = await tryCatchProfessional(UsersService.findProfessional(professionalId));
+    const config = parseCalendarConfig(professional.professionalProfile);
+    setProfessionalConfig(config);
 
-      if (error || !response?.data?.professionalProfile) {
-        setProfessionalConfig(null);
-        return;
-      }
+    if (!originalStartDateRef.current) return;
+    const originalDate = parseISO(originalStartDateRef.current);
 
-      const config = parseCalendarConfig(response.data.professionalProfile);
-      setProfessionalConfig(config);
-
-      if (!originalStartDateRef.current) return;
-      const originalDate = parseISO(originalStartDateRef.current);
-
-      if (!isDayAvailable(originalDate, config.excludedDays)) {
-        form.setValue("startDate", "");
-        return;
-      }
-
-      if (isHourSlotAvailable(originalDate, config)) {
-        form.setValue("startDate", originalStartDateRef.current);
-      } else {
-        originalDate.setHours(0, 0, 0, 0);
-        form.setValue("startDate", format(originalDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
-      }
+    if (!isDayAvailable(originalDate, config.excludedDays)) {
+      form.setValue("startDate", "");
+      return;
     }
 
-    fetchProfessionalConfig();
-  }, [event, form, professionalId, tryCatchDayEvents, tryCatchProfessional]);
+    if (isHourSlotAvailable(originalDate, config)) {
+      form.setValue("startDate", originalStartDateRef.current);
+    } else {
+      originalDate.setHours(0, 0, 0, 0);
+      form.setValue("startDate", format(originalDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
+    }
+  }, [form, professional, professionalId]);
 
   const startDate = useWatch({
     control: form.control,
