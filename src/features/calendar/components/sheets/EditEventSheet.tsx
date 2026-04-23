@@ -341,6 +341,9 @@ export function EditEventSheet() {
               />
             </FieldGroup>
             <FieldGroup>
+              {/* TODO: value prop to show checked */}
+              {/* TODO: show list of recurrent dates */}
+              {/* TODO: if unlinked, then unmark as recurring */}
               <ChooseRecurringDate
                 disabled={!startDate || new Date(startDate).getHours() < 1}
                 error={form.formState.errors.recurringDates?.message}
