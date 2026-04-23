@@ -59,7 +59,8 @@ export function CreateEventSheet() {
   const startDate = useWatch({ control: form.control, name: "startDate" });
 
   // Fetch: professional config
-  const { data: professional } = useQuery({
+  // TODO: handle loading state as in EditEventSheet
+  const { data: professional, isLoading: isLoadingProfessionalConfig } = useQuery({
     queryKey: ["professional", "config", professionalId],
     queryFn: () => UsersService.findProfessional(professionalId),
     select: (response) => response.data,
@@ -331,13 +332,19 @@ export function CreateEventSheet() {
                         style={{ position: "relative", zIndex: 1 }}
                       >
                         <FieldLabel>Horario</FieldLabel>
-                        {professionalConfig && (
-                          <HourGrid
-                            form={form}
-                            isInvalid={isHourInvalid}
-                            professionalConfig={professionalConfig}
-                            takenSlots={takenSlots}
-                          />
+                        {isLoadingProfessionalConfig ? (
+                          <div className="relative flex flex-1 flex-col items-start gap-3 rounded-md border p-3 shadow-xs">
+                            <Loader absolute fontSize="text-xs" text="Cargando horarios" />
+                          </div>
+                        ) : (
+                          professionalConfig && (
+                            <HourGrid
+                              form={form}
+                              isInvalid={isHourInvalid}
+                              professionalConfig={professionalConfig}
+                              takenSlots={takenSlots}
+                            />
+                          )
                         )}
                         {isHourInvalid && <FieldError errors={[fieldState.error]} />}
                       </Field>
