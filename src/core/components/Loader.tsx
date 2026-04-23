@@ -5,12 +5,21 @@ interface IProps {
   absolute?: boolean;
   className?: string;
   color?: string;
+  fontSize?: "text-xs" | "text-sm" | "text-base";
   size?: number;
   spinnerSize?: number;
   text?: string;
 }
 
-export function Loader({ absolute = false, className, color, size = 16, spinnerSize = 2, text }: IProps) {
+export function Loader({
+  absolute = false,
+  className,
+  color,
+  fontSize = "text-base",
+  size = 16,
+  spinnerSize = 2,
+  text,
+}: IProps) {
   const { theme } = useTheme();
 
   const borderColor = color || (theme === "dark" ? "white" : "black");
@@ -33,7 +42,7 @@ export function Loader({ absolute = false, className, color, size = 16, spinnerS
           width: size + "px",
         }}
       ></div>
-      {text && <span>{text}</span>}
+      {text && <span className={fontSize}>{text}</span>}
     </div>
   );
 }
