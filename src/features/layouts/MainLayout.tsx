@@ -1,6 +1,7 @@
 import { AppSidebar } from "@components/app-sidebar";
 import { BackButton } from "@components/ui/BackButton";
 import { CreateEventSheet } from "@calendar/components/sheets/CreateEventSheet";
+import { EditEventSheet } from "@calendar/components/sheets/EditEventSheet";
 import { HeaderBreadcrumb } from "@components/Breadcrumb";
 import { ModeToggle } from "@components/ModeToggle";
 import { Outlet } from "react-router";
@@ -28,6 +29,7 @@ export function MainLayout() {
           <div className="flex flex-1 flex-col overflow-y-auto p-8">
             <Outlet />
             <CreateEventSheet />
+            <EditEventSheet />
             <ViewEventSheet />
           </div>
         </SidebarInset>
