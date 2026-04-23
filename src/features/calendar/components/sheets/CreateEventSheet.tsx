@@ -25,7 +25,7 @@ import { CalendarService } from "@calendar/services/calendar.service";
 import { EventsService } from "@event/services/events.service";
 import { UsersService } from "@users/services/users.service";
 import { eventSchema } from "@calendar/schemas/event.schema";
-import { isDayAvailable, parseCalendarConfig } from "@calendar/utils/calendar.utils";
+import { parseCalendarConfig } from "@calendar/utils/calendar.utils";
 import { queryClient } from "@core/lib/query-client";
 import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { useEventStore } from "@calendar/stores/event.store";
@@ -36,7 +36,6 @@ export function CreateEventSheet() {
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [recurringDays, setRecurringDays] = useState<IRecurrentDayResponse | undefined>(undefined);
-  // const [takenSlots, setTakenSlots] = useState<string[]>([]);
   const { isLoading: isSaving, tryCatch: tryCatchCreateEvent } = useTryCatch();
   const { openCreateEventSheet: open, setOpenCreateEventSheet: setOpen } = useEventStore();
   const { selectedProfessional } = useCalendarStore();
@@ -47,7 +46,6 @@ export function CreateEventSheet() {
     defaultValues: {
       professionalId: "",
       startDate: undefined,
-      // startDate: format(new Date(), "yyyy-MM-dd'T'00:00:00XXX"),
       title: "",
       userId: "",
       recurringDates: undefined,
@@ -60,41 +58,6 @@ export function CreateEventSheet() {
   const recurringDates = useWatch({ control: form.control, name: "recurringDates" });
   const startDate = useWatch({ control: form.control, name: "startDate" });
 
-  async function onSubmit(data: z.infer<typeof eventSchema>): Promise<void> {
-    if (!professionalConfig) return;
-
-    const startDate = parseISO(data.startDate);
-    const endDate = addMinutes(startDate, professionalConfig.step);
-
-    delete data.recurringCount;
-
-    const transformedData = {
-      ...data,
-      endDate: format(endDate, "yyyy-MM-dd'T'HH:mm:ssXXX"),
-    };
-
-    const [response, error] = await tryCatchCreateEvent(CalendarService.create(transformedData));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 201) {
-      toast.success("Turno creado exitosamente");
-      setOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["events"] });
-    }
-  }
-
-  // Sheet: open/close actions
-  useEffect(() => {
-    if (open === false) {
-      form.reset();
-      setIsRecurringActive(false);
-    }
-  }, [form, open]);
-
   // Fetch: professional config
   const { data: professional } = useQuery({
     queryKey: ["professional", "config", professionalId],
@@ -104,6 +67,8 @@ export function CreateEventSheet() {
   });
 
   useEffect(() => {
+    form.setValue("startDate", "");
+
     if (!professionalId || !professional?.professionalProfile) {
       setProfessionalConfig(null);
       return;
@@ -112,33 +77,11 @@ export function CreateEventSheet() {
     const config = parseCalendarConfig(professional.professionalProfile);
     setProfessionalConfig(config);
 
-    if (isDayAvailable(new Date(), config.excludedDays)) {
-      form.setValue("startDate", format(new Date(), "yyyy-MM-dd'T'00:00:00XXX"));
-    }
+    // DISABLED: Select the first available day if no start date is set
+    // if (isDayAvailable(new Date(), config.excludedDays)) {
+    //   form.setValue("startDate", format(new Date(), "yyyy-MM-dd'T'00:00:00XXX"));
+    // }
   }, [form, professional, professionalId]);
-
-  //
-
-  function handleRecurringConfirm(dates: string[], count: number) {
-    form.setValue("recurringCount", count, { shouldDirty: true });
-    form.setValue("recurringDates", dates, { shouldDirty: true, shouldValidate: true });
-  }
-
-  const handleRecurringActiveChange = useCallback(
-    (active: boolean) => {
-      setIsRecurringActive(active);
-      if (!active) {
-        form.setValue("recurringCount", undefined);
-        form.setValue("recurringDates", undefined, { shouldValidate: true });
-      }
-    },
-    [form],
-  );
-
-  useEffect(() => {
-    form.setValue("recurringCount", undefined);
-    form.setValue("recurringDates", undefined);
-  }, [startDate, form]);
 
   // Calendar: days with events
   const { data: daysWithEvents } = useQuery({
@@ -169,6 +112,28 @@ export function CreateEventSheet() {
     [blockedDays],
   );
 
+  // Calendar: recurring events
+  function handleRecurringConfirm(dates: string[], count: number) {
+    form.setValue("recurringCount", count, { shouldDirty: true });
+    form.setValue("recurringDates", dates, { shouldDirty: true, shouldValidate: true });
+  }
+
+  const handleRecurringActiveChange = useCallback(
+    (active: boolean) => {
+      setIsRecurringActive(active);
+      if (!active) {
+        form.setValue("recurringCount", undefined);
+        form.setValue("recurringDates", undefined, { shouldValidate: true });
+      }
+    },
+    [form],
+  );
+
+  useEffect(() => {
+    form.setValue("recurringCount", undefined);
+    form.setValue("recurringDates", undefined);
+  }, [startDate, form]);
+
   // HourGrid: taken hour slots
   const { data: takenSlots } = useQuery({
     queryKey: ["hour-grid", "taken-slots", professionalId, startDate],
@@ -189,6 +154,41 @@ export function CreateEventSheet() {
       form.setValue("startDate", format(selectedDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
     }
   }, [form, professionalId, startDate, takenSlots]);
+
+  // Sheet: open/close actions
+  useEffect(() => {
+    if (open === false) {
+      form.reset();
+      setIsRecurringActive(false);
+    }
+  }, [form, open]);
+
+  async function onSubmit(data: z.infer<typeof eventSchema>): Promise<void> {
+    if (!professionalConfig) return;
+
+    const startDate = parseISO(data.startDate);
+    const endDate = addMinutes(startDate, professionalConfig.step);
+
+    delete data.recurringCount;
+
+    const transformedData = {
+      ...data,
+      endDate: format(endDate, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+    };
+
+    const [response, error] = await tryCatchCreateEvent(CalendarService.create(transformedData));
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    if (response && response.statusCode === 201) {
+      toast.success("Turno creado exitosamente");
+      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+    }
+  }
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
