@@ -41,7 +41,6 @@ export function CreateEventSheet() {
   const { openCreateEventSheet: open, setOpenCreateEventSheet: setOpen } = useEventStore();
   const { selectedProfessional } = useCalendarStore();
   const { tryCatch: tryCatchDayEvents } = useTryCatch();
-  const { tryCatch: tryCatchProfessional } = useTryCatch();
 
   const form = useForm<z.infer<typeof eventSchema>>({
     resolver: zodResolver(eventSchema),
@@ -87,6 +86,7 @@ export function CreateEventSheet() {
     name: "professionalId",
   });
 
+  // Sheet: open/close actions
   useEffect(() => {
     if (open === false) {
       form.reset();
@@ -94,39 +94,27 @@ export function CreateEventSheet() {
     }
   }, [form, open]);
 
+  // Fetch: professional config
+  const { data: professional } = useQuery({
+    queryKey: ["professional", "config", professionalId],
+    queryFn: () => UsersService.findProfessional(professionalId),
+    select: (response) => response.data,
+    enabled: !!professionalId,
+  });
+
   useEffect(() => {
-    if (!professionalId) {
+    if (!professionalId || !professional?.professionalProfile) {
       setProfessionalConfig(null);
       return;
     }
 
-    form.setValue("startDate", "");
-    setProfessionalConfig(null);
+    const config = parseCalendarConfig(professional.professionalProfile);
+    setProfessionalConfig(config);
 
-    async function fetchProfessionalConfig() {
-      const [response, error] = await tryCatchProfessional(UsersService.findProfessional(professionalId));
-
-      if (error || !response?.data?.professionalProfile) {
-        return;
-      }
-
-      const config = parseCalendarConfig(response.data.professionalProfile);
-      setProfessionalConfig(config);
-
-      if (isDayAvailable(new Date(), config.excludedDays)) {
-        form.setValue("startDate", format(new Date(), "yyyy-MM-dd'T'00:00:00XXX"));
-      }
+    if (isDayAvailable(new Date(), config.excludedDays)) {
+      form.setValue("startDate", format(new Date(), "yyyy-MM-dd'T'00:00:00XXX"));
     }
-
-    fetchProfessionalConfig();
-  }, [form, professionalId, tryCatchProfessional]);
-
-  const startDate = useWatch({
-    control: form.control,
-    name: "startDate",
-  });
-
-  const recurringDates = useWatch({ control: form.control, name: "recurringDates" });
+  }, [form, professional, professionalId]);
 
   function handleRecurringConfirm(dates: string[], count: number) {
     form.setValue("recurringCount", count, { shouldDirty: true });
@@ -143,6 +131,10 @@ export function CreateEventSheet() {
     },
     [form],
   );
+
+  // Form: watchers
+  const recurringDates = useWatch({ control: form.control, name: "recurringDates" });
+  const startDate = useWatch({ control: form.control, name: "startDate" });
 
   useEffect(() => {
     form.setValue("recurringCount", undefined);
@@ -197,11 +189,12 @@ export function CreateEventSheet() {
 
   const withEvents = getDaysWithEventsArray(daysWithEvents?.data);
 
+  // Calendar: blocked days
   const { data: blockedDays = [] } = useQuery({
     queryKey: ["calendar", "blocked-days", professionalId],
     queryFn: () => CalendarService.findAllBlockedDays(professionalId),
     select: (response) => response.data,
-    enabled: Boolean(professionalId),
+    enabled: !!professionalId,
   });
 
   const blockedDates = useMemo(
