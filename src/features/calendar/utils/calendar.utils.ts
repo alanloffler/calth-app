@@ -1,8 +1,11 @@
-import { endOfDay, endOfWeek, endOfMonth, startOfWeek, startOfMonth, format } from "date-fns";
+import type z from "zod";
+import { endOfDay, endOfWeek, endOfMonth, startOfWeek, startOfMonth, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
+
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IProfessionalProfile } from "@users/interfaces/professional-profile.interface";
+import type { eventSchema } from "@calendar/schemas/event.schema";
 
 function toUTCMidnight(date: Date): Date {
   return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0));
@@ -158,10 +161,7 @@ export function getCalendarDateRange(
   }
 }
 
-export function getCalendarRangeFromDate(
-  date: Date,
-  view: "month" | "week" | "day",
-): { start: Date; end: Date } {
+export function getCalendarRangeFromDate(date: Date, view: "month" | "week" | "day"): { start: Date; end: Date } {
   switch (view) {
     case "month":
       return {
@@ -179,4 +179,22 @@ export function getCalendarRangeFromDate(
         end: toUTCEndOfDay(date),
       };
   }
+}
+
+export function getEventFormValues(event: ICalendarEvent): z.infer<typeof eventSchema> {
+  return {
+    professionalId: event.professionalId,
+    startDate: format(
+      typeof event.startDate === "string" ? parseISO(event.startDate) : event.startDate,
+      "yyyy-MM-dd'T'HH:mm:ssXXX",
+    ),
+    title: event.title,
+    userId: event.userId,
+  };
+}
+
+export function getEventTimeSlot(event: ICalendarEvent | null): string | null {
+  if (!event?.startDate) return null;
+  const date = typeof event.startDate === "string" ? parseISO(event.startDate) : event.startDate;
+  return format(date, "HH:mm");
 }
