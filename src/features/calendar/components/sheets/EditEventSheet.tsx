@@ -33,18 +33,13 @@ import {
 } from "@calendar/utils/calendar.utils";
 import { queryClient } from "@core/lib/query-client";
 import { useEventStore } from "@calendar/stores/event.store";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function EditEventSheet() {
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
-  const [takenSlots, setTakenSlots] = useState<string[]>([]);
   const closeRef = useRef<HTMLButtonElement>(null);
   const originalStartDateRef = useRef<string | null>(null);
   const { openEditEventSheet, openViewEventSheet, selectedEvent: event, setOpenEditEventSheet } = useEventStore();
-
-  // TODO: refactor to mutation
-  const { tryCatch: tryCatchDayEvents } = useTryCatch();
 
   // Form
   const form = useForm<z.infer<typeof eventSchema>>({
@@ -63,6 +58,65 @@ export function EditEventSheet() {
   const professionalId = useWatch({ control: form.control, name: "professionalId" });
   const recurringDates = useWatch({ control: form.control, name: "recurringDates" });
   const startDate = useWatch({ control: form.control, name: "startDate" });
+
+  // Fetch: professional config
+  const { data: professional, isLoading: isLoadingProfessionalConfig } = useQuery({
+    queryKey: ["professional", "config", professionalId],
+    queryFn: () => UsersService.findProfessional(professionalId),
+    select: (response) => response.data,
+    enabled: !!professionalId,
+  });
+
+  useEffect(() => {
+    if (!professionalId || !professional?.professionalProfile) {
+      setProfessionalConfig(null);
+      return;
+    }
+
+    const config = parseCalendarConfig(professional.professionalProfile);
+    setProfessionalConfig(config);
+
+    if (!originalStartDateRef.current) return;
+    const originalDate = parseISO(originalStartDateRef.current);
+
+    if (!isDayAvailable(originalDate, config.excludedDays)) {
+      form.setValue("startDate", "");
+      return;
+    }
+
+    if (isHourSlotAvailable(originalDate, config)) {
+      form.setValue("startDate", originalStartDateRef.current);
+    } else {
+      originalDate.setHours(0, 0, 0, 0);
+      form.setValue("startDate", format(originalDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
+    }
+  }, [form, professional, professionalId]);
+
+  // HourGrid: taken hour slots
+  const { data: takenSlots } = useQuery({
+    queryKey: ["hour-grid", "taken-slots", professionalId, startDate],
+    queryFn: () => CalendarService.findAllByDateArray(professionalId, format(parseISO(startDate), "yyyy-MM-dd")),
+    select: (response) => response?.data ?? [],
+    enabled: !!professionalId && !!startDate,
+  });
+
+  useEffect(() => {
+    if (!startDate || !professionalId) return;
+
+    const isOriginalProfessional = event?.professionalId === professionalId;
+    const currentEventSlot = isOriginalProfessional ? getEventTimeSlot(event) : null;
+
+    const filtered = currentEventSlot ? takenSlots?.filter((slot: string) => slot !== currentEventSlot) : takenSlots;
+
+    const selectedDate = parseISO(startDate);
+    const selectedHour = format(selectedDate, "HH:mm");
+    const hasHour = selectedDate.getHours() !== 0 || selectedDate.getMinutes() !== 0;
+
+    if (hasHour && filtered?.includes(selectedHour)) {
+      selectedDate.setHours(0, 0, 0, 0);
+      form.setValue("startDate", format(selectedDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
+    }
+  }, [event, form, professionalId, startDate, takenSlots]);
 
   // Submit handler: update event
   const { mutate: updateEvent, isPending: isUpdating } = useMutation<
@@ -97,78 +151,6 @@ export function EditEventSheet() {
       originalStartDateRef.current = values.startDate;
     }
   }, [event, form]);
-
-  const { data: professional, isLoading: isLoadingProfessionalConfig } = useQuery({
-    queryKey: ["professional", "config", professionalId],
-    queryFn: () => UsersService.findProfessional(professionalId),
-    select: (response) => response.data,
-    enabled: !!professionalId,
-  });
-
-  useEffect(() => {
-    if (!professionalId || !professional?.professionalProfile) {
-      setProfessionalConfig(null);
-      return;
-    }
-
-    const config = parseCalendarConfig(professional.professionalProfile);
-    setProfessionalConfig(config);
-
-    if (!originalStartDateRef.current) return;
-    const originalDate = parseISO(originalStartDateRef.current);
-
-    if (!isDayAvailable(originalDate, config.excludedDays)) {
-      form.setValue("startDate", "");
-      return;
-    }
-
-    if (isHourSlotAvailable(originalDate, config)) {
-      form.setValue("startDate", originalStartDateRef.current);
-    } else {
-      originalDate.setHours(0, 0, 0, 0);
-      form.setValue("startDate", format(originalDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
-    }
-  }, [form, professional, professionalId]);
-
-  useEffect(() => {
-    if (!startDate || !professionalId) {
-      setTakenSlots([]);
-      return;
-    }
-
-    async function fetchDayEvents() {
-      const date = format(parseISO(startDate), "yyyy-MM-dd");
-      const [response, error] = await tryCatchDayEvents(CalendarService.findAllByDateArray(professionalId, date));
-
-      if (error) {
-        toast.error(error.message);
-        setTakenSlots([]);
-        return;
-      }
-
-      if (response?.statusCode === 200 && response.data) {
-        const isOriginalProfessional = event?.professionalId === professionalId;
-        const currentEventSlot = isOriginalProfessional ? getEventTimeSlot(event) : null;
-
-        const filtered = currentEventSlot
-          ? response.data.filter((slot: string) => slot !== currentEventSlot)
-          : response.data;
-
-        setTakenSlots(filtered);
-
-        const selectedDate = parseISO(startDate);
-        const selectedHour = format(selectedDate, "HH:mm");
-        const hasHour = selectedDate.getHours() !== 0 || selectedDate.getMinutes() !== 0;
-
-        if (hasHour && filtered.includes(selectedHour)) {
-          selectedDate.setHours(0, 0, 0, 0);
-          form.setValue("startDate", format(selectedDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
-        }
-      }
-    }
-
-    fetchDayEvents();
-  }, [form, professionalId, event, startDate, tryCatchDayEvents]);
 
   return (
     <Sheet open={openEditEventSheet} onOpenChange={setOpenEditEventSheet}>
