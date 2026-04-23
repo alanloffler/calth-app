@@ -105,7 +105,8 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
       // TODO: refactor this. Do not emit update event, just invalidate queries.
       // Must refactor also Events.tsx and Calendar.tsx
       // Check usage on ViewEventSheet.tsx
-      if (response) onUpdateEvent(response);
+      // if (response) onUpdateEvent(response);
+      setOpen(false);
     },
     onError: (error) => {
       toast.error(error.message);
