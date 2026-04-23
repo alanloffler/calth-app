@@ -17,6 +17,7 @@ import { UpdateEventStatus } from "@calendar/components/UpdateEventStatus";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
@@ -25,7 +26,6 @@ import { formatIc } from "@core/formatters/ic.formatter";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { useEventStore } from "@calendar/stores/event.store";
 import { usePermission } from "@permissions/hooks/usePermission";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function ViewEventSheet() {
   const {
@@ -38,7 +38,6 @@ export function ViewEventSheet() {
   } = useEventStore();
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const [hasChanges, setHasChanges] = useState<boolean>(false);
-  const { isLoading: isRemoving, tryCatch: tryCatchRemoveEvent } = useTryCatch();
   const hasPermissions = usePermission(["events-delete-hard", "events-update", "events-notify"], "some");
 
   function handleOpenChange(isOpen: boolean): void {
@@ -53,23 +52,19 @@ export function ViewEventSheet() {
     setOpenRemoveDialog(true);
   }
 
-  async function removeEvent(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemoveEvent(CalendarService.remove(id));
-
-    if (error) {
-      toast.error(error.message);
-      setOpenRemoveDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success("Turno eliminado");
-      setOpenRemoveDialog(false);
+  const { mutate: removeEvent, isPending: isRemoving } = useMutation({
+    mutationKey: ["events", "remove"],
+    mutationFn: (id: string) => CalendarService.remove(id),
+    onSuccess: (response) => {
+      toast.success(response.message);
       setOpenViewEventSheet(false);
       setSelectedEvent(null);
       triggerRefresh();
-    }
-  }
+    },
+    onSettled: () => {
+      setOpenRemoveDialog(false);
+    },
+  });
 
   function notify(type: "Email" | "WhatsApp"): void {
     toast.success(`Notificación enviada por ${type}`);
