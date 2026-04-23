@@ -40,6 +40,7 @@ export function CalendarEventsList({ className, professionalId }: IProps) {
     }
   }, [events]);
 
+  // TODO: fix like in ViewEventSheet -> !triggerRefresh
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen && hasChanges) {
