@@ -1,5 +1,5 @@
 import { Button } from "@components/ui/button";
-import { Calendar } from "@components/ui/calendar";
+import { Calendar, CalendarDayButton } from "@components/ui/calendar";
 import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { HourGrid } from "@calendar/components/HourGrid";
@@ -22,6 +22,7 @@ import type { IApiResponse } from "@core/interfaces/api-response.interface";
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
+import { EventsService } from "@event/services/events.service";
 import { UsersService } from "@users/services/users.service";
 import { eventSchema } from "@calendar/schemas/event.schema";
 import {
@@ -91,6 +92,22 @@ export function EditEventSheet() {
       form.setValue("startDate", format(originalDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
     }
   }, [form, professional, professionalId]);
+
+  // Calendar: days with events
+  const { data: daysWithEvents } = useQuery({
+    queryKey: ["days-with-events", professionalId, month],
+    queryFn: () => EventsService.findDaysWithEvents(professionalId, month),
+    enabled: !!professionalId && !!month,
+  });
+
+  const getDaysWithEventsArray = (data: { [key: number]: boolean } | undefined): number[] => {
+    if (!data) return [];
+    return Object.entries(data)
+      .filter(([, hasEvents]) => hasEvents)
+      .map(([day]) => parseInt(day));
+  };
+
+  const withEvents = getDaysWithEventsArray(daysWithEvents?.data);
 
   // HourGrid: taken hour slots
   const { data: takenSlots } = useQuery({
@@ -255,6 +272,22 @@ export function EditEventSheet() {
                             aria-invalid={isDateInvalid}
                             className="aspect-square h-fit w-full"
                             disabled={[{ dayOfWeek: professionalConfig?.excludedDays as number[] }]}
+                            modifiers={{
+                              withEvents: (date) => {
+                                if (professionalConfig?.excludedDays?.includes(date.getDay())) return false;
+                                return withEvents.includes(date.getDate());
+                              },
+                            }}
+                            components={{
+                              DayButton: ({ day, modifiers, ...props }) => (
+                                <>
+                                  <CalendarDayButton day={day} modifiers={modifiers} {...props} />
+                                  {modifiers.withEvents && (
+                                    <span className="absolute right-2 bottom-2 flex size-1.5 rounded-full bg-green-400"></span>
+                                  )}
+                                </>
+                              ),
+                            }}
                             id="date"
                             locale={es}
                             mode="single"
