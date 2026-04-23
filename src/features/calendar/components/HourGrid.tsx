@@ -3,7 +3,7 @@ import { Button } from "@components/ui/button";
 import type z from "zod";
 import type { UseFormReturn } from "react-hook-form";
 import { format, parseISO } from "date-fns";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
 import type { eventSchema } from "@calendar/schemas/event.schema";
@@ -28,24 +28,53 @@ function timeToMinutesDate(time: Date): number {
 export function HourGrid({ form, isInvalid, professionalConfig, takenSlots = [] }: IProps) {
   const [selectedHour, setSelectedHour] = useState<string | null>(null);
   const dateValue = form.watch("startDate");
+  const lastDateRef = useRef<string>("");
+  const selectedHourRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!dateValue) {
       setSelectedHour(null);
+      lastDateRef.current = "";
+      selectedHourRef.current = null;
       return;
     }
 
     const date = new Date(dateValue);
+    const currentDate = date.toDateString();
+    const lastDate = lastDateRef.current;
+    const isDateChanged = lastDate !== "" && lastDate !== currentDate;
+
+    if (isDateChanged && selectedHourRef.current) {
+      if (!takenSlots.includes(selectedHourRef.current)) {
+        const newDate = parseISO(dateValue);
+        const [h, m] = selectedHourRef.current.split(":").map(Number);
+        newDate.setHours(h, m, 0, 0);
+        form.setValue("startDate", format(newDate, "yyyy-MM-dd'T'HH:mm:ssXXX"), {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+        setSelectedHour(selectedHourRef.current);
+      } else {
+        setSelectedHour(null);
+      }
+      lastDateRef.current = currentDate;
+      return;
+    }
+
     const hasValidHour = date.getHours() !== 0 || date.getMinutes() !== 0;
 
     if (hasValidHour) {
       const hours = date.getHours().toString().padStart(2, "0");
       const minutes = date.getMinutes().toString().padStart(2, "0");
-      setSelectedHour(`${hours}:${minutes}`);
+      const currentHour = `${hours}:${minutes}`;
+      selectedHourRef.current = currentHour;
+      setSelectedHour(currentHour);
     } else {
       setSelectedHour(null);
     }
-  }, [dateValue]);
+
+    lastDateRef.current = currentDate;
+  }, [dateValue, takenSlots, form]);
 
   const { slots, separatorIndex } = useMemo(() => {
     const { startHour, endHour, step, dailyExceptionStart, dailyExceptionEnd } = professionalConfig;
