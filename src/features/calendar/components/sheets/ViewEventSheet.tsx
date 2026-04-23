@@ -8,7 +8,6 @@ import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@components/ui/dropdown-menu";
-import { EditEventSheet } from "@calendar/components/sheets/EditEventSheet";
 import { EventStatus } from "@calendar/components/ui/EventStatus";
 import { Protected } from "@auth/components/Protected";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
@@ -30,8 +29,6 @@ import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function ViewEventSheet() {
   const {
-    editEventSheetHideOverlay,
-    openEditEventSheet,
     openViewEventSheet,
     selectedEvent: event,
     setOpenEditEventSheet,
@@ -76,12 +73,6 @@ export function ViewEventSheet() {
 
   function notify(type: "Email" | "WhatsApp"): void {
     toast.success(`Notificación enviada por ${type}`);
-  }
-
-  function handleUpdateEvent(updatedEvent: ICalendarEvent): void {
-    setSelectedEvent(updatedEvent);
-    setOpenEditEventSheet(false);
-    setHasChanges(true);
   }
 
   function handleStatusChange(updatedEvent: ICalendarEvent): void {
@@ -270,13 +261,6 @@ export function ViewEventSheet() {
           </li>
         </ul>
       </ConfirmDialog>
-      <EditEventSheet
-        event={event}
-        hideOverlay={editEventSheetHideOverlay}
-        onUpdateEvent={handleUpdateEvent}
-        open={openEditEventSheet}
-        setOpen={setOpenEditEventSheet}
-      />
     </>
   );
 }
