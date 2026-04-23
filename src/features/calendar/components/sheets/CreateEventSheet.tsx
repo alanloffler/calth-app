@@ -319,8 +319,8 @@ export function CreateEventSheet() {
                             }}
                             selected={field.value ? parseISO(field.value) : undefined}
                           />
-                          {isDateInvalid && <FieldError errors={[{ message: "Debe seleccionar una fecha" }]} />}
                         </div>
+                        {isDateInvalid && <FieldError errors={[fieldState.error]} />}
                       </Field>
                       <Field
                         className="md:col-span-2"
