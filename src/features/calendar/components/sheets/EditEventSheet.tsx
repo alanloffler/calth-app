@@ -267,10 +267,10 @@ export function EditEventSheet() {
                         style={{ position: "relative", zIndex: 2 }}
                       >
                         <FieldLabel htmlFor="date">Fecha</FieldLabel>
-                        <div className="max-w-90 flex-1 place-self-center">
+                        <div className="flex-1 rounded-md border shadow-xs">
                           <Calendar
                             aria-invalid={isDateInvalid}
-                            className="aspect-square h-fit w-full"
+                            className="mx-auto aspect-square h-fit w-full rounded-md"
                             disabled={[{ dayOfWeek: professionalConfig?.excludedDays as number[] }]}
                             modifiers={{
                               withEvents: (date) => {
