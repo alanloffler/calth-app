@@ -18,6 +18,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import type { IApiResponse } from "@core/interfaces/api-response.interface";
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
@@ -30,25 +31,20 @@ import {
   isHourSlotAvailable,
   parseCalendarConfig,
 } from "@calendar/utils/calendar.utils";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 import { queryClient } from "@core/lib/query-client";
+import { useEventStore } from "@calendar/stores/event.store";
+import { useTryCatch } from "@core/hooks/useTryCatch";
 
-interface IProps {
-  event: ICalendarEvent | null;
-  hideOverlay?: boolean;
-  onUpdateEvent: (updatedEvent: ICalendarEvent) => void;
-  open: boolean;
-  setOpen: (open: boolean) => void;
-}
-
-export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open, setOpen }: IProps) {
+export function EditEventSheet() {
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
   const closeRef = useRef<HTMLButtonElement>(null);
   const originalStartDateRef = useRef<string | null>(null);
 
-  // TODO: handle errors for next 3 hooks
+  const { openEditEventSheet, selectedEvent: event, setOpenEditEventSheet } = useEventStore();
+
+  // TODO: refactor to mutation
   const { tryCatch: tryCatchDayEvents } = useTryCatch();
 
   const form = useForm<z.infer<typeof eventSchema>>({
@@ -61,9 +57,13 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
     },
   });
 
-  const { mutate: update, isPending: isUpdating } = useMutation({
+  const { mutate: update, isPending: isUpdating } = useMutation<
+    IApiResponse<ICalendarEvent>,
+    Error,
+    z.infer<typeof eventSchema>
+  >({
     mutationFn: async (data: z.infer<typeof eventSchema>) => {
-      if (!event || !professionalConfig) return;
+      if (!event || !professionalConfig) throw new Error("No hay evento o configuración del profesional");
 
       const startDate = parseISO(data.startDate);
       const endDate = addMinutes(startDate, professionalConfig.step);
@@ -73,49 +73,14 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
         endDate: format(endDate, "yyyy-MM-dd'T'HH:mm:ssXXX"),
       };
 
-      const response = await CalendarService.update(event.id, transformedData);
-      if (response.statusCode !== 200) throw new Error("Error al actualizar el turno");
-
-      const updatedEventResponse = await CalendarService.findOne(event.id);
-      if (!updatedEventResponse?.data) throw new Error("Error al obtener el turno actualizado");
-
-      const mergedEvent: ICalendarEvent = {
-        ...event,
-        ...updatedEventResponse.data,
-        professional: {
-          ...event.professional,
-          ...updatedEventResponse.data?.professional,
-          professionalProfile: {
-            professionalPrefix: "",
-            ...event.professional.professionalProfile,
-            ...updatedEventResponse.data?.professional.professionalProfile,
-          },
-        },
-        user: {
-          ...event.user,
-          ...updatedEventResponse.data?.user,
-        },
-      };
-
-      return mergedEvent;
+      return CalendarService.update(event.id, transformedData);
     },
     onSuccess: (response) => {
-      toast.success("Turno actualizado exitosamente");
+      toast.success(response.message);
       queryClient.invalidateQueries({ queryKey: ["events", "list"] });
-      // TODO: refactor this. Do not emit update event, just invalidate queries.
-      // Must refactor also Events.tsx and Calendar.tsx
-      // Check usage on ViewEventSheet.tsx
-      // if (response) onUpdateEvent(response);
-      setOpen(false);
-    },
-    onError: (error) => {
-      toast.error(error.message);
+      setOpenEditEventSheet(false);
     },
   });
-
-  async function onSubmit(data: z.infer<typeof eventSchema>): Promise<void> {
-    update(data);
-  }
 
   const professionalId = useWatch({
     control: form.control,
@@ -208,10 +173,10 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
   }, [form, professionalId, event, startDate, tryCatchDayEvents]);
 
   return (
-    <Sheet open={event !== null && open} onOpenChange={setOpen}>
+    <Sheet open={openEditEventSheet} onOpenChange={setOpenEditEventSheet}>
       <SheetContent
         className="sm:min-w-155"
-        hideOverlay={hideOverlay}
+        // hideOverlay={hideOverlay}
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           closeRef.current?.focus();
@@ -227,7 +192,11 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
           color="blue"
           type="auto"
         >
-          <form className="flex min-h-0 flex-col gap-6 p-4" id="create-event" onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            className="flex min-h-0 flex-col gap-6 p-4"
+            id="create-event"
+            onSubmit={form.handleSubmit((data) => update(data))}
+          >
             <FieldGroup className="grid grid-cols-3 gap-6">
               <Controller
                 name="title"
@@ -363,7 +332,7 @@ export function EditEventSheet({ event, hideOverlay = true, onUpdateEvent, open,
                 onClick={() => {
                   form.clearErrors();
                   if (event) form.reset(getEventFormValues(event));
-                  setOpen(false);
+                  setOpenEditEventSheet(false);
                 }}
               >
                 Cancelar
