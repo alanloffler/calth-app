@@ -46,17 +46,26 @@ export function EditEventSheet() {
   // TODO: refactor to mutation
   const { tryCatch: tryCatchDayEvents } = useTryCatch();
 
+  // Form
   const form = useForm<z.infer<typeof eventSchema>>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       professionalId: "",
-      startDate: "",
+      startDate: undefined,
       title: "",
       userId: "",
+      recurringDates: undefined,
+      recurringCount: undefined,
     },
   });
 
-  const { mutate: update, isPending: isUpdating } = useMutation<
+  // Form watchers
+  const professionalId = useWatch({ control: form.control, name: "professionalId" });
+  const recurringDates = useWatch({ control: form.control, name: "recurringDates" });
+  const startDate = useWatch({ control: form.control, name: "startDate" });
+
+  // Submit handler: update event
+  const { mutate: updateEvent, isPending: isUpdating } = useMutation<
     IApiResponse<ICalendarEvent>,
     Error,
     z.infer<typeof eventSchema>
@@ -79,11 +88,6 @@ export function EditEventSheet() {
       queryClient.invalidateQueries({ queryKey: ["events", "list"] });
       setOpenEditEventSheet(false);
     },
-  });
-
-  const professionalId = useWatch({
-    control: form.control,
-    name: "professionalId",
   });
 
   useEffect(() => {
@@ -125,11 +129,6 @@ export function EditEventSheet() {
       form.setValue("startDate", format(originalDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
     }
   }, [form, professional, professionalId]);
-
-  const startDate = useWatch({
-    control: form.control,
-    name: "startDate",
-  });
 
   useEffect(() => {
     if (!startDate || !professionalId) {
@@ -194,7 +193,7 @@ export function EditEventSheet() {
           <form
             className="flex min-h-0 flex-col gap-6 p-4"
             id="create-event"
-            onSubmit={form.handleSubmit((data) => update(data))}
+            onSubmit={form.handleSubmit((data) => updateEvent(data))}
           >
             <FieldGroup className="grid grid-cols-3 gap-6">
               <Controller
