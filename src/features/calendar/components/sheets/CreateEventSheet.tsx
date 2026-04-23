@@ -36,23 +36,29 @@ export function CreateEventSheet() {
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [recurringDays, setRecurringDays] = useState<IRecurrentDayResponse | undefined>(undefined);
-  const [takenSlots, setTakenSlots] = useState<string[]>([]);
+  // const [takenSlots, setTakenSlots] = useState<string[]>([]);
   const { isLoading: isSaving, tryCatch: tryCatchCreateEvent } = useTryCatch();
   const { openCreateEventSheet: open, setOpenCreateEventSheet: setOpen } = useEventStore();
   const { selectedProfessional } = useCalendarStore();
-  const { tryCatch: tryCatchDayEvents } = useTryCatch();
 
+  // Form
   const form = useForm<z.infer<typeof eventSchema>>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       professionalId: "",
-      startDate: format(new Date(), "yyyy-MM-dd'T'00:00:00XXX"),
+      startDate: undefined,
+      // startDate: format(new Date(), "yyyy-MM-dd'T'00:00:00XXX"),
       title: "",
       userId: "",
       recurringDates: undefined,
       recurringCount: undefined,
     },
   });
+
+  // Form watchers
+  const professionalId = useWatch({ control: form.control, name: "professionalId" });
+  const recurringDates = useWatch({ control: form.control, name: "recurringDates" });
+  const startDate = useWatch({ control: form.control, name: "startDate" });
 
   async function onSubmit(data: z.infer<typeof eventSchema>): Promise<void> {
     if (!professionalConfig) return;
@@ -80,11 +86,6 @@ export function CreateEventSheet() {
       queryClient.invalidateQueries({ queryKey: ["events"] });
     }
   }
-
-  const professionalId = useWatch({
-    control: form.control,
-    name: "professionalId",
-  });
 
   // Sheet: open/close actions
   useEffect(() => {
@@ -116,6 +117,8 @@ export function CreateEventSheet() {
     }
   }, [form, professional, professionalId]);
 
+  //
+
   function handleRecurringConfirm(dates: string[], count: number) {
     form.setValue("recurringCount", count, { shouldDirty: true });
     form.setValue("recurringDates", dates, { shouldDirty: true, shouldValidate: true });
@@ -132,52 +135,16 @@ export function CreateEventSheet() {
     [form],
   );
 
-  // Form: watchers
-  const recurringDates = useWatch({ control: form.control, name: "recurringDates" });
-  const startDate = useWatch({ control: form.control, name: "startDate" });
-
   useEffect(() => {
     form.setValue("recurringCount", undefined);
     form.setValue("recurringDates", undefined);
   }, [startDate, form]);
 
-  useEffect(() => {
-    if (!startDate || !professionalId) {
-      setTakenSlots([]);
-      return;
-    }
-
-    async function fetchDayEvents() {
-      const date = format(parseISO(startDate), "yyyy-MM-dd");
-      const [response, error] = await tryCatchDayEvents(CalendarService.findAllByDateArray(professionalId, date));
-
-      if (error) {
-        toast.error(error.message);
-        setTakenSlots([]);
-        return;
-      }
-
-      if (response?.statusCode === 200 && response.data) {
-        setTakenSlots(response.data);
-
-        const selectedDate = parseISO(startDate);
-        const selectedHour = format(selectedDate, "HH:mm");
-        const hasHour = selectedDate.getHours() !== 0 || selectedDate.getMinutes() !== 0;
-
-        if (hasHour && response.data.includes(selectedHour)) {
-          selectedDate.setHours(0, 0, 0, 0);
-          form.setValue("startDate", format(selectedDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
-        }
-      }
-    }
-
-    fetchDayEvents();
-  }, [form, professionalId, startDate, tryCatchDayEvents]);
-
+  // Calendar: days with events
   const { data: daysWithEvents } = useQuery({
     queryKey: ["days-with-events", professionalId, month],
     queryFn: () => EventsService.findDaysWithEvents(professionalId, month),
-    enabled: Boolean(professionalId && month),
+    enabled: !!professionalId && !!month,
   });
 
   const getDaysWithEventsArray = (data: { [key: number]: boolean } | undefined): number[] => {
@@ -201,6 +168,27 @@ export function CreateEventSheet() {
     () => (blockedDays ?? []).map((day: { date: string }) => parseISO(day.date)),
     [blockedDays],
   );
+
+  // HourGrid: taken hour slots
+  const { data: takenSlots } = useQuery({
+    queryKey: ["hour-grid", "taken-slots", professionalId, startDate],
+    queryFn: () => CalendarService.findAllByDateArray(professionalId, format(parseISO(startDate), "yyyy-MM-dd")),
+    select: (data) => data?.data ?? [],
+    enabled: !!professionalId && !!startDate,
+  });
+
+  useEffect(() => {
+    if (!startDate || !professionalId) return;
+
+    const selectedDate = parseISO(startDate);
+    const selectedHour = format(selectedDate, "HH:mm");
+    const hasHour = selectedDate.getHours() !== 0 || selectedDate.getMinutes() !== 0;
+
+    if (hasHour && takenSlots?.includes(selectedHour)) {
+      selectedDate.setHours(0, 0, 0, 0);
+      form.setValue("startDate", format(selectedDate, "yyyy-MM-dd'T'HH:mm:ssXXX"));
+    }
+  }, [form, professionalId, startDate, takenSlots]);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
