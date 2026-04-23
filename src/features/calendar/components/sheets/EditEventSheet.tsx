@@ -1,5 +1,6 @@
 import { Button } from "@components/ui/button";
 import { Calendar, CalendarDayButton } from "@components/ui/calendar";
+import { ChooseRecurringDate } from "@calendar/components/ChooseRecurringDate";
 import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { HourGrid } from "@calendar/components/HourGrid";
@@ -13,7 +14,7 @@ import type z from "zod";
 import { addMinutes, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { IApiResponse } from "@core/interfaces/api-response.interface";
 import type { ICalendarConfig } from "@calendar/interfaces/calendar-config.interface";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
+import type { IRecurrentDayResponse } from "@event/interfaces/recurrent-day.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { EventsService } from "@event/services/events.service";
 import { UsersService } from "@users/services/users.service";
@@ -36,8 +38,10 @@ import { queryClient } from "@core/lib/query-client";
 import { useEventStore } from "@calendar/stores/event.store";
 
 export function EditEventSheet() {
+  const [isRecurringActive, setIsRecurringActive] = useState<boolean>(false);
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
+  const [recurringDays, setRecurringDays] = useState<IRecurrentDayResponse | undefined>(undefined);
   const closeRef = useRef<HTMLButtonElement>(null);
   const { openEditEventSheet, openViewEventSheet, selectedEvent: event, setOpenEditEventSheet } = useEventStore();
 
@@ -113,6 +117,28 @@ export function EditEventSheet() {
   };
 
   const withEvents = getDaysWithEventsArray(daysWithEvents?.data);
+
+  // Calendar: recurring events
+  function handleRecurringConfirm(dates: string[], count: number) {
+    form.setValue("recurringCount", count, { shouldDirty: true });
+    form.setValue("recurringDates", dates, { shouldDirty: true, shouldValidate: true });
+  }
+
+  const handleRecurringActiveChange = useCallback(
+    (active: boolean) => {
+      setIsRecurringActive(active);
+      if (!active) {
+        form.setValue("recurringCount", undefined);
+        form.setValue("recurringDates", undefined, { shouldValidate: true });
+      }
+    },
+    [form],
+  );
+
+  useEffect(() => {
+    form.setValue("recurringCount", undefined);
+    form.setValue("recurringDates", undefined);
+  }, [startDate, form]);
 
   // HourGrid: taken hour slots
   const { data: takenSlots } = useQuery({
@@ -312,6 +338,20 @@ export function EditEventSheet() {
                     </div>
                   );
                 }}
+              />
+            </FieldGroup>
+            <FieldGroup>
+              <ChooseRecurringDate
+                disabled={!startDate || new Date(startDate).getHours() < 1}
+                error={form.formState.errors.recurringDates?.message}
+                onActiveChange={handleRecurringActiveChange}
+                onConfirm={handleRecurringConfirm}
+                onSuggestionSelect={(date) => form.setValue("startDate", date)}
+                professionalId={professionalId}
+                recurringDays={recurringDays}
+                selectedDate={startDate}
+                setRecurringDays={setRecurringDays}
+                slotDuration={professionalConfig?.step}
               />
             </FieldGroup>
             <div className="flex flex-col justify-center gap-4 pt-8 md:flex-row md:justify-end">
