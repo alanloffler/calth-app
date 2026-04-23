@@ -160,7 +160,10 @@ export function ViewEventSheet() {
                       <TooltipTrigger asChild>
                         <Button
                           className="hover:bg-green-50 hover:text-green-600"
-                          onClick={() => setOpenEditEventSheet(true)}
+                          onClick={() => {
+                            setSelectedEvent(event);
+                            setOpenEditEventSheet(true);
+                          }}
                           size="icon"
                           variant="ghost"
                         >
