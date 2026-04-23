@@ -41,8 +41,7 @@ export function EditEventSheet() {
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
   const closeRef = useRef<HTMLButtonElement>(null);
   const originalStartDateRef = useRef<string | null>(null);
-
-  const { openEditEventSheet, selectedEvent: event, setOpenEditEventSheet } = useEventStore();
+  const { openEditEventSheet, openViewEventSheet, selectedEvent: event, setOpenEditEventSheet } = useEventStore();
 
   // TODO: refactor to mutation
   const { tryCatch: tryCatchDayEvents } = useTryCatch();
@@ -176,7 +175,7 @@ export function EditEventSheet() {
     <Sheet open={openEditEventSheet} onOpenChange={setOpenEditEventSheet}>
       <SheetContent
         className="sm:min-w-155"
-        // hideOverlay={hideOverlay}
+        hideOverlay={openViewEventSheet}
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           closeRef.current?.focus();
