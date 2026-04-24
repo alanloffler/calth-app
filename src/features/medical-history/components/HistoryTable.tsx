@@ -16,7 +16,7 @@ import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type { IMedicalHistory } from "@medical-history/interfaces/medical-history.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
@@ -24,16 +24,16 @@ import { CalendarService } from "@calendar/services/calendar.service";
 import { HistoryTableConfig } from "@core/config/table.config";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { cn } from "@core/lib/utils";
+import { queryClient } from "@core/lib/query-client";
 import { useEventStore } from "@calendar/stores/event.store";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   history?: IMedicalHistory[];
   isLoading?: boolean;
-  onUpdated: () => void;
 }
 
-export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
+export function HistoryTable({ history, isLoading }: IProps) {
   const [openEditSheet, setOpenEditSheet] = useState<boolean>(false);
   const [openEventDialog, setOpenEventDialog] = useState<boolean>(false);
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
@@ -41,7 +41,6 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [selectedHistory, setSelectedHistory] = useState<IMedicalHistory | undefined>(undefined);
-  const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
@@ -50,15 +49,13 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
   const { data: relatedEvent } = useQuery({
     queryKey: ["medical-history", "event"],
     queryFn: () => CalendarService.findOne(selectedHistory?.eventId as string),
-    enabled: !!selectedHistory,
-    select: (response) => response.data,
+    enabled: !!selectedHistory?.eventId,
+    select: (response) => response && response.data,
   });
 
   useEffect(() => {
     if (relatedEvent) setSelectedEvent(relatedEvent);
   }, [relatedEvent, setSelectedEvent]);
-
-  if (!history) return null;
 
   const columns: ColumnDef<IMedicalHistory>[] = [
     {
@@ -221,22 +218,35 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
     },
   ];
 
-  async function softRemoveHistory(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemove(MedicalHistoryService.softRemove(id));
-
-    if (error) {
-      toast.error(error.message);
-      setOpenRemoveDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
+  const { mutate: softRemoveHistory, isPending: isRemoving } = useMutation({
+    mutationKey: ["medical-history", "soft-remove"],
+    mutationFn: (id: string) => MedicalHistoryService.softRemove(id),
+    onSuccess: (response) => {
       toast.success(response.message);
-      onUpdated();
+      queryClient.invalidateQueries({ queryKey: ["medical-history", selectedHistory?.userId] });
       setOpenSheet(false);
+    },
+    onSettled: () => {
       setOpenRemoveDialog(false);
-    }
-  }
+    },
+  });
+
+  // async function softRemoveHistory(id: string): Promise<void> {
+  //   const [response, error] = await tryCatchRemove(MedicalHistoryService.softRemove(id));
+
+  //   if (error) {
+  //     toast.error(error.message);
+  //     setOpenRemoveDialog(false);
+  //     return;
+  //   }
+
+  //   if (response && response.statusCode === 200) {
+  //     toast.success(response.message);
+  //     onUpdated();
+  //     setOpenSheet(false);
+  //     setOpenRemoveDialog(false);
+  //   }
+  // }
 
   async function restoreHistory(id: string): Promise<void> {
     if (!id) return;
@@ -251,7 +261,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
-      onUpdated();
+      // onUpdated();
       setOpenRestoreDialog(false);
     }
   }
@@ -269,7 +279,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
 
     if (response && response.statusCode === 200) {
       toast.success(response.message);
-      onUpdated();
+      // onUpdated();
       setOpenRemoveHardDialog(false);
     }
   }
@@ -302,7 +312,7 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
           open={openEditSheet}
           setOpen={setOpenEditSheet}
           history={selectedHistory}
-          onUpdated={onUpdated}
+          onUpdated={() => {}}
         />
       )}
       {selectedHistory && (
