@@ -231,6 +231,7 @@ export default function Calendar() {
               startAccessor="startDate"
               step={selectedProfessionalConfig?.step}
               timeslots={selectedProfessionalConfig?.timeSlots}
+              tooltipAccessor={null}
               view={selectedView}
               views={["month", "week", "day"]}
             />
