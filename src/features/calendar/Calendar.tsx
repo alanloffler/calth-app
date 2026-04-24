@@ -38,7 +38,6 @@ import {
 import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { useEventStore } from "@calendar/stores/event.store";
 import { usePermission } from "@permissions/hooks/usePermission";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 const locales = { "es-AR": es };
 
@@ -75,9 +74,9 @@ export default function Calendar() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [errorNotification, setErrorNotification] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState<string | undefined>(undefined);
   const canViewEvent = usePermission("events-view");
   const { refreshKey, setSelectedEvent, setOpenViewEventSheet } = useEventStore();
-  const { isLoading: isLoadingProfessional, tryCatch: tryCatchProfessional } = useTryCatch();
   const { selectedDate, selectedView, setSelectedDate, setSelectedView } = useCalendarStore();
   const { selectedProfessional, selectedProfessionalConfig, setSelectedProfessional, setSelectedProfessionalConfig } =
     useCalendarStore();
@@ -111,33 +110,6 @@ export default function Calendar() {
   const slotPropGetter = useMemo(() => createSlotPropGetter(selectedProfessionalConfig), [selectedProfessionalConfig]);
   const eventPropGetter = useMemo(() => createEventPropGetter(), []);
 
-  const getProfessional = useCallback(
-    async (id: string): Promise<void> => {
-      const [response, error] = await tryCatchProfessional(UsersService.findProfessional(id));
-
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-
-      if (response && response.statusCode === 200 && response.data) {
-        setErrorNotification(false);
-
-        if (!response.data.professionalProfile) {
-          const errMsg = "El profesional no tiene un perfil profesional";
-          setErrorMessage(errMsg);
-          setErrorNotification(true);
-          return;
-        }
-
-        setSelectedProfessional(response.data);
-        setSelectedProfessionalConfig(parseCalendarConfig(response.data.professionalProfile));
-        setIsReady(true);
-      }
-    },
-    [setSelectedProfessional, setSelectedProfessionalConfig, tryCatchProfessional],
-  );
-
   const { data: professionals, isLoading: isLoadingProfessionals } = useQuery({
     queryKey: ["professionals"],
     queryFn: () => UsersService.findAll("professional"),
@@ -145,10 +117,33 @@ export default function Calendar() {
   });
 
   useEffect(() => {
-    if (professionals && professionals.length > 0) {
-      getProfessional(professionals[0].id);
+    if (professionals && professionals.length > 0 && !selectedProfessionalId) {
+      setSelectedProfessionalId(professionals[0].id);
     }
-  }, [professionals, getProfessional]);
+  }, [professionals, selectedProfessionalId]);
+
+  const { data: professional, isLoading: isLoadingProfessional } = useQuery({
+    queryKey: ["professional", selectedProfessionalId],
+    queryFn: () => UsersService.findProfessional(selectedProfessionalId!),
+    select: (response) => response.data,
+    enabled: !!selectedProfessionalId,
+  });
+
+  useEffect(() => {
+    if (!professional) return;
+
+    if (!professional.professionalProfile) {
+      const errMsg = "El profesional no tiene un perfil profesional";
+      setErrorMessage(errMsg);
+      setErrorNotification(true);
+      return;
+    }
+
+    setErrorNotification(false);
+    setSelectedProfessional(professional);
+    setSelectedProfessionalConfig(parseCalendarConfig(professional.professionalProfile));
+    setIsReady(true);
+  }, [professional, setSelectedProfessional, setSelectedProfessionalConfig]);
 
   const onView = useCallback(
     (view: View) => {
@@ -165,10 +160,6 @@ export default function Calendar() {
     },
     [setSelectedEvent, setOpenViewEventSheet],
   );
-
-  // useEffect(() => {
-  //   fetchProfessionals();
-  // }, [fetchProfessionals]);
 
   if (professionals?.length === 0) {
     return (
@@ -193,9 +184,9 @@ export default function Calendar() {
         <div className="flex items-center gap-4">
           <Select
             disabled={!professionals}
-            value={selectedProfessional?.id || ""}
+            value={selectedProfessionalId || ""}
             onValueChange={(professionalId) => {
-              if (professionalId) getProfessional(professionalId);
+              if (professionalId) setSelectedProfessionalId(professionalId);
             }}
           >
             <SelectTrigger className="min-w-60" id="professionals" size="lg">
