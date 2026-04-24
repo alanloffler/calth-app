@@ -4,13 +4,12 @@ import { Button } from "@components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-import type { IUser } from "@users/interfaces/user.interface";
 import { EUserRole } from "@roles/enums/user-role.enum";
 import { UsersService } from "@users/services/users.service";
 import { cn } from "@core/lib/utils";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   "aria-invalid"?: boolean;
@@ -33,23 +32,21 @@ export function UserCombobox({
   value = undefined,
   width,
 }: IProps) {
-  const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<boolean>(false);
-  const [users, setUsers] = useState<IUser[] | undefined>(undefined);
-  const { isLoading, tryCatch } = useTryCatch();
 
-  const findUsers = useCallback(async () => {
-    const [response, error] = await tryCatch(UsersService.findAll(userType));
+  const {
+    data: users,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["users", "dropdown", userType],
+    queryFn: () => UsersService.findAll(userType),
+    select: (response) => response.data,
+  });
 
-    if (error) {
-      setError("Error");
-    }
-
-    if (response && response?.statusCode === 200) {
-      setUsers(response?.data);
-      if (defaultSelected) onChange?.(defaultSelected);
-    }
-  }, [defaultSelected, tryCatch, userType, onChange]);
+  useEffect(() => {
+    if (defaultSelected) onChange?.(defaultSelected);
+  }, [defaultSelected, onChange, users]);
 
   function getSelectedUser(value: string): string {
     const user = users?.find((user) => user.id === value);
@@ -60,10 +57,6 @@ export function UserCombobox({
       : `${user.firstName} ${user.lastName}`;
   }
 
-  useEffect(() => {
-    findUsers();
-  }, [findUsers]);
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild className={cn(width ? width : "w-full")}>
@@ -72,16 +65,16 @@ export function UserCombobox({
           aria-invalid={ariaInvalid}
           className={cn(
             "font-normal disabled:opacity-100",
-            value || error || isLoading || placeholder ? "justify-between!" : "justify-end!",
-            error || ariaInvalid ? "text-destructive border-destructive" : "",
+            value || isError || isLoading || placeholder ? "justify-between!" : "justify-end!",
+            isError || ariaInvalid ? "text-destructive border-destructive" : "",
           )}
-          disabled={isLoading || error !== null}
+          disabled={isLoading || isError}
           id={id}
           role="combobox"
           variant="outline"
         >
           {isLoading && "Cargando..."}
-          {error && "Error"}
+          {isError && "Error"}
           <span className="truncate">{value ? getSelectedUser(value) : (placeholder ?? "")}</span>
           <ChevronDown className="opacity-50" />
         </Button>
