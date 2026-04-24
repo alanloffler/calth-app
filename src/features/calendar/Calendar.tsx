@@ -24,7 +24,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
-import type { IUser } from "@users/interfaces/user.interface";
 import type { TView } from "@calendar/interfaces/calendar-view.type";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { UsersService } from "@users/services/users.service";
@@ -76,11 +75,9 @@ export default function Calendar() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [errorNotification, setErrorNotification] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
-  const [professionals, setProfessionals] = useState<IUser[] | undefined>(undefined);
   const canViewEvent = usePermission("events-view");
   const { refreshKey, setSelectedEvent, setOpenViewEventSheet } = useEventStore();
   const { isLoading: isLoadingProfessional, tryCatch: tryCatchProfessional } = useTryCatch();
-  const { isLoading: isLoadingProfessionals, tryCatch: tryCatchProfessionals } = useTryCatch();
   const { selectedDate, selectedView, setSelectedDate, setSelectedView } = useCalendarStore();
   const { selectedProfessional, selectedProfessionalConfig, setSelectedProfessional, setSelectedProfessionalConfig } =
     useCalendarStore();
@@ -141,19 +138,17 @@ export default function Calendar() {
     [setSelectedProfessional, setSelectedProfessionalConfig, tryCatchProfessional],
   );
 
-  const fetchProfessionals = useCallback(async () => {
-    const [response, error] = await tryCatchProfessionals(UsersService.findAll("professional"));
+  const { data: professionals, isLoading: isLoadingProfessionals } = useQuery({
+    queryKey: ["professionals"],
+    queryFn: () => UsersService.findAll("professional"),
+    select: (response) => response.data,
+  });
 
-    if (error) {
-      toast.error(error.message);
-      return;
+  useEffect(() => {
+    if (professionals && professionals.length > 0) {
+      getProfessional(professionals[0].id);
     }
-
-    if (response && response.statusCode === 200 && response.data) {
-      setProfessionals(response.data);
-      if (response.data.length > 0) getProfessional(response.data[0].id);
-    }
-  }, [getProfessional, tryCatchProfessionals]);
+  }, [professionals, getProfessional]);
 
   const onView = useCallback(
     (view: View) => {
@@ -171,9 +166,9 @@ export default function Calendar() {
     [setSelectedEvent, setOpenViewEventSheet],
   );
 
-  useEffect(() => {
-    fetchProfessionals();
-  }, [fetchProfessionals]);
+  // useEffect(() => {
+  //   fetchProfessionals();
+  // }, [fetchProfessionals]);
 
   if (professionals?.length === 0) {
     return (
