@@ -1,6 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { TEventStatus } from "@calendar/enums/event-status.enum";
@@ -15,28 +16,35 @@ interface IProps {
 }
 
 export function UpdateEventStatus({ event, onEventChange }: IProps) {
+  const [status, setStatus] = useState<TEventStatus>(event.status);
   const { tryCatch: tryCatchUpdateEvent } = useTryCatch();
+
+  useEffect(() => {
+    setStatus(event.status);
+  }, [event]);
 
   if (!DEventStatus || !event) return;
 
-  async function updateEventStatus(status: TEventStatus): Promise<void> {
-    onEventChange({ ...event, status });
+  async function updateEventStatus(newStatus: TEventStatus): Promise<void> {
+    const previousStatus = status;
+    setStatus(newStatus);
 
-    const [response, error] = await tryCatchUpdateEvent(CalendarService.updateStatus(event.id, status));
+    const [response, error] = await tryCatchUpdateEvent(CalendarService.updateStatus(event.id, newStatus));
 
     if (error) {
-      onEventChange(event);
+      setStatus(previousStatus);
       toast.error(error.message);
       return;
     }
 
     if (response && response.statusCode === 200) {
+      onEventChange({ ...event, status: newStatus });
       toast.success("Estado del turno actualizado");
     }
   }
 
   return (
-    <Select defaultValue={event.status} onValueChange={(status) => updateEventStatus(status as TEventStatus)}>
+    <Select value={status} onValueChange={(s) => updateEventStatus(s as TEventStatus)}>
       <SelectTrigger id="eventStatus">
         <SelectValue placeholder="Seleccione" />
       </SelectTrigger>
