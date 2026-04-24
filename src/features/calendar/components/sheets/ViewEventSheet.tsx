@@ -63,6 +63,7 @@ export function ViewEventSheet() {
 
   function handleStatusChange(updatedEvent: ICalendarEvent): void {
     setSelectedEvent(updatedEvent);
+    queryClient.invalidateQueries({ queryKey: ["events"] });
   }
 
   if (!event) return null;
