@@ -2,6 +2,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { cva, type VariantProps } from "class-variance-authority";
 import { toast } from "sonner";
+import { useState } from "react";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { TEventStatus } from "@calendar/enums/event-status.enum";
@@ -43,30 +44,32 @@ export interface IUpdateStatusProps extends VariantProps<typeof statusVariants> 
 
 export function UpdateStatus({ className, event, onEventChange, size }: IUpdateStatusProps) {
   const { tryCatch: tryCatchUpdateEvent } = useTryCatch();
+  const [localStatus, setLocalStatus] = useState<TEventStatus>(event.status);
 
   if (!DEventStatus || !event) return null;
 
   async function updateEventStatus(newStatus: TEventStatus): Promise<void> {
-    onEventChange({ ...event, status: newStatus });
+    setLocalStatus(newStatus);
 
     const [response, error] = await tryCatchUpdateEvent(CalendarService.updateStatus(event.id, newStatus));
 
     if (error) {
-      onEventChange(event);
+      setLocalStatus(event.status);
       toast.error(error.message);
       return;
     }
 
     if (response && response.statusCode === 200) {
+      onEventChange({ ...event, status: newStatus });
       toast.success("Estado del turno actualizado");
     }
   }
 
   return (
-    <Select value={event.status} onValueChange={(newStatus) => updateEventStatus(newStatus as TEventStatus)}>
+    <Select value={localStatus} onValueChange={(newStatus) => updateEventStatus(newStatus as TEventStatus)}>
       <SelectTrigger
         id="eventStatus"
-        className={cn(statusVariants({ size, status: event.status }), "min-w-0", className)}
+        className={cn(statusVariants({ size, status: localStatus }), "min-w-0", className)}
       >
         <SelectValue placeholder="Seleccione" />
       </SelectTrigger>
