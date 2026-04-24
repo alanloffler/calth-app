@@ -2,7 +2,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { cva, type VariantProps } from "class-variance-authority";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { TEventStatus } from "@calendar/enums/event-status.enum";
@@ -10,7 +11,6 @@ import { CalendarService } from "@calendar/services/calendar.service";
 import { DEventStatus } from "@calendar/dictionaries/status.dictionary";
 import { cn } from "@core/lib/utils";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 const statusVariants = cva("uppercase", {
   variants: {
@@ -43,34 +43,32 @@ export interface IUpdateStatusProps extends VariantProps<typeof statusVariants> 
 }
 
 export function UpdateStatus({ className, event, onEventChange, size }: IUpdateStatusProps) {
-  const { tryCatch: tryCatchUpdateEvent } = useTryCatch();
-  const [localStatus, setLocalStatus] = useState<TEventStatus>(event.status);
+  const [status, setStatus] = useState<TEventStatus>(event.status);
 
-  if (!DEventStatus || !event) return null;
+  useEffect(() => {
+    setStatus(event.status);
+  }, [event]);
 
-  async function updateEventStatus(newStatus: TEventStatus): Promise<void> {
-    setLocalStatus(newStatus);
-
-    const [response, error] = await tryCatchUpdateEvent(CalendarService.updateStatus(event.id, newStatus));
-
-    if (error) {
-      setLocalStatus(event.status);
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
+  const { mutate: updateEventStatus } = useMutation({
+    mutationKey: ["event-status"],
+    mutationFn: (status: TEventStatus) => CalendarService.updateStatus(event.id, status),
+    onMutate: (newStatus) => {
+      const previousStatus = status;
+      setStatus(newStatus);
+      return { previousStatus };
+    },
+    onSuccess: (response, newStatus) => {
       onEventChange({ ...event, status: newStatus });
-      toast.success("Estado del turno actualizado");
-    }
-  }
+      toast.success(response.message ?? "Estado del turno actualizado");
+    },
+    onError: (_error, _newStatus, context) => {
+      if (context?.previousStatus) setStatus(event.status);
+    },
+  });
 
   return (
-    <Select value={localStatus} onValueChange={(newStatus) => updateEventStatus(newStatus as TEventStatus)}>
-      <SelectTrigger
-        id="eventStatus"
-        className={cn(statusVariants({ size, status: localStatus }), "min-w-0", className)}
-      >
+    <Select value={status} onValueChange={(s) => updateEventStatus(s as TEventStatus)}>
+      <SelectTrigger id="eventStatus" className={cn(statusVariants({ size, status }), "min-w-0", className)}>
         <SelectValue placeholder="Seleccione" />
       </SelectTrigger>
       <SelectContent>
