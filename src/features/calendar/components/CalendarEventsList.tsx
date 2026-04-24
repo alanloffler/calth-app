@@ -20,13 +20,11 @@ interface IProps {
 }
 
 export function CalendarEventsList({ className, professionalId }: IProps) {
-  const [limit, setLimit] = useState<number>(10);
+  const [limit, _] = useState<number>(10);
   const [pageIndex, setPageIndex] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
-  const [hasChanges, setHasChanges] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
-  const { triggerRefresh } = useEventStore();
 
   const { data: events } = useQuery({
     queryKey: ["events", "professional-list", professionalId, pageIndex, limit],
@@ -40,19 +38,11 @@ export function CalendarEventsList({ className, professionalId }: IProps) {
     }
   }, [events]);
 
-  // TODO: fix like in ViewEventSheet -> !triggerRefresh
-  const handleOpenChange = (isOpen: boolean) => {
-    setOpen(isOpen);
-    if (!isOpen && hasChanges) {
-      queryClient.invalidateQueries({ queryKey: ["events", "professional-list", professionalId] });
-      triggerRefresh();
-      setHasChanges(false);
-    }
-  };
-
-  const handleEventChange = () => {
-    setHasChanges(true);
-  };
+  async function handleEventChange() {
+    queryClient.invalidateQueries({ queryKey: ["events", "professional-list", professionalId, pageIndex, limit] });
+    queryClient.invalidateQueries({ queryKey: ["events", "calendar", professionalId] });
+    setOpen(false);
+  }
 
   return (
     <>
@@ -84,7 +74,7 @@ export function CalendarEventsList({ className, professionalId }: IProps) {
           </div>
         )}
       </div>
-      <ViewEventDialog open={open} setOpen={handleOpenChange} onEventChange={handleEventChange} />
+      <ViewEventDialog open={open} setOpen={setOpen} onEventChange={handleEventChange} />
     </>
   );
 }
