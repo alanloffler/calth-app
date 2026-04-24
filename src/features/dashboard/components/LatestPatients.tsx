@@ -6,40 +6,24 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
-import { toast } from "sonner";
-import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 
-import type { IUser } from "@users/interfaces/user.interface";
 import { UsersService } from "@users/services/users.service";
 import { cn } from "@core/lib/utils";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   className?: string;
 }
 
 export function LatestPatients({ className }: IProps) {
-  const [patients, setPatients] = useState<IUser[]>();
-  const { isLoading, tryCatch } = useTryCatch();
   const navigate = useNavigate();
 
-  const getLatestEvents = useCallback(async () => {
-    const [response, error] = await tryCatch(UsersService.findLatestPatients(5));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      setPatients(response.data);
-    }
-  }, [tryCatch]);
-
-  useEffect(() => {
-    getLatestEvents();
-  }, [getLatestEvents]);
+  const { data: patients, isLoading } = useQuery({
+    queryKey: ["latest-patients"],
+    queryFn: () => UsersService.findLatestPatients(5),
+    select: (response) => response.data,
+  });
 
   if (!isLoading && !patients?.length) return null;
 
