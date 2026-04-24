@@ -78,8 +78,8 @@ export default function Calendar() {
     error: eventsError,
   } = useQuery({
     queryKey: ["events", "calendar", selectedProfessional?.id, dateRange.startDate, dateRange.endDate, refreshKey],
-    queryFn: () =>
-      CalendarService.findAll(selectedProfessional!.id, dateRange.startDate, dateRange.endDate).then((r) => r.data),
+    queryFn: () => CalendarService.findAll(selectedProfessional!.id, dateRange.startDate, dateRange.endDate),
+    select: (response) => response.data,
     enabled: !!selectedProfessional,
   });
 
@@ -159,6 +159,7 @@ export default function Calendar() {
       </Card>
     );
   }
+
   if (!isReady) {
     return <PageLoader text="Cargando agenda" />;
   }
