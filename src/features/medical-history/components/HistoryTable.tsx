@@ -6,22 +6,25 @@ import { Card } from "@components/ui/card";
 import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { DataTable } from "@components/data-table/DataTable";
 import { EditHistorySheet } from "@medical-history/components/sheets/EditHistorySheet";
-import { EventDetailsDialog } from "@calendar/components/EventDetailsDialog";
 import { Protected } from "@auth/components/Protected";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
+import { ViewEventDialog } from "@event/components/ViewEventDialog";
 import { ViewHistorySheet } from "@medical-history/components/sheets/ViewHistorySheet";
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import type { IMedicalHistory } from "@medical-history/interfaces/medical-history.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
+import { CalendarService } from "@calendar/services/calendar.service";
 import { HistoryTableConfig } from "@core/config/table.config";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { cn } from "@core/lib/utils";
+import { useEventStore } from "@calendar/stores/event.store";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
@@ -41,6 +44,19 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
+
+  const { setSelectedEvent } = useEventStore();
+
+  const { data: relatedEvent } = useQuery({
+    queryKey: ["medical-history", "event"],
+    queryFn: () => CalendarService.findOne(selectedHistory?.eventId as string),
+    enabled: !!selectedHistory,
+    select: (response) => response.data,
+  });
+
+  useEffect(() => {
+    if (relatedEvent) setSelectedEvent(relatedEvent);
+  }, [relatedEvent, setSelectedEvent]);
 
   if (!history) return null;
 
@@ -261,15 +277,18 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
   return history && history.length > 0 ? (
     <>
       {selectedHistory && (
-        // TODO: use a global sheet like event, or at least do not show overlay
-        <ViewHistorySheet
-          eventClick={setOpenEventDialog}
-          history={selectedHistory}
-          open={openSheet}
-          setOpen={setOpenSheet}
-          onEdit={() => setOpenEditSheet(true)}
-          onDelete={() => setOpenRemoveDialog(true)}
-        />
+        <>
+          <ViewHistorySheet
+            eventClick={setOpenEventDialog}
+            history={selectedHistory}
+            open={openSheet}
+            setOpen={setOpenSheet}
+            onEdit={() => setOpenEditSheet(true)}
+            onDelete={() => setOpenRemoveDialog(true)}
+          />
+          {/* TODO: use a global sheet like event, or at least do not show overlay*/}
+          <ViewEventDialog open={openEventDialog} setOpen={setOpenEventDialog} />
+        </>
       )}
       <DataTable
         columns={columns}
@@ -367,7 +386,6 @@ export function HistoryTable({ history, isLoading, onUpdated }: IProps) {
               </li>
             </ul>
           </ConfirmDialog>
-          <EventDetailsDialog eventId={selectedHistory.eventId} open={openEventDialog} setOpen={setOpenEventDialog} />
         </>
       )}
     </>
