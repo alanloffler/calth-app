@@ -208,7 +208,6 @@
 }
 
 .rbc-event:focus {
-  background-color: var(--event-bg-hover, var(--color-event-hover)) !important;
   outline: none !important;
 }
 
