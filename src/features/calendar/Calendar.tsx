@@ -26,6 +26,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { TView } from "@calendar/interfaces/calendar-view.type";
 import { CalendarService } from "@calendar/services/calendar.service";
+import { MESSAGES } from "@calendar/dictionaries/messages.dictionary";
 import { UsersService } from "@users/services/users.service";
 import { cn } from "@core/lib/utils";
 import {
@@ -48,22 +49,6 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 });
-
-const messages = {
-  allDay: "Todo el día",
-  previous: "Anterior",
-  next: "Siguiente",
-  today: "Hoy",
-  month: "Mes",
-  week: "Semana",
-  day: "Día",
-  agenda: "Agenda",
-  date: "Fecha",
-  time: "Hora",
-  event: "Evento",
-  noEventsInRange: "No hay eventos en este rango",
-  showMore: (total: number) => `${total} más`,
-};
 
 interface IDateRange {
   startDate: string;
@@ -235,7 +220,7 @@ export default function Calendar() {
               key={selectedProfessional.id}
               localizer={localizer}
               max={selectedProfessionalConfig?.endHour}
-              messages={messages}
+              messages={MESSAGES}
               min={selectedProfessionalConfig?.startHour}
               onNavigate={setSelectedDate}
               onSelectEvent={onSelectEvent}
