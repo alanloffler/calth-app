@@ -20,29 +20,28 @@ import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { useTryCatch } from "@core/hooks/useTryCatch";
+import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IUser } from "@users/interfaces/user.interface";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
 import { createHistorySchema } from "@medical-history/schemas/create-history.schema";
+import { queryClient } from "@core/lib/query-client";
 
 interface IProps {
   user: IUser;
-  onCreated: () => void;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 // TODO: get from settings store
 const LOCALE = "es";
 
-export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
+export function CreateHistoryForm({ user, setOpen }: IProps) {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [dateType, setDateType] = useState<"manual" | "event">("manual");
   const [openCalendar, setOpenCalendar] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<ICalendarEvent | undefined>(undefined);
-  const { isLoading: isSaving, tryCatch: tryCatchCreateHistory } = useTryCatch();
 
   const form = useForm<z.infer<typeof createHistorySchema>>({
     resolver: zodResolver(createHistorySchema),
@@ -69,22 +68,14 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
     }
   }
 
-  async function onSubmit(data: z.infer<typeof createHistorySchema>) {
-    if (!data) return;
-
-    const [response, error] = await tryCatchCreateHistory(MedicalHistoryService.create(data));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 201) {
-      toast.success("Historial médico creado");
-      onCreated();
+  const { mutate: createHistory, isPending: isSaving } = useMutation({
+    mutationFn: (data: z.infer<typeof createHistorySchema>) => MedicalHistoryService.create(data),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["medical-history"] });
+      toast.success(response.message);
       resetForm();
-    }
-  }
+    },
+  });
 
   function resetForm(): void {
     form.reset();
@@ -123,7 +114,7 @@ export function CreateHistoryForm({ user, onCreated, setOpen }: IProps) {
       <form
         className="grid h-full grid-cols-1 gap-6 overflow-y-auto p-6"
         id="create-history"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit((data) => createHistory(data))}
       >
         <FieldGroup className="grid grid-cols-1 gap-6">
           <Controller
