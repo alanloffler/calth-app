@@ -253,6 +253,13 @@ export function HistoryTable({ history, isLoading }: IProps) {
 
   return history && history.length > 0 ? (
     <>
+      <DataTable
+        columns={columns}
+        data={history}
+        defaultPageSize={HistoryTableConfig.limit}
+        loading={isLoading}
+        pageSizes={HistoryTableConfig.pageSizes}
+      />
       {selectedHistory && (
         <>
           <ViewHistorySheet
@@ -263,27 +270,13 @@ export function HistoryTable({ history, isLoading }: IProps) {
             onEdit={() => setOpenEditSheet(true)}
             onDelete={() => setOpenRemoveDialog(true)}
           />
-          {/* TODO: use a global sheet like event, or at least do not show overlay*/}
           <ViewEventDialog open={openEventDialog} setOpen={setOpenEventDialog} />
-        </>
-      )}
-      <DataTable
-        columns={columns}
-        data={history}
-        defaultPageSize={HistoryTableConfig.limit}
-        loading={isLoading}
-        pageSizes={HistoryTableConfig.pageSizes}
-      />
-      {selectedHistory && (
-        <EditHistorySheet
-          open={openEditSheet}
-          setOpen={setOpenEditSheet}
-          history={selectedHistory}
-          onUpdated={() => {}}
-        />
-      )}
-      {selectedHistory && (
-        <>
+          <EditHistorySheet
+            open={openEditSheet}
+            setOpen={setOpenEditSheet}
+            history={selectedHistory}
+            onUpdated={() => {}}
+          />
           <ConfirmDialog
             title="Eliminar historia médica"
             description="¿Seguro que querés eliminar esta historia médica?"
