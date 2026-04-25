@@ -42,7 +42,7 @@ export function LoginForm({ className, type }: IProps) {
   const { mutate: login, isPending } = useMutation({
     mutationKey: ["auth", "login"],
     mutationFn: async (data: z.infer<typeof loginSchema>) => {
-      const loginResponse = await AuthService.signIn({
+      const loginResponse = await AuthService.login({
         email: data.email,
         password: data.password,
         type,
