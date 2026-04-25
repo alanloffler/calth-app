@@ -9,9 +9,10 @@ import { Loader } from "@components/Loader";
 
 import type z from "zod";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -23,9 +24,7 @@ import { roleSchema } from "@roles/schemas/role.schema";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function CreateForm() {
-  const [permissions, setPermissions] = useState<IPermissionGroup[] | undefined>(undefined);
   const navigate = useNavigate();
-  const { isLoading: isLoadingPermissions, tryCatch: tryCatchPermissions } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const form = useForm<z.infer<typeof roleSchema>>({
@@ -38,28 +37,19 @@ export function CreateForm() {
     },
   });
 
-  const permissionsWatch = useWatch({
-    control: form.control,
-    name: "permissions",
+  const permissionsWatch = useWatch({ control: form.control, name: "permissions" });
+
+  const { data: permissions, isLoading: isLoadingPermissions } = useQuery({
+    queryKey: ["permissions", "grouped"],
+    queryFn: () => PermissionsService.findAllGrouped(),
+    select: (response) => response.data,
   });
 
   useEffect(() => {
-    async function fetchPermissions() {
-      const [response, error] = await tryCatchPermissions(PermissionsService.findAllGrouped());
-
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-
-      if (response && response.statusCode === 200) {
-        setPermissions(response.data);
-        form.setValue("permissions", response.data || []);
-      }
+    if (permissions) {
+      form.setValue("permissions", permissions || []);
     }
-
-    fetchPermissions();
-  }, [form, tryCatchPermissions]);
+  }, [form, permissions]);
 
   async function onSubmit(data: z.infer<typeof roleSchema>) {
     const [response, error] = await tryCatchSubmit(RolesService.create(data));
