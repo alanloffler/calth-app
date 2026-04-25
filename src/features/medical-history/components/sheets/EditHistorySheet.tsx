@@ -7,12 +7,11 @@ import type { IMedicalHistory } from "@medical-history/interfaces/medical-histor
 
 interface IProps {
   history: IMedicalHistory;
-  onUpdated: () => void;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export function EditHistorySheet({ history, onUpdated, open, setOpen }: IProps) {
+export function EditHistorySheet({ history, open, setOpen }: IProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild></SheetTrigger>
@@ -24,7 +23,7 @@ export function EditHistorySheet({ history, onUpdated, open, setOpen }: IProps) 
           </SheetDescription>
         </SheetHeader>
         <div className="flex h-full min-h-0 flex-col">
-          <EditHistoryForm history={history} onUpdated={onUpdated} setOpen={setOpen} />
+          <EditHistoryForm history={history} setOpen={setOpen} />
         </div>
       </SheetContent>
     </Sheet>
