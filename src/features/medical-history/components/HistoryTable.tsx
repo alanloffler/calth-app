@@ -42,7 +42,6 @@ export function HistoryTable({ history, isLoading }: IProps) {
   const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [selectedHistory, setSelectedHistory] = useState<IMedicalHistory | undefined>(undefined);
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
-  const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   const { setSelectedEvent } = useEventStore();
 
@@ -231,23 +230,17 @@ export function HistoryTable({ history, isLoading }: IProps) {
     },
   });
 
-  async function restoreHistory(id: string): Promise<void> {
-    if (!id) return;
-
-    const [response, error] = await tryCatchRestore(MedicalHistoryService.restore(id));
-
-    if (error) {
-      toast.error(error.message);
-      setOpenRestoreDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
+  const { mutate: restoreHistory, isPending: isRestoring } = useMutation({
+    mutationKey: ["medical-history", "restore"],
+    mutationFn: (id: string) => MedicalHistoryService.restore(id),
+    onSuccess: (response) => {
       toast.success(response.message);
-      // onUpdated();
+      queryClient.invalidateQueries({ queryKey: ["medical-history", selectedHistory?.userId] });
+    },
+    onSettled: () => {
       setOpenRestoreDialog(false);
-    }
-  }
+    },
+  });
 
   async function removeHardHistory(id: string): Promise<void> {
     if (!id) return;
