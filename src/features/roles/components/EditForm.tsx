@@ -13,6 +13,7 @@ import type z from "zod";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,20 +25,15 @@ import { RolesService } from "@roles/services/roles.service";
 import { cn } from "@core/lib/utils";
 import { roleSchema } from "@roles/schemas/role.schema";
 import { useAuthStore } from "@auth/stores/auth.store";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 const CRITICAL_PERMISSIONS_FOR_SUPERADMIN = ["roles-view", "roles-update"];
 
 export function EditForm() {
   const [permissions, setPermissions] = useState<any | undefined>(undefined);
-  const [permissionsError, setPermissionsError] = useState<boolean>(false);
   const [roleValue, setRoleValue] = useState<string>("");
   const navigate = useNavigate();
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const { id } = useParams();
-  const { isLoading: isLoadingPermissions, tryCatch: tryCatchPermissions } = useTryCatch();
-  const { isLoading: isLoadingRole, tryCatch: tryCatchRole } = useTryCatch();
-  const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const form = useForm<z.infer<typeof roleSchema>>({
     resolver: zodResolver(roleSchema),
@@ -49,88 +45,78 @@ export function EditForm() {
     },
   });
 
-  const permissionsWatch = useWatch({
-    control: form.control,
-    name: "permissions",
+  const permissionsWatch = useWatch({ control: form.control, name: "permissions" });
+
+  const { data: roles, isLoading: isLoadingRole } = useQuery({
+    queryKey: ["roles", id],
+    queryFn: () => RolesService.findOne(id!),
+    select: (response) => response.data,
+    enabled: !!id,
+  });
+
+  const {
+    data: permissionsQuery,
+    isLoading: isLoadingPermissions,
+    isError: isErrorPermissions,
+  } = useQuery({
+    queryKey: ["permissions", "grouped"],
+    queryFn: () => PermissionsService.findAllGrouped(),
+    select: (response) => response.data,
   });
 
   useEffect(() => {
-    async function loadData() {
-      const [roleResponse, roleError] = await tryCatchRole(RolesService.findOne(id!));
+    if (roles && permissionsQuery) {
+      form.setValue("name", roles.name);
+      form.setValue("description", roles.description);
+      form.setValue("value", roles.value);
 
-      if (roleError) {
-        toast.error(roleError?.message || "Error cargando datos");
-        return;
-      }
+      setRoleValue(roles.value);
+      const rolePermissionKeys = new Set(roles.rolePermissions?.map((rp) => rp.permission?.actionKey) || []);
 
-      if (roleResponse?.statusCode === 200 && roleResponse.data) {
-        form.setValue("name", roleResponse.data.name);
-        form.setValue("description", roleResponse.data.description);
-        form.setValue("value", roleResponse.data.value);
-        setRoleValue(roleResponse.data.value);
+      const processedPermissions = permissionsQuery
+        .map((permGroup) => ({
+          ...permGroup,
+          actions: permGroup.actions.map((action) => {
+            return {
+              ...action,
+              value: rolePermissionKeys.has(action.key),
+              deletedAt: action.deletedAt,
+            };
+          }),
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
 
-        const [permissionsResponse, permissionsError] = await tryCatchPermissions(PermissionsService.findAllGrouped());
-
-        if (permissionsError) {
-          setPermissionsError(true);
-          toast.error(permissionsError?.message || "Error cargando datos");
-          return;
-        }
-
-        if (permissionsResponse?.statusCode === 200 && permissionsResponse.data) {
-          const rolePermissionKeys = new Set(
-            roleResponse?.data?.rolePermissions?.map((rp) => rp.permission?.actionKey) || [],
-          );
-
-          const processedPermissions = permissionsResponse.data
-            .map((permGroup) => ({
-              ...permGroup,
-              actions: permGroup.actions.map((action) => {
-                return {
-                  ...action,
-                  value: rolePermissionKeys.has(action.key),
-                  deletedAt: action.deletedAt,
-                };
-              }),
-            }))
-            .sort((a, b) => a.name.localeCompare(b.name));
-
-          setPermissions(processedPermissions);
-          form.setValue("permissions", processedPermissions);
-        }
-      }
+      setPermissions(processedPermissions);
+      form.setValue("permissions", processedPermissions);
     }
+  }, [form, permissionsQuery, roles]);
 
-    loadData();
-  }, [id, form, tryCatchPermissions, tryCatchRole]);
+  const { mutate: updateRole, isPending: isSaving } = useMutation({
+    mutationKey: ["roles", "update"],
+    mutationFn: async (data: z.infer<typeof roleSchema>) => {
+      const cleanedData = {
+        ...data,
+        permissions: data.permissions.map((permGroup) => ({
+          ...permGroup,
+          actions: permGroup.actions.filter((action) => !action.deletedAt),
+        })),
+      };
 
-  async function onSubmit(data: z.infer<typeof roleSchema>) {
-    const cleanedData = {
-      ...data,
-      permissions: data.permissions.map((permGroup) => ({
-        ...permGroup,
-        actions: permGroup.actions.filter((action) => !action.deletedAt),
-      })),
-    };
-
-    const [response, error] = await tryCatchSubmit(RolesService.update(id!, cleanedData));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
+      return RolesService.update(id!, cleanedData);
+    },
+    onSuccess: async (response) => {
       toast.success(response.message);
       await refreshAdmin();
       resetForm();
-    }
-  }
+    },
+  });
 
   function resetForm(): void {
     form.reset();
     navigate("/roles");
   }
+
+  const isLoading = isLoadingRole || isLoadingPermissions;
 
   return (
     <Card>
@@ -139,7 +125,11 @@ export function EditForm() {
         <CardDescription>Actualizá los datos del rol</CardDescription>
       </CardHeader>
       <CardContent className="flex-1">
-        <form className="grid grid-cols-1 gap-6" id="create-role" onSubmit={form.handleSubmit(onSubmit)}>
+        <form
+          className="grid grid-cols-1 gap-6"
+          id="create-role"
+          onSubmit={form.handleSubmit((data) => updateRole(data))}
+        >
           <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <Controller
               name="name"
@@ -268,7 +258,7 @@ export function EditForm() {
                     ))}
                   </ul>
                 ) : (
-                  permissionsError && (
+                  isErrorPermissions && (
                     <span className="text-destructive text-center text-sm">Error cargando permisos</span>
                   )
                 )}
@@ -283,7 +273,7 @@ export function EditForm() {
         </form>
       </CardContent>
       <CardFooter className="flex justify-between pt-4">
-        <div>{isLoadingRole && <Loader className="text-sm" size={18} text="Cargando rol" />}</div>
+        <div>{isLoading && <Loader className="text-sm" size={18} text="Cargando rol y permisos" />}</div>
         <div className="flex gap-4">
           <Button variant="ghost" onClick={resetForm}>
             Cancelar
