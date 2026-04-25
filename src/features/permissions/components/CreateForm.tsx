@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { PERMISSIONS } from "@core/constants/permissions";
@@ -22,7 +23,6 @@ export function CreateForm() {
   const [availableActions, setAvailableActions] = useState<{ name: string; value: string }[]>([]);
   const [unavailableActions, setUnavailableActions] = useState<boolean>(false);
   const navigate = useNavigate();
-  const { isLoading: isLoadingActions, tryCatch: tryCatchActions } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const form = useForm<z.infer<typeof permissionSchema>>({
@@ -40,38 +40,23 @@ export function CreateForm() {
     name: "category",
   });
 
+  const { data: usedPermissions, isLoading: isLoadingActions } = useQuery({
+    queryKey: ["permissions", "by-category", selectedCategory],
+    queryFn: () => PermissionsService.findAllByCategory(selectedCategory),
+    select: (response) => response.data,
+    enabled: !!selectedCategory,
+  });
+
   useEffect(() => {
-    async function getAvailableActions() {
-      if (!selectedCategory) return;
+    const category = PERMISSIONS.find((cat) => cat.value === selectedCategory);
+    if (!category || !usedPermissions) return;
 
-      setAvailableActions([]);
+    const usedActionKeys = usedPermissions.filter((p) => p.category === selectedCategory).map((p) => p.actionKey);
+    const filteredActions = category.actions.filter((action) => !usedActionKeys.includes(action.value));
 
-      const category = PERMISSIONS.find((cat) => cat.value === selectedCategory);
-
-      const [response, error] = await tryCatchActions(PermissionsService.findAllByCategory(selectedCategory));
-
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-
-      if (response && response.statusCode === 200 && category) {
-        const usedPermissions = response.data || [];
-        const usedActionKeys = usedPermissions.filter((p) => p.category === selectedCategory).map((p) => p.actionKey);
-        const filteredActions = category.actions.filter((action) => !usedActionKeys.includes(action.value));
-
-        setAvailableActions(filteredActions);
-
-        if (filteredActions.length === 0) {
-          setUnavailableActions(true);
-        } else {
-          setUnavailableActions(false);
-        }
-      }
-    }
-
-    getAvailableActions();
-  }, [selectedCategory, tryCatchActions]);
+    setAvailableActions(filteredActions);
+    setUnavailableActions(filteredActions.length === 0 ? true : false);
+  }, [selectedCategory, usedPermissions]);
 
   useEffect(() => {
     if (selectedCategory) {
