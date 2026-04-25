@@ -231,23 +231,6 @@ export function HistoryTable({ history, isLoading }: IProps) {
     },
   });
 
-  // async function softRemoveHistory(id: string): Promise<void> {
-  //   const [response, error] = await tryCatchRemove(MedicalHistoryService.softRemove(id));
-
-  //   if (error) {
-  //     toast.error(error.message);
-  //     setOpenRemoveDialog(false);
-  //     return;
-  //   }
-
-  //   if (response && response.statusCode === 200) {
-  //     toast.success(response.message);
-  //     onUpdated();
-  //     setOpenSheet(false);
-  //     setOpenRemoveDialog(false);
-  //   }
-  // }
-
   async function restoreHistory(id: string): Promise<void> {
     if (!id) return;
 
