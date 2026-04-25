@@ -19,7 +19,6 @@ import type { IPermission } from "@permissions/interfaces/permission.interface";
 import { PermissionsService } from "@permissions/services/permissions.service";
 import { PermissionsTableConfig } from "@core/config/table.config";
 import { useAuthStore } from "@auth/stores/auth.store";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 import { queryClient } from "@core/lib/query-client";
 
 export default function Permissions() {
@@ -28,7 +27,6 @@ export default function Permissions() {
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [selectedPermission, setSelectedPermission] = useState<IPermission | undefined>(undefined);
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
-  const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
 
   const { data: permissions, isLoading: isLoadingPermissions } = useQuery({
     queryKey: ["permissions"],
@@ -58,26 +56,22 @@ export default function Permissions() {
       await refreshAdmin();
     },
     onSettled: () => {
-      setOpenRemoveDialog(false);
+      setOpenRestoreDialog(false);
     },
   });
 
-  async function hardRemovePermission(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemoveHard(PermissionsService.remove(id));
-
-    if (error) {
-      toast.error(error.message);
-      setOpenRemoveHardDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
+  const { mutate: hardRemovePermission, isPending: isRemovingHard } = useMutation({
+    mutationKey: ["permissions", "hard-remove"],
+    mutationFn: (id: string) => PermissionsService.remove(id),
+    onSuccess: async (response) => {
+      queryClient.invalidateQueries({ queryKey: ["permissions"] });
       toast.success(response.message);
-      setOpenRemoveHardDialog(false);
       await refreshAdmin();
-      // fetchPermissions();
-    }
-  }
+    },
+    onSettled: () => {
+      setOpenRemoveHardDialog(false);
+    },
+  });
 
   const columns: ColumnDef<IPermission>[] = [
     {
