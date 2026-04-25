@@ -10,12 +10,14 @@ import type z from "zod";
 import { toast } from "sonner";
 import { useEffect, useMemo, useRef } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { PERMISSIONS } from "@core/constants/permissions";
 import { PermissionsService } from "@permissions/services/permissions.service";
 import { permissionSchema } from "@permissions/schemas/permission.schema";
+import { queryClient } from "@core/lib/query-client";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function EditForm() {
@@ -23,7 +25,6 @@ export function EditForm() {
   const previousCategory = useRef<string | undefined>(undefined);
   const { id } = useParams();
   const { isLoading: isLoadingPermission, tryCatch: tryCatchPermission } = useTryCatch();
-  const { isLoading: isSavingPermission, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const form = useForm<z.infer<typeof permissionSchema>>({
     resolver: zodResolver(permissionSchema),
@@ -87,21 +88,15 @@ export function EditForm() {
     fetchPermission();
   }, [id, form, tryCatchPermission]);
 
-  async function onSubmit(data: z.infer<typeof permissionSchema>) {
-    if (id) {
-      const [response, error] = await tryCatchSubmit(PermissionsService.update(id, data));
-
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-
-      if (response && response.statusCode === 200) {
-        toast.success(response.message);
-        resetForm();
-      }
-    }
-  }
+  const { mutate: updatePermission, isPending: isSavingPermission } = useMutation({
+    mutationKey: ["permissions", "update"],
+    mutationFn: (data: z.infer<typeof permissionSchema>) => PermissionsService.update(id as string, data),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["permissions"] });
+      toast.success(response.message);
+      resetForm();
+    },
+  });
 
   function resetForm(): void {
     form.reset();
@@ -116,7 +111,11 @@ export function EditForm() {
           <CardDescription>Actualizá los datos del permiso</CardDescription>
         </CardHeader>
         <CardContent className="flex-1">
-          <form className="grid grid-cols-1 gap-6" id="create-permission" onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            className="grid grid-cols-1 gap-6"
+            id="create-permission"
+            onSubmit={form.handleSubmit((data) => updatePermission(data))}
+          >
             <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Controller
                 name="category"
