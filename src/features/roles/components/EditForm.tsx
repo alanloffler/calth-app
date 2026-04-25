@@ -23,6 +23,7 @@ import { ERoles } from "@auth/enums/role.enum";
 import { PermissionsService } from "@permissions/services/permissions.service";
 import { RolesService } from "@roles/services/roles.service";
 import { cn } from "@core/lib/utils";
+import { queryClient } from "@core/lib/query-client";
 import { roleSchema } from "@roles/schemas/role.schema";
 import { useAuthStore } from "@auth/stores/auth.store";
 
@@ -105,6 +106,7 @@ export function EditForm() {
       return RolesService.update(id!, cleanedData);
     },
     onSuccess: async (response) => {
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
       toast.success(response.message);
       await refreshAdmin();
       resetForm();
