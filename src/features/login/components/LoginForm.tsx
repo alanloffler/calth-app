@@ -10,6 +10,7 @@ import { Loader } from "@components/Loader";
 import { toast } from "sonner";
 import { type MouseEvent, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +21,6 @@ import { cn } from "@core/lib/utils";
 import { loginSchema } from "@login/schemas/login.schema";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useSettingsStore } from "@settings/stores/settings.store";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   className?: string;
@@ -30,8 +30,6 @@ interface IProps {
 export function LoginForm({ className, type }: IProps) {
   const [passwordField, setPasswordField] = useState<boolean>(true);
   const navigate = useNavigate();
-  const { isLoading: isFetching, tryCatch: tryCatchUser } = useTryCatch();
-  const { isLoading: isLogin, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -41,37 +39,43 @@ export function LoginForm({ className, type }: IProps) {
     },
   });
 
-  async function onSubmit(data: z.infer<typeof loginSchema>) {
-    const { email, password } = data;
-    const [loginResponse, loginError] = await tryCatchSubmit(AuthService.signIn({ email, password, type }));
-
-    if (loginError) {
-      toast.error(loginError.message);
-      return;
-    }
-
-    if (loginResponse && loginResponse.statusCode === 200) {
-      const [userResponse, userError] = await tryCatchUser(AuthService.getMe());
-
-      if (userError) {
-        toast.error(userError.message);
-        return;
+  const { mutate: login, isPending } = useMutation({
+    mutationKey: ["auth", "login"],
+    mutationFn: async (data: z.infer<typeof loginSchema>) => {
+      const loginResponse = await AuthService.signIn({
+        email: data.email,
+        password: data.password,
+        type,
+      });
+      if (loginResponse.statusCode !== 200) {
+        throw new Error(loginResponse.message);
       }
 
-      if (userResponse && userResponse.statusCode === 200) {
-        useAuthStore.getState().setAdmin(userResponse.data);
-        useAuthStore.getState().setType(loginResponse.data?.type as TAuthType);
-
-        const { loadAppSettings, loadDashboardSettings, loadNotificationsSettings } = useSettingsStore.getState();
-        await loadAppSettings();
-        await loadDashboardSettings();
-        await loadNotificationsSettings(true);
-
-        toast.success(`Bienvenido ${userResponse.data?.firstName} ${userResponse.data?.lastName}`);
-        navigate("/dashboard");
+      const userResponse = await AuthService.getMe();
+      if (userResponse.statusCode !== 200) {
+        throw new Error(userResponse.message);
       }
-    }
-  }
+
+      return {
+        user: userResponse.data,
+        type: loginResponse.data?.type as TAuthType,
+      };
+    },
+    onSuccess: async ({ user, type }) => {
+      const authStore = useAuthStore.getState();
+      const settingsStore = useSettingsStore.getState();
+
+      authStore.setAdmin(user);
+      authStore.setType(type);
+
+      await settingsStore.loadAppSettings();
+      await settingsStore.loadDashboardSettings();
+      await settingsStore.loadNotificationsSettings(true);
+
+      toast.success(`Bienvenido ${user?.firstName} ${user?.lastName}`);
+      navigate("/dashboard");
+    },
+  });
 
   function togglePasswordField(event: MouseEvent<HTMLButtonElement>): void {
     event.preventDefault();
@@ -82,7 +86,7 @@ export function LoginForm({ className, type }: IProps) {
     <div className={cn("flex w-full flex-col gap-6", className)}>
       <Card className="mx-auto w-full max-w-6xl overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8 lg:p-10" onSubmit={form.handleSubmit(onSubmit)}>
+          <form className="p-6 md:p-8 lg:p-10" onSubmit={form.handleSubmit((data) => login(data))}>
             <FieldGroup>
               <div className="mb-6 flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold md:text-3xl">Calth</h1>
@@ -127,13 +131,7 @@ export function LoginForm({ className, type }: IProps) {
               />
               <Field>
                 <Button type="submit" className="h-11 w-full md:h-12">
-                  {isLogin ? (
-                    <Loader color="white" text="Ingresando" />
-                  ) : isFetching ? (
-                    <Loader color="white" text="Cargando" />
-                  ) : (
-                    "Ingresar"
-                  )}
+                  {isPending ? <Loader color="white" text="Ingresando" /> : "Ingresar"}
                 </Button>
               </Field>
               <a href="#" className="text-xs underline-offset-2 hover:underline md:text-xs">
