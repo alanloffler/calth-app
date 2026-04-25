@@ -12,34 +12,30 @@ import { Link } from "react-router";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@components/ui/sidebar";
 
 import { toast } from "sonner";
-
-import { AuthService } from "@auth/services/auth.service";
-import { tryCatch } from "@core/utils/try-catch";
-import { useAuthStore } from "@auth/stores/auth.store";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 
+import { AuthService } from "@auth/services/auth.service";
+import { useAuthStore } from "@auth/stores/auth.store";
+
 export function NavUser() {
+  const navigate = useNavigate();
   const { admin, clearAdmin } = useAuthStore();
   const { isMobile } = useSidebar();
-  const navigate = useNavigate();
 
-  async function signOut() {
-    const [response, error] = await tryCatch(AuthService.signOut());
-
-    if (error) {
-      toast.error(error.message);
+  const { mutate: logout } = useMutation({
+    mutationKey: ["auth", "logout"],
+    mutationFn: () => AuthService.signOut(),
+    onSuccess: (response) => {
+      if (response.statusCode === 200) {
+        toast.success(response.message);
+      }
+    },
+    onSettled: () => {
       clearAdmin();
       navigate("/");
-
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      toast.success(response.message);
-      clearAdmin();
-      navigate("/");
-    }
-  }
+    },
+  });
 
   if (!admin) {
     return null;
@@ -82,7 +78,7 @@ export function NavUser() {
               </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={signOut}>
+            <DropdownMenuItem onClick={() => logout()}>
               <LogOut />
               Salir
             </DropdownMenuItem>
