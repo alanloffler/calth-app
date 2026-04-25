@@ -12,7 +12,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip"
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import type { IPermission } from "@permissions/interfaces/permission.interface";
@@ -20,6 +20,7 @@ import { PermissionsService } from "@permissions/services/permissions.service";
 import { PermissionsTableConfig } from "@core/config/table.config";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useTryCatch } from "@core/hooks/useTryCatch";
+import { queryClient } from "@core/lib/query-client";
 
 export default function Permissions() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
@@ -27,7 +28,6 @@ export default function Permissions() {
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [selectedPermission, setSelectedPermission] = useState<IPermission | undefined>(undefined);
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
-  const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
@@ -37,22 +37,18 @@ export default function Permissions() {
     select: (response) => response.data,
   });
 
-  async function removePermission(id: string): Promise<void> {
-    const [response, error] = await tryCatchRemove(PermissionsService.softRemove(id));
-
-    if (error) {
-      toast.error(error.message);
-      setOpenRemoveDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
+  const { mutate: removePermission, isPending: isRemoving } = useMutation({
+    mutationKey: ["permissions", "soft-remove"],
+    mutationFn: (id: string) => PermissionsService.softRemove(id),
+    onSuccess: async (response) => {
+      queryClient.invalidateQueries({ queryKey: ["permissions"] });
       toast.success(response.message);
-      setOpenRemoveDialog(false);
       await refreshAdmin();
-      // fetchPermissions();
-    }
-  }
+    },
+    onSettled: () => {
+      setOpenRemoveDialog(false);
+    },
+  });
 
   async function restorePermission(id: string): Promise<void> {
     const [response, error] = await tryCatchRestore(PermissionsService.restore(id));
