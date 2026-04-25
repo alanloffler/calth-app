@@ -10,7 +10,7 @@ import type z from "zod";
 import { toast } from "sonner";
 import { useEffect, useMemo, useRef } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -18,13 +18,11 @@ import { PERMISSIONS } from "@core/constants/permissions";
 import { PermissionsService } from "@permissions/services/permissions.service";
 import { permissionSchema } from "@permissions/schemas/permission.schema";
 import { queryClient } from "@core/lib/query-client";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function EditForm() {
   const navigate = useNavigate();
   const previousCategory = useRef<string | undefined>(undefined);
   const { id } = useParams();
-  const { isLoading: isLoadingPermission, tryCatch: tryCatchPermission } = useTryCatch();
 
   const form = useForm<z.infer<typeof permissionSchema>>({
     resolver: zodResolver(permissionSchema),
@@ -36,10 +34,7 @@ export function EditForm() {
     },
   });
 
-  const selectedCategory = useWatch({
-    control: form.control,
-    name: "category",
-  });
+  const selectedCategory = useWatch({ control: form.control, name: "category" });
 
   const availableActions = useMemo(() => {
     if (!selectedCategory) return [];
@@ -60,33 +55,24 @@ export function EditForm() {
     }
   }, [selectedCategory, form]);
 
+  const { data: permission, isLoading: isLoadingPermission } = useQuery({
+    queryKey: ["permissions", id],
+    queryFn: () => PermissionsService.findOne(id as string),
+    select: (response) => response.data,
+    enabled: !!id,
+  });
+
   useEffect(() => {
-    async function fetchPermission() {
-      if (id) {
-        const [response, error] = await tryCatchPermission(PermissionsService.findOne(id));
-
-        if (error) {
-          toast.error(error.message);
-          return;
-        }
-
-        if (response && response.statusCode === 200) {
-          if (response.data) {
-            form.reset({
-              actionKey: response.data.actionKey,
-              category: response.data.category,
-              description: response.data.description,
-              name: response.data.name,
-            });
-
-            previousCategory.current = response.data.category;
-          }
-        }
-      }
+    if (permission) {
+      form.reset({
+        actionKey: permission.actionKey,
+        category: permission.category,
+        description: permission.description,
+        name: permission.name,
+      });
+      previousCategory.current = permission.category;
     }
-
-    fetchPermission();
-  }, [id, form, tryCatchPermission]);
+  }, [permission, form]);
 
   const { mutate: updatePermission, isPending: isSavingPermission } = useMutation({
     mutationKey: ["permissions", "update"],
