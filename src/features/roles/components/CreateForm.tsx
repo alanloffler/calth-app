@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -21,11 +21,9 @@ import { PermissionsService } from "@permissions/services/permissions.service";
 import { RolesService } from "@roles/services/roles.service";
 import { cn } from "@core/lib/utils";
 import { roleSchema } from "@roles/schemas/role.schema";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function CreateForm() {
   const navigate = useNavigate();
-  const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const form = useForm<z.infer<typeof roleSchema>>({
     resolver: zodResolver(roleSchema),
@@ -51,19 +49,14 @@ export function CreateForm() {
     }
   }, [form, permissions]);
 
-  async function onSubmit(data: z.infer<typeof roleSchema>) {
-    const [response, error] = await tryCatchSubmit(RolesService.create(data));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 201) {
+  const { mutate: createRole, isPending: isSaving } = useMutation({
+    mutationKey: ["roles", "create"],
+    mutationFn: (data: z.infer<typeof roleSchema>) => RolesService.create(data),
+    onSuccess: (response) => {
       toast.success(response.message);
       resetForm();
-    }
-  }
+    },
+  });
 
   function resetForm(): void {
     form.reset();
@@ -78,7 +71,11 @@ export function CreateForm() {
           <CardDescription>Creá un rol para los administradores del sistema</CardDescription>
         </CardHeader>
         <CardContent className="flex-1">
-          <form className="grid grid-cols-1 gap-6" id="create-role" onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            className="grid grid-cols-1 gap-6"
+            id="create-role"
+            onSubmit={form.handleSubmit((data) => createRole(data))}
+          >
             <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Controller
                 name="name"
