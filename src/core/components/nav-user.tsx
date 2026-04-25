@@ -25,7 +25,7 @@ export function NavUser() {
 
   const { mutate: logout } = useMutation({
     mutationKey: ["auth", "logout"],
-    mutationFn: () => AuthService.signOut(),
+    mutationFn: () => AuthService.logout(),
     onSuccess: (response) => {
       if (response.statusCode === 200) {
         toast.success(response.message);
