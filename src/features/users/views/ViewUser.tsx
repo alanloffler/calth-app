@@ -69,11 +69,7 @@ export default function ViewUser() {
     enabled: !!id,
   });
 
-  const {
-    data: medicalHistory,
-    isLoading: isLoadingMedicalHistory,
-    refetch: refetchMedicalHistory,
-  } = useQuery({
+  const { data: medicalHistory, isLoading: isLoadingMedicalHistory } = useQuery({
     queryKey: ["medical-history", user?.id],
     queryFn: () => {
       const isSuperAdmin = adminAuth?.role.value === ERoles.super;
@@ -456,12 +452,7 @@ export default function ViewUser() {
           </li>
         </ul>
       </ConfirmDialog>
-      <CreateHistorySheet
-        user={user}
-        onCreated={() => refetchMedicalHistory()}
-        open={openSheet}
-        setOpen={setOpenSheet}
-      />
+      <CreateHistorySheet user={user} open={openSheet} setOpen={setOpenSheet} />
     </section>
   );
 }
