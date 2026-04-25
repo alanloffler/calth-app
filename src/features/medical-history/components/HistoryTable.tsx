@@ -26,7 +26,6 @@ import { MedicalHistoryService } from "@medical-history/services/medical-history
 import { cn } from "@core/lib/utils";
 import { queryClient } from "@core/lib/query-client";
 import { useEventStore } from "@calendar/stores/event.store";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   history?: IMedicalHistory[];
@@ -41,8 +40,6 @@ export function HistoryTable({ history, isLoading }: IProps) {
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
   const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [selectedHistory, setSelectedHistory] = useState<IMedicalHistory | undefined>(undefined);
-  const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
-
   const { setSelectedEvent } = useEventStore();
 
   const { data: relatedEvent } = useQuery({
@@ -242,23 +239,17 @@ export function HistoryTable({ history, isLoading }: IProps) {
     },
   });
 
-  async function removeHardHistory(id: string): Promise<void> {
-    if (!id) return;
-
-    const [response, error] = await tryCatchRemoveHard(MedicalHistoryService.remove(id));
-
-    if (error) {
-      toast.error(error.message);
-      setOpenRemoveHardDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
+  const { mutate: removeHardHistory, isPending: isRemovingHard } = useMutation({
+    mutationKey: ["medical-history", "hard-remove"],
+    mutationFn: (id: string) => MedicalHistoryService.remove(id),
+    onSuccess: (response) => {
       toast.success(response.message);
-      // onUpdated();
+      queryClient.invalidateQueries({ queryKey: ["medical-history", selectedHistory?.userId] });
+    },
+    onSettled: () => {
       setOpenRemoveHardDialog(false);
-    }
-  }
+    },
+  });
 
   return history && history.length > 0 ? (
     <>
