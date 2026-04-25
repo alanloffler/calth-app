@@ -214,7 +214,7 @@ export function HistoryTable({ history, isLoading }: IProps) {
     },
   ];
 
-  const { mutate: softRemoveHistory, isPending: isRemoving } = useMutation({
+  const { mutate: softRemove, isPending: isRemoving } = useMutation({
     mutationKey: ["medical-history", "soft-remove"],
     mutationFn: (id: string) => MedicalHistoryService.softRemove(id),
     onSuccess: (response) => {
@@ -227,7 +227,7 @@ export function HistoryTable({ history, isLoading }: IProps) {
     },
   });
 
-  const { mutate: restoreHistory, isPending: isRestoring } = useMutation({
+  const { mutate: restore, isPending: isRestoring } = useMutation({
     mutationKey: ["medical-history", "restore"],
     mutationFn: (id: string) => MedicalHistoryService.restore(id),
     onSuccess: (response) => {
@@ -239,7 +239,7 @@ export function HistoryTable({ history, isLoading }: IProps) {
     },
   });
 
-  const { mutate: removeHardHistory, isPending: isRemovingHard } = useMutation({
+  const { mutate: hardRemove, isPending: isRemovingHard } = useMutation({
     mutationKey: ["medical-history", "hard-remove"],
     mutationFn: (id: string) => MedicalHistoryService.remove(id),
     onSuccess: (response) => {
@@ -287,7 +287,7 @@ export function HistoryTable({ history, isLoading }: IProps) {
           <ConfirmDialog
             title="Eliminar historia médica"
             description="¿Seguro que querés eliminar esta historia médica?"
-            callback={() => softRemoveHistory(selectedHistory.id)}
+            callback={() => softRemove(selectedHistory.id)}
             loader={isRemoving}
             open={openRemoveDialog}
             setOpen={setOpenRemoveDialog}
@@ -311,7 +311,7 @@ export function HistoryTable({ history, isLoading }: IProps) {
           <ConfirmDialog
             title="Restaurar historia médica"
             description="¿Seguro que querés restaurar esta historia médica?"
-            callback={() => restoreHistory(selectedHistory.id)}
+            callback={() => restore(selectedHistory.id)}
             loader={isRestoring}
             open={openRestoreDialog}
             setOpen={setOpenRestoreDialog}
@@ -341,7 +341,7 @@ export function HistoryTable({ history, isLoading }: IProps) {
             title="Eliminar historia médica"
             description="¿Seguro que querés eliminar esta historia médica?"
             alertMessage="La historia médica será eliminada de la base de datos. Esta acción es irreversible."
-            callback={() => removeHardHistory(selectedHistory.id)}
+            callback={() => hardRemove(selectedHistory.id)}
             loader={isRemovingHard}
             open={openRemoveHardDialog}
             setOpen={setOpenRemoveHardDialog}
