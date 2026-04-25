@@ -29,7 +29,6 @@ export default function Permissions() {
   const [selectedPermission, setSelectedPermission] = useState<IPermission | undefined>(undefined);
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
-  const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
   const { data: permissions, isLoading: isLoadingPermissions } = useQuery({
     queryKey: ["permissions"],
@@ -50,22 +49,18 @@ export default function Permissions() {
     },
   });
 
-  async function restorePermission(id: string): Promise<void> {
-    const [response, error] = await tryCatchRestore(PermissionsService.restore(id));
-
-    if (error) {
-      toast.error(error.message);
-      setOpenRestoreDialog(false);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
+  const { mutate: restorePermission, isPending: isRestoring } = useMutation({
+    mutationKey: ["permissions", "restore"],
+    mutationFn: (id: string) => PermissionsService.restore(id),
+    onSuccess: async (response) => {
+      queryClient.invalidateQueries({ queryKey: ["permissions"] });
       toast.success(response.message);
-      setOpenRestoreDialog(false);
       await refreshAdmin();
-      // fetchPermissions();
-    }
-  }
+    },
+    onSettled: () => {
+      setOpenRemoveDialog(false);
+    },
+  });
 
   async function hardRemovePermission(id: string): Promise<void> {
     const [response, error] = await tryCatchRemoveHard(PermissionsService.remove(id));
