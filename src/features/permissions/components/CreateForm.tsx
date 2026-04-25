@@ -11,19 +11,17 @@ import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { PERMISSIONS } from "@core/constants/permissions";
 import { PermissionsService } from "@permissions/services/permissions.service";
 import { permissionSchema } from "@permissions/schemas/permission.schema";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function CreateForm() {
   const [availableActions, setAvailableActions] = useState<{ name: string; value: string }[]>([]);
   const [unavailableActions, setUnavailableActions] = useState<boolean>(false);
   const navigate = useNavigate();
-  const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const form = useForm<z.infer<typeof permissionSchema>>({
     resolver: zodResolver(permissionSchema),
@@ -64,19 +62,14 @@ export function CreateForm() {
     }
   }, [selectedCategory, form]);
 
-  async function onSubmit(data: z.infer<typeof permissionSchema>) {
-    const [response, error] = await tryCatchSubmit(PermissionsService.create(data));
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 201) {
+  const { mutate: createPermission, isPending: isSaving } = useMutation({
+    mutationKey: ["permissions", "create"],
+    mutationFn: (data: z.infer<typeof permissionSchema>) => PermissionsService.create(data),
+    onSuccess: (response) => {
       toast.success(response.message);
       resetForm();
-    }
-  }
+    },
+  });
 
   function resetForm(): void {
     form.reset();
@@ -91,7 +84,11 @@ export function CreateForm() {
           <CardDescription>Creá un permiso para usarlo en roles del sistema</CardDescription>
         </CardHeader>
         <CardContent className="flex-1">
-          <form className="grid grid-cols-1 gap-6" id="create-permission" onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            className="grid grid-cols-1 gap-6"
+            id="create-permission"
+            onSubmit={form.handleSubmit((data) => createPermission(data))}
+          >
             <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Controller
                 name="category"
