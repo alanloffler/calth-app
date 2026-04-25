@@ -7,12 +7,11 @@ import type { IUser } from "@users/interfaces/user.interface";
 
 interface IProps {
   user: IUser;
-  onCreated: () => void;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export function CreateHistorySheet({ user, onCreated, open, setOpen }: IProps) {
+export function CreateHistorySheet({ user, open, setOpen }: IProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent className="h-full gap-0 sm:min-w-120">
@@ -23,7 +22,7 @@ export function CreateHistorySheet({ user, onCreated, open, setOpen }: IProps) {
           </SheetDescription>
         </SheetHeader>
         <div className="flex h-full min-h-0 flex-col">
-          <CreateHistoryForm user={user} onCreated={onCreated} setOpen={setOpen} />
+          <CreateHistoryForm user={user} setOpen={setOpen} />
         </div>
       </SheetContent>
     </Sheet>
