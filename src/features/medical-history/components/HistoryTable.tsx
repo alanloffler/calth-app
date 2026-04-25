@@ -271,12 +271,7 @@ export function HistoryTable({ history, isLoading }: IProps) {
             onDelete={() => setOpenRemoveDialog(true)}
           />
           <ViewEventDialog open={openEventDialog} setOpen={setOpenEventDialog} />
-          <EditHistorySheet
-            open={openEditSheet}
-            setOpen={setOpenEditSheet}
-            history={selectedHistory}
-            onUpdated={() => {}}
-          />
+          <EditHistorySheet open={openEditSheet} setOpen={setOpenEditSheet} history={selectedHistory} />
           <ConfirmDialog
             title="Eliminar historia médica"
             description="¿Seguro que querés eliminar esta historia médica?"
