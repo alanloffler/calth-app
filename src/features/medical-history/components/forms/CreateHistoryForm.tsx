@@ -69,6 +69,7 @@ export function CreateHistoryForm({ user, setOpen }: IProps) {
   }
 
   const { mutate: createHistory, isPending: isSaving } = useMutation({
+    mutationKey: ["medical-history", "create"],
     mutationFn: (data: z.infer<typeof createHistorySchema>) => MedicalHistoryService.create(data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["medical-history"] });
