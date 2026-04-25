@@ -12,7 +12,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip"
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 import type { IPermission } from "@permissions/interfaces/permission.interface";
 import { PermissionsService } from "@permissions/services/permissions.service";
@@ -24,30 +25,17 @@ export default function Permissions() {
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState<boolean>(false);
-  const [permissions, setPermissions] = useState<IPermission[] | undefined>(undefined);
   const [selectedPermission, setSelectedPermission] = useState<IPermission | undefined>(undefined);
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
-  const { isLoading: isLoadingPermissions, tryCatch: tryCatchPermissions } = useTryCatch();
   const { isLoading: isRemoving, tryCatch: tryCatchRemove } = useTryCatch();
   const { isLoading: isRemovingHard, tryCatch: tryCatchRemoveHard } = useTryCatch();
   const { isLoading: isRestoring, tryCatch: tryCatchRestore } = useTryCatch();
 
-  const fetchPermissions = useCallback(async () => {
-    const [response, error] = await tryCatchPermissions(PermissionsService.findAll());
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (response && response.statusCode === 200) {
-      setPermissions(response.data);
-    }
-  }, [tryCatchPermissions]);
-
-  useEffect(() => {
-    fetchPermissions();
-  }, [fetchPermissions]);
+  const { data: permissions, isLoading: isLoadingPermissions } = useQuery({
+    queryKey: ["permissions"],
+    queryFn: () => PermissionsService.findAll(),
+    select: (response) => response.data,
+  });
 
   async function removePermission(id: string): Promise<void> {
     const [response, error] = await tryCatchRemove(PermissionsService.softRemove(id));
@@ -62,7 +50,7 @@ export default function Permissions() {
       toast.success(response.message);
       setOpenRemoveDialog(false);
       await refreshAdmin();
-      fetchPermissions();
+      // fetchPermissions();
     }
   }
 
@@ -79,7 +67,7 @@ export default function Permissions() {
       toast.success(response.message);
       setOpenRestoreDialog(false);
       await refreshAdmin();
-      fetchPermissions();
+      // fetchPermissions();
     }
   }
 
@@ -96,7 +84,7 @@ export default function Permissions() {
       toast.success(response.message);
       setOpenRemoveHardDialog(false);
       await refreshAdmin();
-      fetchPermissions();
+      // fetchPermissions();
     }
   }
 
