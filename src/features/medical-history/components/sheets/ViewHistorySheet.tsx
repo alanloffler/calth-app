@@ -2,7 +2,7 @@ import { FilePenLine, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
-import { HistoryNotes } from "@medical-history/HistoryNotes";
+import { HistoryNotes } from "@medical-history/components/HistoryNotes";
 import { Protected } from "@auth/components/Protected";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
