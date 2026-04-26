@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { type MouseEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { IUser } from "@users/interfaces/user.interface";
@@ -33,7 +34,6 @@ export function EditForm() {
   const navigate = useNavigate();
   const ownAdmin = useAuthStore((state) => state.admin);
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
-  const { isLoading: isLoadingAdmin, tryCatch: tryCatchAdmin } = useTryCatch();
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const debouncedUsername = useDebounce(username, 500);
@@ -67,36 +67,27 @@ export function EditForm() {
     checkUsername();
   }, [debouncedUsername, adminToUpdate?.userName, form]);
 
+  const { data: admin, isLoading: isLoadingAdmin } = useQuery({
+    queryKey: ["auth", "account"],
+    queryFn: () => AccountService.get(),
+    select: (response) => response.data,
+    enabled: !!ownAdmin,
+  });
+
   useEffect(() => {
-    async function findOneWithCredentials(): Promise<void> {
-      if (!ownAdmin) return;
-
-      // const [admin, adminError] = await tryCatchAdmin(UsersService.findOneWithCredentials(ownAdmin.id));
-      const [admin, adminError] = await tryCatchAdmin(AccountService.get());
-
-      if (adminError) {
-        toast.error(adminError.message);
-        return;
-      }
-
-      if (admin && admin.statusCode === 200) {
-        if (admin.data) {
-          form.reset({
-            email: admin.data.email,
-            firstName: admin.data.firstName,
-            ic: admin.data.ic,
-            lastName: admin.data.lastName,
-            password: "",
-            phoneNumber: admin.data.phoneNumber,
-            userName: admin.data.userName,
-          });
-          setAdminToUpdate(admin.data);
-        }
-      }
+    if (admin) {
+      form.reset({
+        email: admin.email,
+        firstName: admin.firstName,
+        ic: admin.ic,
+        lastName: admin.lastName,
+        password: "",
+        phoneNumber: admin.phoneNumber,
+        userName: admin.userName,
+      });
+      setAdminToUpdate(admin);
     }
-
-    findOneWithCredentials();
-  }, [form, navigate, ownAdmin, tryCatchAdmin]);
+  }, [admin, form, setAdminToUpdate]);
 
   function togglePasswordField(event: MouseEvent<HTMLButtonElement>): void {
     event.preventDefault();
