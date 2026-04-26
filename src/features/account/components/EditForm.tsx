@@ -81,7 +81,7 @@ export function EditForm() {
   const checkEmail = useCallback(
     async (value: string) => {
       if (!value || value.length <= 3) return true;
-      if (value === admin?.email) return true;
+      if (value === adminToUpdate?.email) return true;
 
       const [response, error] = await tryCatch(UsersService.checkEmailAvailability(value));
       if (response?.data === false || error) {
@@ -92,13 +92,13 @@ export function EditForm() {
       }
       return true;
     },
-    [form, admin?.email],
+    [form, adminToUpdate?.email],
   );
 
   const checkIc = useCallback(
     async (value: string) => {
       if (!value || value.length <= 7 || value.length > 8) return true;
-      if (value === admin?.ic) return true;
+      if (value === adminToUpdate?.ic) return true;
 
       const [response, error] = await tryCatch(UsersService.checkIcAvailability(value));
       if (response?.data === false || error) {
@@ -109,7 +109,7 @@ export function EditForm() {
       }
       return true;
     },
-    [form, admin?.ic],
+    [form, adminToUpdate?.ic],
   );
 
   const checkUsername = useCallback(
