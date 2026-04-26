@@ -10,7 +10,7 @@ import { Loader } from "@components/Loader";
 
 import z from "zod";
 import { toast } from "sonner";
-import { type MouseEvent, useEffect, useState } from "react";
+import { type MouseEvent, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -20,12 +20,14 @@ import type { IUser } from "@users/interfaces/user.interface";
 import { AccountService } from "@account/services/profile.service";
 import { UsersService } from "@users/services/users.service";
 import { profileSchema } from "@account/schemas/profile.schema";
+import { tryCatch } from "@core/utils/try-catch";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useDebounce } from "@core/hooks/useDebounce";
 import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function EditForm() {
   const [adminToUpdate, setAdminToUpdate] = useState<IUser | undefined>(undefined);
+  const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [icError, setIcError] = useState<string | null>(null);
   const [passwordField, setPasswordField] = useState<boolean>(true);
@@ -36,6 +38,7 @@ export function EditForm() {
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
+  const debouncedEmail = useDebounce(email, 500);
   const debouncedUsername = useDebounce(username, 500);
 
   const form = useForm<z.infer<typeof profileSchema>>({
@@ -88,6 +91,28 @@ export function EditForm() {
       setAdminToUpdate(admin);
     }
   }, [admin, form, setAdminToUpdate]);
+
+  const checkEmail = useCallback(
+    async (value: string) => {
+      if (!value || value.length <= 3) return true;
+      if (value === admin?.email) return true;
+
+      const [response, error] = await tryCatch(UsersService.checkEmailAvailability(value));
+      if (response?.data === false || error) {
+        const message = error ? "Error al comprobar email" : "Email ya registrado";
+        setEmailError(message);
+        form.setError("email", { message });
+        return false;
+      }
+      return true;
+    },
+    [form, admin?.email],
+  );
+
+  // Writting validations
+  useEffect(() => {
+    checkEmail(debouncedEmail);
+  }, [checkEmail, debouncedEmail]);
 
   function togglePasswordField(event: MouseEvent<HTMLButtonElement>): void {
     event.preventDefault();
@@ -305,28 +330,25 @@ export function EditForm() {
               name="email"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid} className="col-span-5 md:col-span-3">
+                <Field data-invalid={fieldState.invalid || !!emailError} className="col-span-5 md:col-span-3">
                   <FieldLabel htmlFor="email">E-mail</FieldLabel>
                   <Input
-                    aria-invalid={fieldState.invalid}
+                    aria-invalid={fieldState.invalid || !!emailError}
                     id="email"
                     {...field}
                     onChange={async (e) => {
-                      field.onChange(e);
                       setEmailError(null);
                       form.clearErrors("email");
 
-                      const emailValue = e.target.value;
-                      const emailValidation = z.email().safeParse(emailValue);
+                      const value = e.target.value;
+                      const emailValidation = z.email().safeParse(value);
 
-                      if (emailValidation.success && emailValue !== adminToUpdate?.email) {
-                        const response = await UsersService.checkEmailAvailability(emailValue);
-                        if (response.data === false) {
-                          const errorMsg = "Email ya registrado";
-                          setEmailError(errorMsg);
-                          form.setError("email", { message: errorMsg });
-                        }
-                      }
+                      form.setValue("email", value, {
+                        shouldDirty: true,
+                        shouldValidate: emailValidation.success,
+                      });
+
+                      if (emailValidation.success) setEmail(value);
                     }}
                   />
                   {(fieldState.invalid || emailError) && (
