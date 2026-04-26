@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { useMaskito } from "@maskito/react";
+import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { TUserRole } from "@roles/interfaces/user-role.type";
@@ -21,7 +22,6 @@ import { digitsMask } from "@core/masks/maskito-digits";
 import { tryCatch } from "@core/utils/try-catch";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { useDebounce } from "@core/hooks/useDebounce";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function CreateAdminForm() {
   const [email, setEmail] = useState<string>("");
@@ -33,7 +33,6 @@ export function CreateAdminForm() {
   const location = useLocation();
   const navigate = useNavigate();
   const roleTranslated = ERoles[location.state.role as TUserRole];
-  const { isLoading: isSaving, tryCatch: tryCatchAdmin } = useTryCatch();
 
   const debouncedEmail = useDebounce(email, 500);
   const debouncedIc = useDebounce(ic, 500);
@@ -116,6 +115,17 @@ export function CreateAdminForm() {
     checkUsername(debouncedUsername);
   }, [checkUsername, debouncedUsername]);
 
+  const { mutate: createAdmin, isPending: isSaving } = useMutation({
+    mutationKey: ["users", "admin", "create"],
+    mutationFn: async (data: z.output<typeof createAdminSchema>) => UsersService.createAdmin(data),
+    onSuccess: (response) => {
+      if (response?.statusCode === 201) {
+        toast.success(response.message);
+        navigate("/users/role/admin");
+      }
+    },
+  });
+
   async function onSubmit(data: z.output<typeof createAdminSchema>) {
     const [emailOk, icOk, usernameOk] = await Promise.all([
       checkEmail(data.email),
@@ -125,17 +135,7 @@ export function CreateAdminForm() {
 
     if (!emailOk || !icOk || !usernameOk) return;
 
-    const [create, createError] = await tryCatchAdmin(UsersService.createAdmin(data));
-
-    if (createError) {
-      toast.error(createError.message);
-      return;
-    }
-
-    if (create?.statusCode === 201) {
-      toast.success(create.message);
-      navigate("/users/role/admin");
-    }
+    createAdmin(data);
   }
 
   function resetForm(): void {
