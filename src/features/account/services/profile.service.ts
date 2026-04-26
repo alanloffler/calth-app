@@ -19,7 +19,8 @@ class AccountModuleService {
   }
 
   public async update(data: Partial<IUser>): Promise<IApiResponse<IUser>> {
-    const response = await apiClient.patch("/users/profile", data);
+    const formattedData = { user: { ...data } };
+    const response = await apiClient.patch("/users/profile", formattedData);
     return response.data;
   }
 }
