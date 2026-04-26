@@ -12,18 +12,18 @@ import z from "zod";
 import { toast } from "sonner";
 import { type MouseEvent, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { IUser } from "@users/interfaces/user.interface";
 import { AccountService } from "@account/services/profile.service";
 import { UsersService } from "@users/services/users.service";
 import { profileSchema } from "@account/schemas/profile.schema";
+import { queryClient } from "@core/lib/query-client";
 import { tryCatch } from "@core/utils/try-catch";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useDebounce } from "@core/hooks/useDebounce";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function EditForm() {
   const [adminToUpdate, setAdminToUpdate] = useState<IUser | undefined>(undefined);
@@ -37,7 +37,6 @@ export function EditForm() {
   const navigate = useNavigate();
   const ownAdmin = useAuthStore((state) => state.admin);
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
-  const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const debouncedEmail = useDebounce(email, 500);
   const debouncedIc = useDebounce(ic, 500);
@@ -147,6 +146,16 @@ export function EditForm() {
     setPasswordField(!passwordField);
   }
 
+  const { mutate: updateAdmin, isPending: isSaving } = useMutation({
+    mutationKey: ["auth", "account", "update"],
+    mutationFn: (data: z.input<typeof profileSchema>) => AccountService.update(data),
+    onSuccess: async (response) => {
+      toast.success(response.message);
+      queryClient.invalidateQueries({ queryKey: ["auth", "account"] });
+      await refreshAdmin();
+    },
+  });
+
   async function onSubmit(data: any): Promise<void> {
     const [emailOk, icOk, usernameOk] = await Promise.all([
       checkEmail(data.email),
@@ -160,18 +169,7 @@ export function EditForm() {
       ? data
       : Object.fromEntries(Object.entries(data).filter(([key]) => key !== "password"));
 
-    const [update, updateError] = await tryCatchSubmit(AccountService.update(updateData));
-
-    if (updateError) {
-      toast.error(updateError.message);
-      return;
-    }
-
-    if (update?.statusCode === 200) {
-      toast.success("Perfil actualizado");
-      await refreshAdmin();
-      navigate("/");
-    }
+    updateAdmin(updateData);
   }
 
   function handleCancel(): void {
