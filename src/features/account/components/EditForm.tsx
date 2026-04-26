@@ -148,60 +148,18 @@ export function EditForm() {
   }
 
   async function onSubmit(data: any): Promise<void> {
-    if (emailError) {
-      form.setError("email", { message: emailError });
-      return;
-    }
+    const [emailOk, icOk, usernameOk] = await Promise.all([
+      checkEmail(data.email),
+      checkIc(data.ic),
+      checkUsername(data.userName),
+    ]);
 
-    if (icError) {
-      form.setError("ic", { message: icError });
-      return;
-    }
-
-    if (usernameError) {
-      form.setError("userName", { message: usernameError });
-      return;
-    }
-
-    // Check again for race condition: before first check another admin use same ic
-    if (data.email !== adminToUpdate?.email) {
-      const emailAvailableResponse = await UsersService.checkEmailAvailability(data.email);
-
-      if (emailAvailableResponse.data === false) {
-        const errorMsg = "Email ya registrado";
-        setEmailError(errorMsg);
-        form.setError("email", { message: errorMsg });
-        return;
-      }
-    }
-
-    // Check again for race condition: before first check another admin use same ic
-    if (data.ic !== adminToUpdate?.ic) {
-      const icAvailableResponse = await UsersService.checkIcAvailability(data.ic);
-
-      if (icAvailableResponse.data === false) {
-        const errorMsg = "DNI ya registrado";
-        setIcError(errorMsg);
-        form.setError("ic", { message: errorMsg });
-        return;
-      }
-    }
-
-    // Check again for race condition: before first check another admin use same username
-    if (data.userName !== adminToUpdate?.userName) {
-      const usernameAvailableResponse = await UsersService.checkUsernameAvailability(data.userName);
-
-      if (usernameAvailableResponse.data === false) {
-        const errorMsg = "Nombre de usuario ya registrado";
-        setUsernameError(errorMsg);
-        form.setError("userName", { message: errorMsg });
-        return;
-      }
-    }
+    if (!emailOk || !icOk || !usernameOk) return;
 
     const updateData = data.password
       ? data
       : Object.fromEntries(Object.entries(data).filter(([key]) => key !== "password"));
+
     const [update, updateError] = await tryCatchSubmit(AccountService.update(updateData));
 
     if (updateError) {
