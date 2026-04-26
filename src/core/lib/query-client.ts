@@ -18,7 +18,10 @@ export const queryClient = new QueryClient({
   }),
   mutationCache: new MutationCache({
     onError: (error) => {
-      toast.error(getErrorMessage(error));
+      const err: AxiosError = error as AxiosError<IApiResponse>;
+      let msg = getErrorMessage(err);
+      if (err.status === 502) msg = "Error en el servidor";
+      toast.error(msg);
     },
   }),
   defaultOptions: {
