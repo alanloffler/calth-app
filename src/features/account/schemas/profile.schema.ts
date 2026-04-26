@@ -13,5 +13,8 @@ export const profileSchema = z.object({
     .string()
     .nonempty("El número de teléfono es obligatorio")
     .length(10, "El número de teléfono debe tener 10 dígitos"),
-  userName: z.string().nonempty("El nombre de usuario es obligatorio"),
+  userName: z
+    .string()
+    .min(2, "El nombre de usuario es obligatorio")
+    .regex(/^@.{3,}$/, { message: "Mínimo 3 caracteres" }),
 });
