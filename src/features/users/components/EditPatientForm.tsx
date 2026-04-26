@@ -136,7 +136,7 @@ export function EditPatientForm({ userId }: IProps) {
 
   const checkIc = useCallback(
     async (value: string) => {
-      if (!value || value.length <= 7) return true;
+      if (!value || value.length <= 7 || value.length > 8) return true;
       if (value === userToUpdate?.ic) return true;
 
       const [response, error] = await tryCatch(UsersService.checkIcAvailability(value));
