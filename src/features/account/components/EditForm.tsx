@@ -29,6 +29,7 @@ export function EditForm() {
   const [adminToUpdate, setAdminToUpdate] = useState<IUser | undefined>(undefined);
   const [email, setEmail] = useState<string>("");
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [ic, setIc] = useState<string>("");
   const [icError, setIcError] = useState<string | null>(null);
   const [passwordField, setPasswordField] = useState<boolean>(true);
   const [username, setUsername] = useState<string>("");
@@ -39,6 +40,7 @@ export function EditForm() {
   const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const debouncedEmail = useDebounce(email, 500);
+  const debouncedIc = useDebounce(ic, 500);
   const debouncedUsername = useDebounce(username, 500);
 
   const form = useForm<z.infer<typeof profileSchema>>({
@@ -109,10 +111,31 @@ export function EditForm() {
     [form, admin?.email],
   );
 
+  const checkIc = useCallback(
+    async (value: string) => {
+      if (!value || value.length <= 7 || value.length > 8) return true;
+      if (value === admin?.ic) return true;
+
+      const [response, error] = await tryCatch(UsersService.checkIcAvailability(value));
+      if (response?.data === false || error) {
+        const message = error ? "Error al comprobar DNI" : "DNI ya registrado";
+        setIcError(message);
+        form.setError("ic", { message });
+        return false;
+      }
+      return true;
+    },
+    [form, admin?.ic],
+  );
+
   // Writting validations
   useEffect(() => {
     checkEmail(debouncedEmail);
   }, [checkEmail, debouncedEmail]);
+
+  useEffect(() => {
+    checkIc(debouncedIc);
+  }, [checkIc, debouncedIc]);
 
   function togglePasswordField(event: MouseEvent<HTMLButtonElement>): void {
     event.preventDefault();
@@ -210,28 +233,24 @@ export function EditForm() {
               name="ic"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid || !!icError}>
                   <FieldLabel htmlFor="ic">DNI</FieldLabel>
                   <Input
-                    aria-invalid={fieldState.invalid}
+                    aria-invalid={fieldState.invalid || !!icError}
                     id="ic"
                     maxLength={9}
                     {...field}
                     onChange={async (e) => {
-                      const value = e.target.value.replace(/\D/g, "");
-                      field.onChange(value);
-
                       setIcError(null);
                       form.clearErrors("ic");
 
-                      if (value.length > 7 && value !== adminToUpdate?.ic) {
-                        const response = await UsersService.checkIcAvailability(value);
-                        if (response.data === false) {
-                          const errorMsg = "DNI ya registrado";
-                          setIcError(errorMsg);
-                          form.setError("ic", { message: errorMsg });
-                        }
-                      }
+                      const value = e.target.value;
+                      form.setValue("ic", value, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+
+                      setIc(value);
                     }}
                   />
                   {(fieldState.invalid || icError) && (
