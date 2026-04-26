@@ -1,4 +1,4 @@
-import { LockKeyhole } from "lucide-react";
+import { LockKeyhole, Trash2 } from "lucide-react";
 
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@components/ui/card";
@@ -8,6 +8,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field"
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
 import { Loader } from "@components/Loader";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import type z from "zod";
 import { toast } from "sonner";
@@ -249,6 +250,17 @@ export function EditForm() {
                                           </span>
                                         )}
                                       </Label>
+                                      {isDeleted && (
+                                        <Tooltip>
+                                          <TooltipTrigger className="size-4.5" type="button">
+                                            <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                          </TooltipTrigger>
+                                          <TooltipContent className="flex flex-col">
+                                            <span className="text-red-500">Permiso eliminado.</span>
+                                            <span>Debes restaurarlo antes de poder usarlo.</span>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      )}
                                     </>
                                   );
                                 }}
