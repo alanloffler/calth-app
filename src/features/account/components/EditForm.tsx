@@ -56,22 +56,6 @@ export function EditForm() {
     },
   });
 
-  useEffect(() => {
-    async function checkUsername() {
-      if (!debouncedUsername || debouncedUsername.length <= 3) return;
-      if (debouncedUsername === adminToUpdate?.userName) return;
-
-      const response = await UsersService.checkUsernameAvailability(debouncedUsername);
-      if (response.data === false) {
-        const message = "Nombre de usuario ya registrado";
-        setUsernameError(message);
-        form.setError("userName", { message });
-      }
-    }
-
-    checkUsername();
-  }, [debouncedUsername, adminToUpdate?.userName, form]);
-
   const { data: admin, isLoading: isLoadingAdmin } = useQuery({
     queryKey: ["auth", "account"],
     queryFn: () => AccountService.get(),
@@ -128,6 +112,23 @@ export function EditForm() {
     [form, admin?.ic],
   );
 
+  const checkUsername = useCallback(
+    async (value: string): Promise<boolean> => {
+      if (!value || value.length <= 3) return true;
+      if (value === adminToUpdate?.userName) return true;
+
+      const [response, error] = await tryCatch(UsersService.checkUsernameAvailability(value));
+      if (response?.data === false || error) {
+        const message = error ? "Error al comprobar nombre de usuario" : "Nombre de usuario ya registrado";
+        setUsernameError(message);
+        form.setError("userName", { message });
+        return false;
+      }
+      return true;
+    },
+    [form, adminToUpdate?.userName],
+  );
+
   // Writting validations
   useEffect(() => {
     checkEmail(debouncedEmail);
@@ -136,6 +137,10 @@ export function EditForm() {
   useEffect(() => {
     checkIc(debouncedIc);
   }, [checkIc, debouncedIc]);
+
+  useEffect(() => {
+    checkUsername(debouncedUsername);
+  }, [checkUsername, debouncedUsername]);
 
   function togglePasswordField(event: MouseEvent<HTMLButtonElement>): void {
     event.preventDefault();
@@ -265,10 +270,10 @@ export function EditForm() {
               name="userName"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid || !!usernameError}>
                   <FieldLabel htmlFor="userName">Usuario</FieldLabel>
                   <Input
-                    aria-invalid={fieldState.invalid}
+                    aria-invalid={fieldState.invalid || !!usernameError}
                     id="userName"
                     {...field}
                     onChange={(e) => {
