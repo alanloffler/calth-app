@@ -12,6 +12,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { useMaskito } from "@maskito/react";
+import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { TUserRole } from "@roles/interfaces/user-role.type";
@@ -22,7 +23,6 @@ import { digitsMask } from "@core/masks/maskito-digits";
 import { tryCatch } from "@core/utils/try-catch";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { useDebounce } from "@core/hooks/useDebounce";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 export function CreateProfessionalForm() {
   const [email, setEmail] = useState<string>("");
@@ -34,7 +34,6 @@ export function CreateProfessionalForm() {
   const location = useLocation();
   const navigate = useNavigate();
   const roleTranslated = ERoles[location.state.role as TUserRole];
-  const { isLoading: isSaving, tryCatch: tryCatchUser } = useTryCatch();
 
   const debouncedEmail = useDebounce(email, 500);
   const debouncedIc = useDebounce(ic, 500);
@@ -126,6 +125,15 @@ export function CreateProfessionalForm() {
     checkUsername(debouncedUsername);
   }, [checkUsername, debouncedUsername]);
 
+  const { mutate: createProfessional, isPending: isSaving } = useMutation({
+    mutationKey: ["professional", "create"],
+    mutationFn: (data: z.infer<typeof createProfessionalSchema>) => UsersService.createProfessional(data),
+    onSuccess: (response) => {
+      toast.success(response.message);
+      navigate("/users/role/professional");
+    },
+  });
+
   async function onSubmit(data: z.infer<typeof createProfessionalSchema>) {
     const [emailOk, icOk, usernameOk] = await Promise.all([
       checkEmail(data.email),
@@ -135,17 +143,7 @@ export function CreateProfessionalForm() {
 
     if (!emailOk || !icOk || !usernameOk) return;
 
-    const [create, createError] = await tryCatchUser(UsersService.createProfessional(data));
-
-    if (createError) {
-      toast.error(createError.message);
-      return;
-    }
-
-    if (create?.statusCode === 201) {
-      toast.success(create.message);
-      navigate("/users/role/professional");
-    }
+    createProfessional(data);
   }
 
   function resetForm(): void {
