@@ -31,6 +31,9 @@ export async function exportTableToXls<T>({
 
   const header = worksheet.addRow(headerRow);
   header.font = { bold: true };
+  header.height = 24;
+  header.alignment = { vertical: "middle" };
+  header.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "f4f4f4" } };
 
   const rows = table.getRowModel().rows;
   rows.forEach((row) => {
@@ -44,7 +47,9 @@ export async function exportTableToXls<T>({
       return String(value);
     });
 
-    worksheet.addRow(rowData);
+    const newRow = worksheet.addRow(rowData);
+    newRow.height = 16;
+    newRow.alignment = { vertical: "middle" };
   });
 
   worksheet.columns.forEach((col) => {
