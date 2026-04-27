@@ -21,7 +21,8 @@ import {
 } from "@tanstack/react-table";
 
 import { cn } from "@core/lib/utils";
-import { exportTableToPdf, type TFormatter } from "@core/utils/exportPdf";
+import { exportTableToPdf, type TPdfFormatter } from "@core/utils/exportPdf";
+import { exportTableToXls, type TXlsFormatter } from "@core/utils/exportXls";
 
 interface DataTableProps<TData, TValue> {
   className?: string;
@@ -31,11 +32,17 @@ interface DataTableProps<TData, TValue> {
   data: TData[] | undefined;
   defaultPageSize?: number;
   defaultSorting?: SortingState;
-  exportConfig?: {
+  exportPdfConfig?: {
     filename?: string;
-    formatters?: Record<string, TFormatter<TData>>;
+    formatters?: Record<string, TPdfFormatter<TData>>;
     headers?: Record<string, string>;
     title?: string;
+  };
+  exportXlsConfig?: {
+    filename?: string;
+    formatters?: Record<string, TXlsFormatter<TData>>;
+    headers?: Record<string, string>;
+    sheetName?: string;
   };
   loading?: boolean;
   onPaginationChange?: (pagination: PaginationState) => void;
@@ -51,7 +58,8 @@ export function DataTablePaginated<TData, TValue>({
   columns,
   controls,
   data,
-  exportConfig,
+  exportPdfConfig,
+  exportXlsConfig,
   defaultPageSize = 5,
   defaultSorting = [],
   loading,
@@ -136,11 +144,11 @@ export function DataTablePaginated<TData, TValue>({
               variant="outline"
               onClick={() =>
                 exportTableToPdf({
-                  filename: exportConfig?.filename ?? "events",
-                  formatters: exportConfig?.formatters,
-                  headers: exportConfig?.headers,
+                  filename: exportPdfConfig?.filename,
+                  formatters: exportPdfConfig?.formatters,
+                  headers: exportPdfConfig?.headers,
                   table,
-                  title: exportConfig?.title,
+                  title: exportPdfConfig?.title,
                 })
               }
             >
@@ -152,7 +160,15 @@ export function DataTablePaginated<TData, TValue>({
               className="text-muted-foreground hover:bg-muted"
               size="icon"
               variant="outline"
-              onClick={() => console.log("Export excel file")}
+              onClick={() =>
+                exportTableToXls({
+                  filename: exportXlsConfig?.filename,
+                  formatters: exportXlsConfig?.formatters,
+                  headers: exportXlsConfig?.headers,
+                  sheetName: exportXlsConfig?.sheetName,
+                  table,
+                })
+              }
             >
               <FileXls className="size-5" />
             </Button>
