@@ -1,5 +1,6 @@
-import { Search, X } from "lucide-react";
+import { Printer, Search, X } from "lucide-react";
 
+import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Pagination } from "@components/Pagination";
 import { Skeleton } from "@components/ui/skeleton";
@@ -18,6 +19,7 @@ import {
 } from "@tanstack/react-table";
 
 import { cn } from "@core/lib/utils";
+import { exportTableToPdf, type TFormatter } from "@core/utils/exportPdf";
 
 interface DataTableProps<TData, TValue> {
   className?: string;
@@ -31,6 +33,8 @@ interface DataTableProps<TData, TValue> {
   onSortingChange?: (sorting: SortingState) => void;
   pagination?: PaginationState;
   pageSizes?: number[];
+  pdfFormatters?: Record<string, TFormatter<TData>>;
+  pdfHeaders?: Record<string, string>;
   rowCount?: number;
   searchable?: boolean;
 }
@@ -47,6 +51,8 @@ export function DataTablePaginated<TData, TValue>({
   onSortingChange,
   pageSizes = [5, 10, 20, 50],
   pagination: paginationProp,
+  pdfFormatters,
+  pdfHeaders,
   rowCount,
   searchable = true,
 }: DataTableProps<TData, TValue>) {
@@ -117,7 +123,17 @@ export function DataTablePaginated<TData, TValue>({
   return (
     <div className={cn("overflow-hidden rounded-md border shadow-sm", className)}>
       {searchable && (
-        <div className="flex w-full items-center justify-end p-3">
+        <div className="flex w-full items-center justify-end gap-3 p-3">
+          <Button
+            className="text-muted-foreground hover:bg-muted"
+            size="default"
+            variant="outline"
+            onClick={() =>
+              exportTableToPdf({ filename: "myname", formatters: pdfFormatters, headers: pdfHeaders, table })
+            }
+          >
+            <Printer />
+          </Button>
           <div className="relative">
             <Search className="stroke-primary absolute top-1/2 left-5 h-4 w-4 -translate-x-1/2 -translate-y-1/2" />
             <Input
