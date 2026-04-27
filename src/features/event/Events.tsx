@@ -235,7 +235,7 @@ export default function Events() {
         <Filters filters={filters} setFilters={handleSetFilters} onSearch={handleSearch} />
         <DataTablePaginated
           columns={columns}
-          controls={{ export: true, search: true }}
+          controls={{ exportExcel: true, exportPdf: true, search: true }}
           data={data?.data?.result}
           defaultPageSize={EventsTableConfig.limit}
           exportConfig={{ title: "Listado de turnos", filename: "turnos", formatters, headers }}
