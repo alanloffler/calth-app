@@ -12,6 +12,7 @@ import z from "zod";
 import { toast } from "sonner";
 import { type MouseEvent, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useMaskito } from "@maskito/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { IUser } from "@users/interfaces/user.interface";
 import { AccountService } from "@account/services/profile.service";
 import { UsersService } from "@users/services/users.service";
+import { digitsMask } from "@core/masks/maskito-digits";
 import { profileSchema } from "@account/schemas/profile.schema";
 import { queryClient } from "@core/lib/query-client";
 import { tryCatch } from "@core/utils/try-catch";
@@ -41,6 +43,8 @@ export function EditForm() {
   const debouncedEmail = useDebounce(email, 500);
   const debouncedIc = useDebounce(ic, 500);
   const debouncedUsername = useDebounce(username, 500);
+
+  const icRef = useMaskito({ options: digitsMask });
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -201,6 +205,10 @@ export function EditForm() {
                     id="ic"
                     maxLength={9}
                     {...field}
+                    ref={(node) => {
+                      field.ref(node);
+                      icRef(node);
+                    }}
                     onChange={async (e) => {
                       setIcError(null);
                       form.clearErrors("ic");
