@@ -109,16 +109,18 @@ export default function Events() {
       ),
     },
     {
-      accessorKey: "professional.firstName",
+      // NOTE: if accessorKey is replaced with id, then must use accessorFn
+      id: "professional",
       header: ({ column }) => <SortableHeader column={column}>Profesional</SortableHeader>,
-      accessorFn: (row) => row.professional?.firstName,
+      accessorFn: (row) =>
+        `${row.professional.professionalProfile?.professionalPrefix} ${row.professional.firstName} ${row.professional.lastName}`,
       cell: ({ row }) =>
         `${row.original.professional.professionalProfile?.professionalPrefix} ${row.original.professional.firstName} ${row.original.professional.lastName}`,
     },
     {
-      accessorKey: "user.firstName",
+      id: "patient",
       header: ({ column }) => <SortableHeader column={column}>Paciente</SortableHeader>,
-      accessorFn: (row) => row.user?.firstName,
+      accessorFn: (row) => `${row.user.firstName} ${row.user.lastName}`,
       cell: ({ row }) => `${row.original.user.firstName} ${row.original.user.lastName}`,
     },
     {
@@ -187,19 +189,17 @@ export default function Events() {
     startDate: "Fecha",
     status: "Estado",
     title: "Título",
-    professional_firstName: "Profesional",
-    user_firstName: "Usuario",
+    professional: "Profesional",
+    patient: "Paciente",
   };
 
   const formatters = {
     startDate: (row: ICalendarEvent) => formatShortDateTime(row.startDate, localeMap[LOCALE]),
     status: (row: ICalendarEvent) => row.status.replace("_", " "),
     title: (row: ICalendarEvent) => `${row.recurrentId ? "[R] " : ""}${row.title}`,
-    professional_firstName: (row: ICalendarEvent) =>
-      `${row.professional.professionalProfile?.professionalPrefix ?? ""} ${
-        row.professional.firstName
-      } ${row.professional.lastName}`,
-    user_firstName: (row: ICalendarEvent) => `${row.user.firstName} ${row.user.lastName}`,
+    professional: (row: ICalendarEvent) =>
+      `${row.professional.professionalProfile?.professionalPrefix} ${row.professional.firstName} ${row.professional.lastName}`,
+    patient: (row: ICalendarEvent) => `${row.user.firstName} ${row.user.lastName}`,
   };
 
   const { mutate: removeHardEvent, isPending: isRemoving } = useMutation({
