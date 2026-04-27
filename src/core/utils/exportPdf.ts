@@ -50,6 +50,7 @@ export function exportTableToPdf<T>({
     body,
     startY: y,
     styles: { fontSize: 8 },
+    theme: "plain",
   });
 
   doc.save(filename);
