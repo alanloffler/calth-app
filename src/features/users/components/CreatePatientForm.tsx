@@ -12,6 +12,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { useMaskito } from "@maskito/react";
+import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { TUserRole } from "@roles/interfaces/user-role.type";
@@ -25,7 +26,6 @@ import { numberMask } from "@core/masks/maskito-number";
 import { tryCatch } from "@core/utils/try-catch";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { useDebounce } from "@core/hooks/useDebounce";
-import { useMutation } from "@tanstack/react-query";
 
 // TODO: get from settings store, needs db changes
 const LOCALE = "es";
