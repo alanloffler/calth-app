@@ -1,5 +1,6 @@
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import type { Table } from "@tanstack/react-table";
+import { saveAs } from "file-saver";
 
 type TProps<T> = {
   filename?: string;
@@ -11,43 +12,45 @@ type TProps<T> = {
 
 export type TXlsFormatter<T> = (row: T) => string;
 
-export function exportTableToXls<T>({
+export async function exportTableToXls<T>({
   filename = "table.xlsx",
   formatters = {},
   headers = {},
   table,
   sheetName = "Sheet1",
-}: TProps<T>): void {
+}: TProps<T>): Promise<void> {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet(sheetName);
+
   const columns = table.getAllLeafColumns().filter((col) => col.getIsVisible() && col.id !== "actions");
   const headerRow = columns.map((col) => {
     if (headers[col.id]) return headers[col.id];
     if (typeof col.columnDef.header === "string") return col.columnDef.header;
     return col.id;
   });
+
+  const header = worksheet.addRow(headerRow);
+  header.font = { bold: true };
+
   const rows = table.getRowModel().rows;
-
-  const data = rows.map((row) => {
-    const obj: Record<string, string> = {};
-
-    columns.forEach((col, idx) => {
-      const key = headerRow[idx];
+  rows.forEach((row) => {
+    const rowData = columns.map((col) => {
       const formatter = formatters[col.id];
-      if (formatter) {
-        obj[key] = formatter(row.original);
-        return;
-      }
+      if (formatter) return formatter(row.original);
 
       const value = row.getValue(col.id);
-      if (value == null) obj[key] = "";
-      else if (typeof value === "object") obj[key] = JSON.stringify(value);
-      else obj[key] = String(value);
+      if (value == null) return "";
+      if (typeof value === "object") return JSON.stringify(value);
+      return String(value);
     });
 
-    return obj;
+    worksheet.addRow(rowData);
   });
 
-  const worksheet = XLSX.utils.json_to_sheet(data);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-  XLSX.writeFile(workbook, filename);
+  worksheet.columns.forEach((col) => {
+    col.width = 20;
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  saveAs(new Blob([buffer]), filename);
 }
