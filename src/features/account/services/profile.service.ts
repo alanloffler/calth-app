@@ -19,8 +19,16 @@ class AccountModuleService {
   }
 
   public async update(data: Partial<IUser>): Promise<IApiResponse<IUser>> {
-    const formattedData = { user: { ...data } };
-    const response = await apiClient.patch("/users/profile", formattedData);
+    // TODO: fix on BEs to unify format
+    const be = import.meta.env.VITE_BACKEND;
+    let _data;
+    if (be === "go") {
+      _data = { user: { ...data } };
+    } else if (be === "nest") {
+      _data = { ...data };
+    }
+
+    const response = await apiClient.patch("/users/profile", _data);
     return response.data;
   }
 }
