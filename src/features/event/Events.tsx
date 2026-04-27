@@ -237,13 +237,12 @@ export default function Events() {
           controls={{ export: true, search: true }}
           data={data?.data?.result}
           defaultPageSize={EventsTableConfig.limit}
+          exportConfig={{ filename: "turnos.pdf", formatters, headers }}
           loading={isLoading}
           onPaginationChange={setPagination}
           onSortingChange={setSorting}
           pageSizes={EventsTableConfig.pageSizes}
           pagination={pagination}
-          pdfFormatters={formatters}
-          pdfHeaders={headers}
           rowCount={data?.data?.total}
         />
       </div>
