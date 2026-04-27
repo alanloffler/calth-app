@@ -25,6 +25,7 @@ interface DataTableProps<TData, TValue> {
   className?: string;
   columnVisibility?: any;
   columns: ColumnDef<TData, TValue>[];
+  controls?: { search?: boolean; export?: boolean };
   data: TData[] | undefined;
   defaultPageSize?: number;
   defaultSorting?: SortingState;
@@ -36,13 +37,13 @@ interface DataTableProps<TData, TValue> {
   pdfFormatters?: Record<string, TFormatter<TData>>;
   pdfHeaders?: Record<string, string>;
   rowCount?: number;
-  searchable?: boolean;
 }
 
 export function DataTablePaginated<TData, TValue>({
   className,
   columnVisibility,
   columns,
+  controls,
   data,
   defaultPageSize = 5,
   defaultSorting = [],
@@ -54,7 +55,6 @@ export function DataTablePaginated<TData, TValue>({
   pdfFormatters,
   pdfHeaders,
   rowCount,
-  searchable = true,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = useState<PaginationState>(
     paginationProp ?? {
@@ -122,32 +122,42 @@ export function DataTablePaginated<TData, TValue>({
 
   return (
     <div className={cn("overflow-hidden rounded-md border shadow-sm", className)}>
-      {searchable && (
-        <div className="flex w-full items-center justify-end gap-3 p-3">
-          <Button
-            className="text-muted-foreground hover:bg-muted"
-            size="default"
-            variant="outline"
-            onClick={() =>
-              exportTableToPdf({ filename: "myname", formatters: pdfFormatters, headers: pdfHeaders, table })
-            }
-          >
-            <Printer />
-          </Button>
-          <div className="relative">
-            <Search className="stroke-primary absolute top-1/2 left-5 h-4 w-4 -translate-x-1/2 -translate-y-1/2" />
-            <Input
-              value={globalFilter}
-              className="w-55 pl-9"
-              onChange={(e) => table.setGlobalFilter(String(e.target.value))}
-              placeholder="Buscar..."
-            />
-            <Activity mode={globalFilter ? "visible" : "hidden"}>
-              <button className="text-muted-foreground hover:text-foreground absolute top-1/2 -right-1.5 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full p-1 transition-colors duration-100">
-                <X className="h-4 w-4" onClick={handleClearSearch} />
-              </button>
-            </Activity>
-          </div>
+      {controls && Object.values(controls).some(Boolean) && (
+        <div className="flex w-full items-center justify-end gap-3 p-3 pb-0">
+          {controls.export && (
+            <Button
+              className="text-muted-foreground hover:bg-muted"
+              size="default"
+              variant="outline"
+              onClick={() =>
+                exportTableToPdf({
+                  filename: "myname",
+                  formatters: pdfFormatters,
+                  headers: pdfHeaders,
+                  table,
+                  title: "Listado de turnos",
+                })
+              }
+            >
+              <Printer />
+            </Button>
+          )}
+          {controls.search && (
+            <div className="relative">
+              <Search className="stroke-primary absolute top-1/2 left-5 h-4 w-4 -translate-x-1/2 -translate-y-1/2" />
+              <Input
+                value={globalFilter}
+                className="w-55 pl-9"
+                onChange={(e) => table.setGlobalFilter(String(e.target.value))}
+                placeholder="Buscar..."
+              />
+              <Activity mode={globalFilter ? "visible" : "hidden"}>
+                <button className="text-muted-foreground hover:text-foreground absolute top-1/2 -right-1.5 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full p-1 transition-colors duration-100">
+                  <X className="h-4 w-4" onClick={handleClearSearch} />
+                </button>
+              </Activity>
+            </div>
+          )}
         </div>
       )}
       <div className="p-3">
