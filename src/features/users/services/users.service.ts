@@ -104,8 +104,10 @@ class UsersModuleService {
     let payload;
     if (type === EUserRole.professional) {
       payload = this.toProfessionalData(data);
-    } else {
+    } else if (type === EUserRole.patient) {
       payload = this.toPatientData(data);
+    } else {
+      payload = data;
     }
 
     const response = await apiClient.patch(`/users/${id}/${type}`, payload);
