@@ -25,7 +25,7 @@ import { numberMask } from "@core/masks/maskito-number";
 import { tryCatch } from "@core/utils/try-catch";
 import { uppercaseFirst } from "@core/formatters/uppercase-first.formatter";
 import { useDebounce } from "@core/hooks/useDebounce";
-import { useTryCatch } from "@core/hooks/useTryCatch";
+import { useMutation } from "@tanstack/react-query";
 
 // TODO: get from settings store, needs db changes
 const LOCALE = "es";
@@ -40,7 +40,6 @@ export function CreatePatientForm() {
   const location = useLocation();
   const navigate = useNavigate();
   const roleTranslated = ERoles[location.state.role as TUserRole];
-  const { isLoading: isSaving, tryCatch: tryCatchPatient } = useTryCatch();
 
   const debouncedEmail = useDebounce(email, 500);
   const debouncedIc = useDebounce(ic, 500);
@@ -133,6 +132,15 @@ export function CreatePatientForm() {
     checkUsername(debouncedUsername);
   }, [checkUsername, debouncedUsername]);
 
+  const { mutate: createPatient, isPending: isSaving } = useMutation({
+    mutationKey: ["patient", "create"],
+    mutationFn: (data: z.output<typeof createPatientSchema>) => UsersService.createPatient(data),
+    onSuccess: (response) => {
+      toast.success(response.message);
+      navigate("/users/role/patient");
+    },
+  });
+
   async function onSubmit(data: z.output<typeof createPatientSchema>) {
     const [emailOk, icOk, usernameOk] = await Promise.all([
       checkEmail(data.email),
@@ -142,17 +150,7 @@ export function CreatePatientForm() {
 
     if (!emailOk || !icOk || !usernameOk) return;
 
-    const [create, createError] = await tryCatchPatient(UsersService.createPatient(data));
-
-    if (createError) {
-      toast.error(createError.message);
-      return;
-    }
-
-    if (create?.statusCode === 201) {
-      toast.success(create.message);
-      navigate("/users/role/patient");
-    }
+    createPatient(data);
   }
 
   function resetForm(): void {
