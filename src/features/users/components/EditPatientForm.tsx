@@ -15,7 +15,7 @@ import { type MouseEvent, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { useMaskito } from "@maskito/react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { TPermission } from "@permissions/interfaces/permission.type";
@@ -29,7 +29,6 @@ import { updatePatientSchema } from "@users/schemas/update-patient.schema";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useDebounce } from "@core/hooks/useDebounce";
 import { usePermission } from "@permissions/hooks/usePermission";
-import { useTryCatch } from "@core/hooks/useTryCatch";
 
 interface IProps {
   userId: string;
@@ -51,7 +50,6 @@ export function EditPatientForm({ userId }: IProps) {
   const navigate = useNavigate();
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const userRole = location.state.role;
-  const { isLoading: isSaving, tryCatch: tryCatchSubmit } = useTryCatch();
 
   const debouncedEmail = useDebounce(email, 500);
   const debouncedIc = useDebounce(ic, 500);
@@ -186,6 +184,16 @@ export function EditPatientForm({ userId }: IProps) {
     setPasswordField(!passwordField);
   }
 
+  const { mutate: updatePatient, isPending: isSaving } = useMutation({
+    mutationKey: ["patient", "update"],
+    mutationFn: (data: z.infer<typeof updatePatientSchema>) => UsersService.update(userId, "patient", data),
+    onSuccess: (response) => {
+      if (userToUpdate?.ic === admin?.ic) refreshAdmin();
+      toast.success(response.message);
+      navigate("/users/role/patient");
+    },
+  });
+
   async function onSubmit(data: z.infer<typeof updatePatientSchema>): Promise<void> {
     const [emailOk, icOk, usernameOk] = await Promise.all([
       checkEmail(data.email),
@@ -195,24 +203,10 @@ export function EditPatientForm({ userId }: IProps) {
 
     if (!emailOk || !icOk || !usernameOk) return;
 
-    const updateData = data.password
-      ? data
-      : Object.fromEntries(Object.entries(data).filter(([key]) => key !== "password"));
+    const { password: _, ...dataWithoutPassword } = data;
+    const updateData = data.password ? data : (dataWithoutPassword as z.infer<typeof updatePatientSchema>);
 
-    const [update, updateError] = await tryCatchSubmit(UsersService.update(userId, "patient", updateData));
-
-    if (updateError) {
-      toast.error(updateError.message);
-      return;
-    }
-
-    if (update?.statusCode === 200) {
-      if (userToUpdate?.ic === admin?.ic) {
-        refreshAdmin();
-      }
-      toast.success(update.message);
-      navigate("/users/role/patient");
-    }
+    updatePatient(updateData);
   }
 
   function handleCancel(): void {
