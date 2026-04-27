@@ -183,6 +183,25 @@ export default function Events() {
     },
   ];
 
+  const headers = {
+    startDate: "Fecha",
+    status: "Estado",
+    title: "Título",
+    professional_firstName: "Profesional",
+    user_firstName: "Usuario",
+  };
+
+  const formatters = {
+    startDate: (row: ICalendarEvent) => formatShortDateTime(row.startDate, localeMap[LOCALE]),
+    status: (row: ICalendarEvent) => row.status.replace("_", " "),
+    title: (row: ICalendarEvent) => `${row.recurrentId ? "[R] " : ""}${row.title}`,
+    professional_firstName: (row: ICalendarEvent) =>
+      `${row.professional.professionalProfile?.professionalPrefix ?? ""} ${
+        row.professional.firstName
+      } ${row.professional.lastName}`,
+    user_firstName: (row: ICalendarEvent) => `${row.user.firstName} ${row.user.lastName}`,
+  };
+
   const { mutate: removeHardEvent, isPending: isRemoving } = useMutation({
     mutationFn: (id: string) => EventsService.removeHard(id),
     onSuccess: (response) => {
@@ -222,8 +241,10 @@ export default function Events() {
           onSortingChange={setSorting}
           pageSizes={EventsTableConfig.pageSizes}
           pagination={pagination}
+          pdfFormatters={formatters}
+          pdfHeaders={headers}
           rowCount={data?.data?.total}
-          searchable={false}
+          searchable={true}
         />
       </div>
       <ConfirmDialog
