@@ -29,13 +29,17 @@ interface DataTableProps<TData, TValue> {
   data: TData[] | undefined;
   defaultPageSize?: number;
   defaultSorting?: SortingState;
+  exportConfig?: {
+    filename?: string;
+    formatters?: Record<string, TFormatter<TData>>;
+    headers?: Record<string, string>;
+    title?: string;
+  };
   loading?: boolean;
   onPaginationChange?: (pagination: PaginationState) => void;
   onSortingChange?: (sorting: SortingState) => void;
   pagination?: PaginationState;
   pageSizes?: number[];
-  pdfFormatters?: Record<string, TFormatter<TData>>;
-  pdfHeaders?: Record<string, string>;
   rowCount?: number;
 }
 
@@ -45,6 +49,7 @@ export function DataTablePaginated<TData, TValue>({
   columns,
   controls,
   data,
+  exportConfig,
   defaultPageSize = 5,
   defaultSorting = [],
   loading,
@@ -52,8 +57,6 @@ export function DataTablePaginated<TData, TValue>({
   onSortingChange,
   pageSizes = [5, 10, 20, 50],
   pagination: paginationProp,
-  pdfFormatters,
-  pdfHeaders,
   rowCount,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = useState<PaginationState>(
@@ -131,11 +134,11 @@ export function DataTablePaginated<TData, TValue>({
               variant="outline"
               onClick={() =>
                 exportTableToPdf({
-                  filename: "myname",
-                  formatters: pdfFormatters,
-                  headers: pdfHeaders,
+                  filename: exportConfig?.filename ?? "events",
+                  formatters: exportConfig?.formatters,
+                  headers: exportConfig?.headers,
                   table,
-                  title: "Listado de turnos",
+                  title: exportConfig?.title,
                 })
               }
             >
