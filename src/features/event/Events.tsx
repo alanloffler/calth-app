@@ -21,6 +21,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IEventFilters } from "@event/interfaces/filters.interface";
+import { DEventStatus } from "@calendar/dictionaries/status.dictionary";
 import { EventsService } from "@event/services/events.service";
 import { EventsTableConfig } from "@core/config/table.config";
 import { formatShortDateTime } from "@core/formatters/date.formatter";
@@ -195,7 +196,7 @@ export default function Events() {
 
   const formatters = {
     startDate: (row: ICalendarEvent) => formatShortDateTime(row.startDate, localeMap[LOCALE]),
-    status: (row: ICalendarEvent) => row.status.replace("_", " "),
+    status: (row: ICalendarEvent) => DEventStatus[row.status],
     title: (row: ICalendarEvent) => `${row.recurrentId ? "[R] " : ""}${row.title}`,
     professional: (row: ICalendarEvent) =>
       `${row.professional.professionalProfile?.professionalPrefix} ${row.professional.firstName} ${row.professional.lastName}`,
