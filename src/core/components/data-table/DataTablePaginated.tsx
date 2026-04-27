@@ -1,4 +1,6 @@
-import { Printer, Search, X } from "lucide-react";
+import { FilePdf } from "@components/icons/FilePdf";
+import { FileXls } from "@components/icons/FileXls";
+import { Search, X } from "lucide-react";
 
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
@@ -25,7 +27,7 @@ interface DataTableProps<TData, TValue> {
   className?: string;
   columnVisibility?: any;
   columns: ColumnDef<TData, TValue>[];
-  controls?: { search?: boolean; export?: boolean };
+  controls?: { search?: boolean; exportExcel?: boolean; exportPdf?: boolean };
   data: TData[] | undefined;
   defaultPageSize?: number;
   defaultSorting?: SortingState;
@@ -127,10 +129,10 @@ export function DataTablePaginated<TData, TValue>({
     <div className={cn("overflow-hidden rounded-md border shadow-sm", className)}>
       {controls && Object.values(controls).some(Boolean) && (
         <div className="flex w-full items-center justify-end gap-3 p-3 pb-0">
-          {controls.export && (
+          {controls.exportPdf && (
             <Button
               className="text-muted-foreground hover:bg-muted"
-              size="default"
+              size="icon"
               variant="outline"
               onClick={() =>
                 exportTableToPdf({
@@ -142,7 +144,17 @@ export function DataTablePaginated<TData, TValue>({
                 })
               }
             >
-              <Printer />
+              <FilePdf className="size-5" />
+            </Button>
+          )}
+          {controls.exportExcel && (
+            <Button
+              className="text-muted-foreground hover:bg-muted"
+              size="icon"
+              variant="outline"
+              onClick={() => console.log("Export excel file")}
+            >
+              <FileXls className="size-5" />
             </Button>
           )}
           {controls.search && (
