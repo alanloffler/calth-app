@@ -237,7 +237,7 @@ export default function Events() {
           controls={{ export: true, search: true }}
           data={data?.data?.result}
           defaultPageSize={EventsTableConfig.limit}
-          exportConfig={{ filename: "turnos.pdf", formatters, headers }}
+          exportConfig={{ title: "Listado de turnos", filename: "turnos", formatters, headers }}
           loading={isLoading}
           onPaginationChange={setPagination}
           onSortingChange={setSorting}
