@@ -7,12 +7,26 @@ type TProps<T> = {
   formatters?: Record<string, TFormatter<T>>;
   headers?: Record<string, string>;
   table: Table<T>;
+  title?: string;
 };
 
 export type TFormatter<T> = (row: T) => string;
 
-export function exportTableToPdf<T>({ filename = "table.pdf", formatters = {}, headers = {}, table }: TProps<T>): void {
+export function exportTableToPdf<T>({
+  filename = "table.pdf",
+  formatters = {},
+  headers = {},
+  table,
+  title,
+}: TProps<T>): void {
   const doc = new jsPDF();
+
+  let y = 14;
+  if (title) {
+    doc.setFontSize(16);
+    doc.text(title, 14, y);
+    y += 8;
+  }
 
   const columns = table.getAllLeafColumns().filter((col) => col.getIsVisible() && col.id !== "actions");
   const headerRow = columns.map((col) => headers[col.id] ?? col.id);
@@ -34,6 +48,7 @@ export function exportTableToPdf<T>({ filename = "table.pdf", formatters = {}, h
   autotable(doc, {
     head: [headerRow],
     body,
+    startY: y,
     styles: { fontSize: 8 },
   });
 
