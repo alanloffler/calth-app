@@ -4,13 +4,13 @@ import type { Table } from "@tanstack/react-table";
 
 type TProps<T> = {
   filename?: string;
-  formatters?: Record<string, TFormatter<T>>;
+  formatters?: Record<string, TPdfFormatter<T>>;
   headers?: Record<string, string>;
   table: Table<T>;
   title?: string;
 };
 
-export type TFormatter<T> = (row: T) => string;
+export type TPdfFormatter<T> = (row: T) => string;
 
 export function exportTableToPdf<T>({
   filename = "table.pdf",
