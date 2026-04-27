@@ -234,6 +234,7 @@ export default function Events() {
         <Filters filters={filters} setFilters={handleSetFilters} onSearch={handleSearch} />
         <DataTablePaginated
           columns={columns}
+          controls={{ export: true, search: true }}
           data={data?.data?.result}
           defaultPageSize={EventsTableConfig.limit}
           loading={isLoading}
@@ -244,7 +245,6 @@ export default function Events() {
           pdfFormatters={formatters}
           pdfHeaders={headers}
           rowCount={data?.data?.total}
-          searchable={true}
         />
       </div>
       <ConfirmDialog
