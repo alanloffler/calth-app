@@ -205,11 +205,13 @@ export default function Permissions() {
         </PageHeader>
         <DataTable
           columns={columns}
+          controls={{ search: true }}
           data={permissions}
           defaultPageSize={PermissionsTableConfig.limit}
           defaultSorting={[{ id: "actionKey", desc: false }]}
           loading={isLoadingPermissions}
           pageSizes={PermissionsTableConfig.pageSizes}
+          rowCount={permissions?.length}
         />
       </div>
       <ConfirmDialog
