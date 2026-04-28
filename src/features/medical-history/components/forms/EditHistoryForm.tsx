@@ -18,7 +18,7 @@ import type z from "zod";
 import { es } from "date-fns/locale";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,6 +40,7 @@ interface IProps {
 const LOCALE = "es";
 
 export function EditHistoryForm({ history, setOpen }: IProps) {
+  const [activeEventId, setActiveEventId] = useState<string | undefined>(history.eventId ?? undefined);
   const [date, setDate] = useState<Date | undefined>(history.date ? new Date(history.date) : undefined);
   const [dateType, setDateType] = useState<"manual" | "event">(history.eventId ? "event" : "manual");
   const [openCalendar, setOpenCalendar] = useState<boolean>(false);
@@ -60,6 +61,7 @@ export function EditHistoryForm({ history, setOpen }: IProps) {
   });
 
   const professionalId = useWatch({ control: form.control, name: "professionalId" });
+  const isFirstRender = useRef(true);
 
   function onSelectDate(date: Date | undefined) {
     if (!date) return;
@@ -85,7 +87,21 @@ export function EditHistoryForm({ history, setOpen }: IProps) {
 
   function handleEventChange(event: ICalendarEvent): void {
     setSelectedEvent(event);
+    setActiveEventId(event.id);
   }
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (dateType === "event") {
+      setSelectedEvent(undefined);
+      setActiveEventId(undefined);
+      form.setValue("eventId", null, { shouldDirty: true });
+      form.setValue("date", undefined as unknown as Date, { shouldDirty: true });
+    }
+  }, [dateType, form, professionalId]);
 
   useEffect(() => {
     if (selectedEvent && dateType === "event") {
@@ -177,11 +193,11 @@ export function EditHistoryForm({ history, setOpen }: IProps) {
                   ) : (
                     <EventCombobox
                       aria-invalid={fieldState.invalid}
-                      value={selectedEvent?.id ?? history.eventId ?? undefined}
                       disabled={!professionalId}
                       onChange={handleEventChange}
                       professionalId={professionalId}
                       userId={history.userId}
+                      value={selectedEvent?.id ?? activeEventId}
                       width="w-60"
                     />
                   )}
