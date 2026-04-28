@@ -7,6 +7,7 @@ import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
+import { Link } from "react-router";
 import { Loader } from "@components/Loader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
@@ -253,7 +254,9 @@ export function EditForm() {
                                       {isDeleted && (
                                         <Tooltip>
                                           <TooltipTrigger className="size-4.5" type="button">
-                                            <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                            <Link to={`/permissions/view/${action.id}`}>
+                                              <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                            </Link>
                                           </TooltipTrigger>
                                           <TooltipContent className="flex flex-col">
                                             <span className="text-red-500">Permiso eliminado.</span>
