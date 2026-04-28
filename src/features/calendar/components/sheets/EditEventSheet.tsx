@@ -118,6 +118,19 @@ export function EditEventSheet() {
 
   const withEvents = getDaysWithEventsArray(daysWithEvents?.data);
 
+  // Calendar: blocked days
+  const { data: blockedDays = [] } = useQuery({
+    queryKey: ["calendar", "blocked-days", professionalId],
+    queryFn: () => CalendarService.findAllBlockedDays(professionalId),
+    select: (response) => response.data,
+    enabled: !!professionalId,
+  });
+
+  const blockedDates = useMemo(
+    () => (blockedDays ?? []).map((day: { date: string }) => parseISO(day.date)),
+    [blockedDays],
+  );
+
   // Calendar: recurring events
   function handleRecurringConfirm(dates: string[], count: number) {
     form.setValue("recurringCount", count, { shouldDirty: true });
@@ -283,7 +296,10 @@ export function EditEventSheet() {
                           <Calendar
                             aria-invalid={isDateInvalid}
                             className="mx-auto aspect-square h-fit w-full rounded-md"
-                            disabled={[{ dayOfWeek: professionalConfig?.excludedDays as number[] }]}
+                            disabled={[
+                              ...(professionalConfig ? [{ dayOfWeek: professionalConfig.excludedDays }] : []),
+                              ...blockedDates,
+                            ]}
                             modifiers={{
                               withEvents: (date) => {
                                 if (professionalConfig?.excludedDays?.includes(date.getDay())) return false;
