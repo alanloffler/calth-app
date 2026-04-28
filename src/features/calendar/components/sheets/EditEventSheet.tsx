@@ -376,7 +376,11 @@ export function EditEventSheet() {
             <div className="flex flex-col justify-center gap-4 pt-8 md:flex-row md:justify-end">
               <Button
                 className="md:order-2"
-                disabled={!form.formState.isDirty}
+                disabled={
+                  !form.formState.isDirty ||
+                  (isRecurringActive && !recurringDates?.length) ||
+                  !!form.formState.errors.recurringDates
+                }
                 form="edit-event"
                 type="submit"
                 variant="default"
