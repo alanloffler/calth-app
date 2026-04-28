@@ -99,7 +99,10 @@ export function EditEventSheet() {
 
   // Form reset on event change
   useEffect(() => {
-    if (event) form.reset(getEventFormValues(event));
+    if (event) {
+      form.reset(getEventFormValues(event));
+      setIsRecurringActive(!!event.recurrentId);
+    }
   }, [event, form]);
 
   // Calendar: days with events
@@ -357,10 +360,11 @@ export function EditEventSheet() {
               />
             </FieldGroup>
             <FieldGroup>
-              {/* TODO: value prop to show checked */}
+              {/* FIX ALREADY: value prop to show checked */}
               {/* TODO: show list of recurrent dates */}
               {/* TODO: if unlinked, then unmark as recurring */}
               <ChooseRecurringDate
+                active={isRecurringActive}
                 disabled={!startDate || new Date(startDate).getHours() < 1}
                 error={form.formState.errors.recurringDates?.message}
                 onActiveChange={handleRecurringActiveChange}
