@@ -13,7 +13,7 @@ type TProps<T> = {
 export type TXlsFormatter<T> = (row: T) => string;
 
 export async function exportTableToXls<T>({
-  filename = "table.xlsx",
+  filename = `table-${Date.now()}.xlsx`,
   formatters = {},
   headers = {},
   table,
@@ -22,38 +22,52 @@ export async function exportTableToXls<T>({
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet(sheetName);
 
-  const columns = table.getAllLeafColumns().filter((col) => col.getIsVisible() && col.id !== "actions");
-  const headerRow = columns.map((col) => {
-    if (headers[col.id]) return headers[col.id];
-    if (typeof col.columnDef.header === "string") return col.columnDef.header;
-    return col.id;
-  });
-
-  const header = worksheet.addRow(headerRow);
-  header.font = { bold: true };
-  header.height = 24;
-  header.alignment = { vertical: "middle" };
-  header.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "f4f4f4" } };
+  const allowedColumnIds = Object.keys(headers);
 
   const rows = table.getRowModel().rows;
-  rows.forEach((row) => {
-    const rowData = columns.map((col) => {
-      const formatter = formatters[col.id];
+
+  const data: string[][] = rows.map((row) =>
+    allowedColumnIds.map((colId) => {
+      const formatter = formatters[colId];
       if (formatter) return formatter(row.original);
 
-      const value = row.getValue(col.id);
+      const value = row.getValue(colId);
       if (value == null) return "";
       if (typeof value === "object") return JSON.stringify(value);
       return String(value);
-    });
+    }),
+  );
 
-    const newRow = worksheet.addRow(rowData);
-    newRow.height = 16;
-    newRow.alignment = { vertical: "middle" };
+  const colWidths = allowedColumnIds.map((colId, colIndex) => {
+    const headerLength = (headers[colId] ?? colId).length;
+    const maxCellLength = Math.max(headerLength, ...data.map((row) => row[colIndex]?.length || 0));
+    return Math.min(Math.max(maxCellLength + 2, 10), 50);
   });
 
-  worksheet.columns.forEach((col) => {
-    col.width = 20;
+  worksheet.columns = allowedColumnIds.map((id, i) => ({
+    key: id,
+    header: headers[id] ?? id,
+    width: colWidths[i],
+  }));
+
+  const headerRow = worksheet.getRow(1);
+  headerRow.height = 24;
+  headerRow.eachCell((cell) => {
+    cell.font = { bold: true };
+    cell.alignment = { vertical: "middle" };
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "f4f4f4" },
+    };
+  });
+
+  data.forEach((rowArr) => {
+    const row = worksheet.addRow(rowArr);
+    row.height = 16;
+    row.eachCell((cell) => {
+      cell.alignment = { vertical: "middle" };
+    });
   });
 
   const buffer = await workbook.xlsx.writeBuffer();
