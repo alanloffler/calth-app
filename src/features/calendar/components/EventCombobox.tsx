@@ -48,7 +48,11 @@ export function EventCombobox({
   });
 
   useEffect(() => {
-    if (!events || !value) return;
+    if (!events) return;
+    if (!value) {
+      setSelectedEvent(null);
+      return;
+    }
     const match = events.find((e) => e.id === value);
     if (match) setSelectedEvent(match);
   }, [events, value]);
