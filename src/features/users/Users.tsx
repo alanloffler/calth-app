@@ -309,11 +309,13 @@ export default function Users() {
         <DataTable
           columnVisibility={columnVisibility}
           columns={columns}
+          controls={{ search: true }}
           data={users}
           defaultPageSize={UsersTableConfig.limit}
           defaultSorting={[{ id: "userName", desc: false }]}
           loading={isLoadingUsers}
           pageSizes={UsersTableConfig.pageSizes}
+          rowCount={users?.length}
         />
       </div>
       <ConfirmDialog
