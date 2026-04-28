@@ -224,6 +224,7 @@ export default function Roles() {
         </PageHeader>
         <DataTable
           columns={columns}
+          controls={{ search: true }}
           data={roles}
           defaultPageSize={RolesTableConfig.limit}
           defaultSorting={[{ id: "name", desc: false }]}
