@@ -17,7 +17,7 @@ export interface ICalendarEvent {
   userId: string;
 }
 
-interface ICalendarEventShort {
+export interface ICalendarEventShort {
   endDate: Date;
   id: string;
   startDate: Date;
