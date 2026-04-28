@@ -367,6 +367,7 @@ export function EditEventSheet() {
                 active={isRecurringActive}
                 disabled={!startDate || new Date(startDate).getHours() < 1}
                 error={form.formState.errors.recurringDates?.message}
+                existingSiblings={event?.siblings}
                 onActiveChange={handleRecurringActiveChange}
                 onConfirm={handleRecurringConfirm}
                 onSuggestionSelect={(date) => form.setValue("startDate", date)}
