@@ -32,6 +32,7 @@ interface DataTableProps<TData, TValue> {
   defaultSorting?: SortingState;
   loading?: boolean;
   pageSizes?: number[];
+  rowCount?: number;
 }
 
 export function DataTable<TData, TValue>({
@@ -44,6 +45,7 @@ export function DataTable<TData, TValue>({
   defaultSorting = [],
   loading,
   pageSizes = [5, 10, 20, 50],
+  rowCount,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -159,7 +161,14 @@ export function DataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
-        {!loading && <Pagination table={table} pageSizes={pageSizes} />}
+        {!loading && (
+          <div className={cn("flex items-center", rowCount && rowCount > 0 ? "justify-between" : "justify-end")}>
+            {rowCount && rowCount > 0 && (
+              <div className="text-muted-foreground text-xs font-medium">{`Total: ${rowCount} filas`}</div>
+            )}
+            <Pagination table={table} pageSizes={pageSizes} />
+          </div>
+        )}
       </div>
     </div>
   );
