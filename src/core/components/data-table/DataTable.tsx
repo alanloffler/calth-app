@@ -1,5 +1,7 @@
+import { FilePdf } from "@components/icons/FilePdf";
 import { Search, X } from "lucide-react";
 
+import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Pagination } from "@components/Pagination";
 import { Skeleton } from "@components/ui/skeleton";
@@ -19,6 +21,7 @@ import {
 } from "@tanstack/react-table";
 
 import { cn } from "@core/lib/utils";
+import { exportTableToPdf, type TPdfFormatter } from "@core/utils/exportPdf";
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -30,6 +33,12 @@ interface DataTableProps<TData, TValue> {
   data: TData[] | undefined;
   defaultPageSize?: number;
   defaultSorting?: SortingState;
+  exportPdfConfig?: {
+    filename?: string;
+    formatters?: Record<string, TPdfFormatter<TData>>;
+    headers?: Record<string, string>;
+    title?: string;
+  };
   loading?: boolean;
   pageSizes?: number[];
   rowCount?: number;
@@ -43,6 +52,7 @@ export function DataTable<TData, TValue>({
   data,
   defaultPageSize = 5,
   defaultSorting = [],
+  exportPdfConfig,
   loading,
   pageSizes = [5, 10, 20, 50],
   rowCount,
@@ -95,6 +105,24 @@ export function DataTable<TData, TValue>({
     <div className={cn("overflow-hidden rounded-md border shadow-sm", className)}>
       {controls && Object.values(controls).some(Boolean) && (
         <div className="flex w-full items-center justify-end gap-3 p-3 pb-0">
+          {controls.exportPdf && (
+            <Button
+              className="text-muted-foreground hover:bg-muted"
+              size="icon"
+              variant="outline"
+              onClick={() =>
+                exportTableToPdf({
+                  filename: exportPdfConfig?.filename,
+                  formatters: exportPdfConfig?.formatters,
+                  headers: exportPdfConfig?.headers,
+                  table,
+                  title: exportPdfConfig?.title,
+                })
+              }
+            >
+              <FilePdf className="size-5" />
+            </Button>
+          )}
           {controls.search && (
             <div className="relative">
               <Search className="stroke-primary absolute top-1/2 left-5 h-4 w-4 -translate-x-1/2 -translate-y-1/2" />
