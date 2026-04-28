@@ -15,10 +15,11 @@ import {
 import { FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 
-import { addMinutes, format } from "date-fns";
+import { addMinutes, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from "react";
 
+import type { ICalendarEventShort } from "@calendar/interfaces/calendar-event.interface";
 import type { IRecurrentDayResponse } from "@event/interfaces/recurrent-day.interface";
 import { EventsService } from "@event/services/events.service";
 import { cn } from "@core/lib/utils";
@@ -28,6 +29,7 @@ interface IProps {
   active?: boolean;
   disabled: boolean;
   error?: string;
+  existingSiblings?: ICalendarEventShort[];
   onActiveChange: (active: boolean) => void;
   onConfirm: (dates: string[], count: number) => void;
   onSuggestionSelect: (date: string) => void;
@@ -42,6 +44,7 @@ export function ChooseRecurringDate({
   active,
   disabled,
   error,
+  existingSiblings,
   onActiveChange,
   onConfirm,
   onSuggestionSelect,
@@ -53,6 +56,7 @@ export function ChooseRecurringDate({
 }: IProps) {
   const [days, setDays] = useState<number>(2);
   const [display, setDisplay] = useState<boolean>(false);
+  const [showExistingSiblings, setShowExistingSiblings] = useState<boolean>(false);
   const [isNotAvailableError, setIsNotAvailableError] = useState<boolean>(false);
   const [isFetchingError, setIsFetchingError] = useState<boolean>(false);
   const [openRecurringDialog, setOpenRecurringDialog] = useState<boolean>(false);
@@ -61,6 +65,10 @@ export function ChooseRecurringDate({
   useEffect(() => {
     if (active) setDisplay(true);
   }, [active]);
+
+  useEffect(() => {
+    setShowExistingSiblings(!!active && !!existingSiblings?.length && !recurringDays);
+  }, [active, existingSiblings, recurringDays]);
 
   const handleChecked = useCallback(
     (checked: boolean): void => {
@@ -133,107 +141,137 @@ export function ChooseRecurringDate({
           </div>
         )}
         <Activity mode={display && !disabled ? "visible" : "hidden"}>
-          {!recurringDays && (
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Button
-                  disabled={days <= 2}
-                  onClick={() => setDays((prev) => prev - 1)}
-                  size="icon-sm"
-                  type="button"
-                  variant="secondary"
-                >
-                  <Minus />
-                </Button>
-                <Input
-                  className="max-w-15 appearance-none text-center"
-                  inputMode="numeric"
-                  maxLength={2}
-                  onChange={(e) => (e.target.value !== "" ? setDays(Number(e.target.value)) : setDays(2))}
-                  readOnly
-                  value={days}
-                />
-                <Button
-                  disabled={days >= 10}
-                  onClick={() => {
-                    setDays((prev) => prev + 1);
-                  }}
-                  size="icon-sm"
-                  type="button"
-                  variant="secondary"
-                >
-                  <Plus />
-                </Button>
-              </div>
+          {showExistingSiblings && existingSiblings && existingSiblings.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-1">
+                {existingSiblings.map((sibling) => {
+                  const date =
+                    typeof sibling.startDate === "string" ? parseISO(sibling.startDate) : new Date(sibling.startDate);
+                  return (
+                    <li className="flex items-center gap-3" key={sibling.id}>
+                      <span className="flex w-fit rounded-full bg-green-200 p-0.5">
+                        <Check className="size-3.5 text-green-700" />
+                      </span>
+                      <span className="text-sm">{format(date, "EEEE, P - HH:mm", { locale: es })} hs.</span>
+                    </li>
+                  );
+                })}
+              </ul>
               <Button
-                disabled={days === 0}
-                onClick={handleCheckAvailability}
-                type="button"
+                className="w-fit"
+                onClick={() => setShowExistingSiblings(false)}
                 size="sm"
+                type="button"
                 variant="secondary"
               >
-                Comprobar disponibilidad
+                Cambiar recurrencia
               </Button>
             </div>
-          )}
-          {(recurringDays && recurringDays.dates.length === 0) ||
-            (isNotAvailableError ? (
-              <div className="flex flex-col gap-3">
-                <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
-                  No hay {days} turnos recurrentes disponibles, elegí otra fecha u horario
-                </div>
-                <ul className="flex flex-col gap-1">
-                  {recurringDays?.dates.map((d) => (
-                    <li className="flex items-center gap-3" key={d.date}>
-                      <Badge size="small" variant={d.available ? "green" : "gray"}>
-                        {d.available ? "Disponible" : "Ocupado"}
-                      </Badge>
-                      <span className="text-sm">{format(d.date, "PPPP", { locale: es })}</span>
-                    </li>
-                  ))}
-                </ul>
-                {recurringDays && recurringDays.suggestion && (
-                  <div className="flex items-center justify-between gap-3 rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-blue-600 shadow-xs">
-                    <div className="flex items-center gap-3">
-                      <Lightbulb className="size-4 shrink-0" />
-                      <h3 className="font-semibold">Sugerencia:</h3>
-                      <span>{`${format(recurringDays?.suggestion, "EEEE", { locale: es })} a las ${format(recurringDays?.suggestion, "HH:mm", { locale: es })} hs.`}</span>
-                    </div>
+          ) : (
+            <>
+              {!recurringDays && (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <Button
-                      onClick={() => {
-                        pendingCheckRef.current = true;
-                        onSuggestionSelect(recurringDays.suggestion);
-                      }}
-                      size="sm"
+                      disabled={days <= 2}
+                      onClick={() => setDays((prev) => prev - 1)}
+                      size="icon-sm"
                       type="button"
-                      variant="default"
+                      variant="secondary"
                     >
-                      Elegir
+                      <Minus />
+                    </Button>
+                    <Input
+                      className="max-w-15 appearance-none text-center"
+                      inputMode="numeric"
+                      maxLength={2}
+                      onChange={(e) => (e.target.value !== "" ? setDays(Number(e.target.value)) : setDays(2))}
+                      readOnly
+                      value={days}
+                    />
+                    <Button
+                      disabled={days >= 10}
+                      onClick={() => {
+                        setDays((prev) => prev + 1);
+                      }}
+                      size="icon-sm"
+                      type="button"
+                      variant="secondary"
+                    >
+                      <Plus />
                     </Button>
                   </div>
-                )}
-              </div>
-            ) : (
-              recurringDays && (
-                <div className="flex flex-col gap-1">
-                  <h3 className="text-sm font-medium">Se van a crear {days} turnos recurrentes</h3>
-                  <ul className="flex flex-col gap-1">
-                    {recurringDays?.dates.map((d) => (
-                      <li className="flex items-center gap-3" key={d.date}>
-                        <span className="flex w-fit rounded-full bg-green-200 p-0.5">
-                          <Check className="size-3.5 text-green-700" />
-                        </span>
-                        <span className="text-sm">{format(d.date, "EEEE, P - HH:mm", { locale: es })} hs.</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <Button
+                    disabled={days === 0}
+                    onClick={handleCheckAvailability}
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                  >
+                    Comprobar disponibilidad
+                  </Button>
                 </div>
-              )
-            ))}
-          {isFetchingError && (
-            <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
-              Error al buscar recurrencia para el turno
-            </div>
+              )}
+              {(recurringDays && recurringDays.dates.length === 0) ||
+                (isNotAvailableError ? (
+                  <div className="flex flex-col gap-3">
+                    <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
+                      No hay {days} turnos recurrentes disponibles, elegí otra fecha u horario
+                    </div>
+                    <ul className="flex flex-col gap-1">
+                      {recurringDays?.dates.map((d) => (
+                        <li className="flex items-center gap-3" key={d.date}>
+                          <Badge size="small" variant={d.available ? "green" : "gray"}>
+                            {d.available ? "Disponible" : "Ocupado"}
+                          </Badge>
+                          <span className="text-sm">{format(d.date, "PPPP", { locale: es })}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    {recurringDays && recurringDays.suggestion && (
+                      <div className="flex items-center justify-between gap-3 rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-blue-600 shadow-xs">
+                        <div className="flex items-center gap-3">
+                          <Lightbulb className="size-4 shrink-0" />
+                          <h3 className="font-semibold">Sugerencia:</h3>
+                          <span>{`${format(recurringDays?.suggestion, "EEEE", { locale: es })} a las ${format(recurringDays?.suggestion, "HH:mm", { locale: es })} hs.`}</span>
+                        </div>
+                        <Button
+                          onClick={() => {
+                            pendingCheckRef.current = true;
+                            onSuggestionSelect(recurringDays.suggestion);
+                          }}
+                          size="sm"
+                          type="button"
+                          variant="default"
+                        >
+                          Elegir
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  recurringDays && (
+                    <div className="flex flex-col gap-1">
+                      <h3 className="text-sm font-medium">Se van a crear {days} turnos recurrentes</h3>
+                      <ul className="flex flex-col gap-1">
+                        {recurringDays?.dates.map((d) => (
+                          <li className="flex items-center gap-3" key={d.date}>
+                            <span className="flex w-fit rounded-full bg-green-200 p-0.5">
+                              <Check className="size-3.5 text-green-700" />
+                            </span>
+                            <span className="text-sm">{format(d.date, "EEEE, P - HH:mm", { locale: es })} hs.</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )
+                ))}
+              {isFetchingError && (
+                <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
+                  Error al buscar recurrencia para el turno
+                </div>
+              )}
+            </>
           )}
         </Activity>
       </div>
