@@ -241,7 +241,7 @@ export function DataTablePaginated<TData, TValue>({
         </Table>
         {rowCount && rowCount > 0 ? (
           <div className="flex items-center justify-between">
-            <div className="text-muted-foreground text-xs font-medium">{`Total: ${rowCount > 0 && rowCount} turnos`}</div>
+            <div className="text-muted-foreground text-xs font-medium">{`Total: ${rowCount > 0 && rowCount} filas`}</div>
             <Pagination table={table} pageSizes={pageSizes} />
           </div>
         ) : null}
