@@ -25,6 +25,7 @@ import { cn } from "@core/lib/utils";
 import { tryCatch } from "@core/utils/try-catch";
 
 interface IProps {
+  active?: boolean;
   disabled: boolean;
   error?: string;
   onActiveChange: (active: boolean) => void;
@@ -38,6 +39,7 @@ interface IProps {
 }
 
 export function ChooseRecurringDate({
+  active,
   disabled,
   error,
   onActiveChange,
@@ -55,6 +57,10 @@ export function ChooseRecurringDate({
   const [isFetchingError, setIsFetchingError] = useState<boolean>(false);
   const [openRecurringDialog, setOpenRecurringDialog] = useState<boolean>(false);
   const pendingCheckRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    if (active) setDisplay(true);
+  }, [active]);
 
   const handleChecked = useCallback(
     (checked: boolean): void => {
