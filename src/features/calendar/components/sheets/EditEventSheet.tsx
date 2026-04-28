@@ -216,7 +216,7 @@ export function EditEventSheet() {
         >
           <form
             className="flex min-h-0 flex-col gap-6 p-4"
-            id="create-event"
+            id="edit-event"
             onSubmit={form.handleSubmit((data) => updateEvent(data))}
           >
             <FieldGroup className="grid grid-cols-3 gap-6">
@@ -377,7 +377,7 @@ export function EditEventSheet() {
               <Button
                 className="md:order-2"
                 disabled={!form.formState.isDirty}
-                form="create-event"
+                form="edit-event"
                 type="submit"
                 variant="default"
               >
