@@ -1,6 +1,6 @@
+import { Database, Search, X } from "lucide-react";
 import { FilePdf } from "@components/icons/FilePdf";
 import { FileXls } from "@components/icons/FileXls";
-import { Search, X } from "lucide-react";
 
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
@@ -239,9 +239,14 @@ export function DataTablePaginated<TData, TValue>({
             )}
           </TableBody>
         </Table>
-        {rowCount && rowCount > 0 ? (
+        {!loading ? (
           <div className="flex items-center justify-between">
-            <div className="text-muted-foreground text-xs font-medium">{`Total: ${rowCount > 0 && rowCount} filas`}</div>
+            {rowCount && rowCount > 0 && (
+              <div className="text-muted-foreground flex items-center gap-1 text-xs font-medium">
+                <Database className="size-4 text-sky-500 dark:text-sky-800" />
+                {`${rowCount} filas`}
+              </div>
+            )}
             <Pagination table={table} pageSizes={pageSizes} />
           </div>
         ) : null}
