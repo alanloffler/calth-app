@@ -1,4 +1,5 @@
 import { FilePdf } from "@components/icons/FilePdf";
+import { FileXls } from "@components/icons/FileXls";
 import { Search, X } from "lucide-react";
 
 import { Button } from "@components/ui/button";
@@ -22,6 +23,7 @@ import {
 
 import { cn } from "@core/lib/utils";
 import { exportTableToPdf, type TPdfFormatter } from "@core/utils/exportPdf";
+import { exportTableToXls, type TXlsFormatter } from "@core/utils/exportXls";
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -39,6 +41,12 @@ interface DataTableProps<TData, TValue> {
     headers?: Record<string, string>;
     title?: string;
   };
+  exportXlsConfig?: {
+    filename?: string;
+    formatters?: Record<string, TXlsFormatter<TData>>;
+    headers?: Record<string, string>;
+    sheetName?: string;
+  };
   loading?: boolean;
   pageSizes?: number[];
   rowCount?: number;
@@ -53,6 +61,7 @@ export function DataTable<TData, TValue>({
   defaultPageSize = 5,
   defaultSorting = [],
   exportPdfConfig,
+  exportXlsConfig,
   loading,
   pageSizes = [5, 10, 20, 50],
   rowCount,
@@ -121,6 +130,24 @@ export function DataTable<TData, TValue>({
               }
             >
               <FilePdf className="size-5" />
+            </Button>
+          )}
+          {controls.exportExcel && (
+            <Button
+              className="text-muted-foreground hover:bg-muted"
+              size="icon"
+              variant="outline"
+              onClick={() =>
+                exportTableToXls({
+                  filename: exportXlsConfig?.filename,
+                  formatters: exportXlsConfig?.formatters,
+                  headers: exportXlsConfig?.headers,
+                  sheetName: exportXlsConfig?.sheetName,
+                  table,
+                })
+              }
+            >
+              <FileXls className="size-5" />
             </Button>
           )}
           {controls.search && (
