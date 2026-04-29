@@ -146,8 +146,7 @@ export default function Roles() {
             </Protected>
           ) : (
             <>
-              {(admin?.role.value === EUserRole.super ||
-                (admin?.role.value === EUserRole.admin && row.original.value !== EUserRole.admin)) && (
+              {admin?.role.value === EUserRole.super && row.original.value !== EUserRole.admin && (
                 <Protected requiredPermission="roles-update">
                   <Tooltip>
                     <TooltipTrigger asChild>
