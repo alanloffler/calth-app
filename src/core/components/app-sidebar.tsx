@@ -77,7 +77,6 @@ const data = {
         },
       ],
       permission: "*" as TPermission,
-      role: ["superadmin", "admin"],
     },
     {
       title: "Pacientes",
