@@ -1,4 +1,4 @@
-import { ArrowLeft, Info, RotateCcw } from "lucide-react";
+import { ArrowLeft, Info, LockKeyhole, RotateCcw } from "lucide-react";
 
 import { Badge } from "@core/components/Badge";
 import { Button } from "@components/ui/button";
@@ -21,6 +21,13 @@ import { cn } from "@core/lib/utils";
 import { queryClient } from "@core/lib/query-client";
 
 type GroupedPermissions = Record<string, IEffectivePermission[]>;
+
+const CRITICAL_PERMISSIONS_FOR_SUPERADMIN = ["roles-view", "roles-update"];
+
+const getModule = (actionKey: string) => {
+  const idx = actionKey.lastIndexOf("-");
+  return idx === -1 ? actionKey : actionKey.substring(0, idx);
+};
 
 export default function CustomizeRole() {
   const [intent, setIntent] = useState<Record<string, boolean>>({});
@@ -105,6 +112,20 @@ export default function CustomizeRole() {
   const isLoading = isLoadingRole || isLoadingEffective;
   const overrideCount = effective?.filter((p) => p.overrideEffect !== null).length ?? 0;
 
+  // TODO: get value from new Enum
+  const isSuperAdmin = role?.value === "superadmin" || role?.value === "admin";
+  const moduleHasNonViewChecked = useMemo(() => {
+    if (!effective) return new Set<string>();
+    const result = new Set<string>();
+    for (const perm of effective) {
+      const isView = perm.actionKey.endsWith("-view");
+      if (isView) continue;
+      const checked = intent[perm.id] ?? perm.isEffective;
+      if (checked) result.add(getModule(perm.actionKey));
+    }
+    return result;
+  }, [effective, intent]);
+
   return (
     <div className="flex w-full flex-col lg:w-[80%] xl:w-[60%]">
       <Card>
@@ -146,17 +167,41 @@ export default function CustomizeRole() {
                       const hasPersistedOverride = perm.overrideEffect !== null;
                       const showDot = isUnsavedChange || hasPersistedOverride;
 
+                      const isViewPermission = perm.actionKey.endsWith("-view");
+                      const isCriticalPermission = CRITICAL_PERMISSIONS_FOR_SUPERADMIN.includes(perm.actionKey);
+                      const isLockedForSuperAdmin = isSuperAdmin && isCriticalPermission;
+                      const hasDependentChecked =
+                        isViewPermission && moduleHasNonViewChecked.has(getModule(perm.actionKey));
+                      const isDisabled = isLockedForSuperAdmin || hasDependentChecked;
+
                       return (
                         <li className="flex items-center gap-2" key={perm.id}>
                           <Checkbox
                             id={perm.actionKey}
                             checked={checked}
-                            onCheckedChange={(value) => setIntent((prev) => ({ ...prev, [perm.id]: !!value }))}
+                            disabled={isDisabled}
+                            onCheckedChange={(value) => {
+                              const next = !!value;
+                              setIntent((prev) => {
+                                const updated = { ...prev, [perm.id]: next };
+                                if (next && !isViewPermission) {
+                                  const moduleKey = getModule(perm.actionKey);
+                                  const viewPerm = effective?.find((p) => p.actionKey === `${moduleKey}-view`);
+                                  if (viewPerm) updated[viewPerm.id] = true;
+                                }
+                                return updated;
+                              });
+                            }}
                           />
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Label htmlFor={perm.actionKey} className="flex items-center gap-2">
                                 {perm.name}
+                                {isLockedForSuperAdmin && (
+                                  <span className="text-muted-foreground text-xs">
+                                    <LockKeyhole className="h-3.5 w-3.5" />
+                                  </span>
+                                )}
                                 {showDot && (
                                   <span
                                     className={cn(
@@ -173,7 +218,7 @@ export default function CustomizeRole() {
                                   ? "Cambio sin guardar"
                                   : `Personalizado (${perm.overrideEffect === "grant" ? "habilitado" : "deshabilitado"})`}
                               </span>
-                              <span className="text-accent/60">
+                              <span className="text-muted-foreground">
                                 Por defecto: {perm.inBaseline ? "habilitado" : "deshabilitado"}
                               </span>
                             </TooltipContent>
