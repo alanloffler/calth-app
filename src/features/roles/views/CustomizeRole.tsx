@@ -234,26 +234,28 @@ export default function CustomizeRole() {
         </CardContent>
         <CardFooter className="flex flex-wrap justify-between gap-3 pt-4">
           <div className="flex items-center gap-3">
-            {isLoading && <Loader className="text-sm" size={18} text="Cargando" />}
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/roles">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver
-              </Link>
+            {isLoading ? (
+              <Loader className="text-sm" size={18} text="Cargando" />
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={overrideCount === 0 || isResetting || isSaving}
+                onClick={() => resetAll()}
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                {isResetting ? <Loader text="Restaurando" /> : "Restaurar por defecto"}
+              </Button>
+            )}
+          </div>
+          <div className="flex items-center gap-4">
+            <Button onClick={() => navigate(-1)} variant="ghost">
+              Cancelar
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={overrideCount === 0 || isResetting || isSaving}
-              onClick={() => resetAll()}
-            >
-              <RotateCcw className="mr-2 h-4 w-4" />
-              {isResetting ? <Loader text="Restaurando" /> : "Restaurar por defecto"}
+            <Button disabled={!isDirty || isSaving} onClick={() => save()} variant="default">
+              {isSaving ? <Loader color="white" text="Guardando" /> : "Guardar"}
             </Button>
           </div>
-          <Button disabled={!isDirty || isSaving} onClick={() => save()} variant="default">
-            {isSaving ? <Loader color="white" text="Guardando" /> : "Guardar"}
-          </Button>
         </CardFooter>
       </Card>
     </div>
