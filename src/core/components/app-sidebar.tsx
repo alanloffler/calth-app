@@ -76,14 +76,6 @@ const data = {
           permission: "professional-view" as TPermission,
         },
       ],
-      permission: "*" as TPermission,
-    },
-    {
-      title: "Pacientes",
-      url: "/users/role/patient",
-      icon: Patients,
-      permission: "patient-view" as TPermission,
-      role: "professional",
     },
     {
       title: "Roles",
