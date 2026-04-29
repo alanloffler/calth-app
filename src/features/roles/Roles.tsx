@@ -146,7 +146,7 @@ export default function Roles() {
             </Protected>
           ) : (
             <>
-              {admin?.role.value === EUserRole.super && row.original.value !== EUserRole.admin && (
+              {admin?.role.value === EUserRole.super && (
                 <Protected requiredPermission="roles-update">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -160,7 +160,7 @@ export default function Roles() {
                   </Tooltip>
                 </Protected>
               )}
-              {admin?.role.value === EUserRole.admin && (
+              {(admin?.role.value === EUserRole.super || admin?.role.value === EUserRole.admin) && (
                 <Button className="hover:text-edit" size="sm" variant="outline" asChild>
                   <Link to={`/roles/override/${row.original.id}`}>
                     <FilePenLine />
