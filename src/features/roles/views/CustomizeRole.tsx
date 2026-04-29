@@ -9,10 +9,10 @@ import { Link } from "react-router";
 import { Loader } from "@components/Loader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
+import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
-import { toast } from "sonner";
 
 import type { IEffectivePermission } from "@roles/interfaces/effective-permission.interface";
 import { RoleOverridesService } from "@roles/services/role-overrides.service";
@@ -23,11 +23,10 @@ import { queryClient } from "@core/lib/query-client";
 type GroupedPermissions = Record<string, IEffectivePermission[]>;
 
 export default function CustomizeRole() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-
   const [intent, setIntent] = useState<Record<string, boolean>>({});
   const [original, setOriginal] = useState<Record<string, boolean>>({});
+  const navigate = useNavigate();
+  const { id } = useParams();
 
   const { data: role, isLoading: isLoadingRole } = useQuery({
     queryKey: ["roles", id],
@@ -92,9 +91,6 @@ export default function CustomizeRole() {
       toast.success("Personalización guardada");
       navigate("/roles");
     },
-    onError: () => {
-      toast.error("Error al guardar la personalización");
-    },
   });
 
   const { mutate: resetAll, isPending: isResetting } = useMutation({
@@ -103,9 +99,6 @@ export default function CustomizeRole() {
     onSuccess: async (response) => {
       await queryClient.invalidateQueries({ queryKey: ["role-overrides", "effective", id] });
       toast.success(response.message ?? "Personalizaciones eliminadas");
-    },
-    onError: () => {
-      toast.error("Error al restaurar valores por defecto");
     },
   });
 
@@ -122,12 +115,11 @@ export default function CustomizeRole() {
               <CardDescription>{role?.name ? `Rol: ${role.name}` : "Cargando rol…"}</CardDescription>
             </div>
             {overrideCount > 0 && (
-              <Badge variant="recurrent">
+              <Badge variant="ic">
                 {overrideCount} {overrideCount === 1 ? "personalización" : "personalizaciones"}
               </Badge>
             )}
           </div>
-
           <div className="bg-muted/50 mt-4 flex items-start gap-2 rounded-md border p-3 text-sm">
             <Info className="text-muted-foreground mt-0.5 h-4 w-4 shrink-0" />
             <p className="text-muted-foreground">
@@ -135,7 +127,6 @@ export default function CustomizeRole() {
             </p>
           </div>
         </CardHeader>
-
         <CardContent className="flex-1">
           {isLoadingEffective ? (
             <span className="text-foreground! flex justify-center text-sm">
@@ -151,8 +142,9 @@ export default function CustomizeRole() {
                   <ul className="flex flex-col gap-3 pl-4">
                     {perms.map((perm) => {
                       const checked = intent[perm.id] ?? perm.isEffective;
-                      const isOverridden = perm.overrideEffect !== null;
-                      const willOverride = checked !== perm.inBaseline;
+                      const isUnsavedChange = original[perm.id] !== undefined && intent[perm.id] !== original[perm.id];
+                      const hasPersistedOverride = perm.overrideEffect !== null;
+                      const showDot = isUnsavedChange || hasPersistedOverride;
 
                       return (
                         <li className="flex items-center gap-2" key={perm.id}>
@@ -161,31 +153,31 @@ export default function CustomizeRole() {
                             checked={checked}
                             onCheckedChange={(value) => setIntent((prev) => ({ ...prev, [perm.id]: !!value }))}
                           />
-                          <Label htmlFor={perm.actionKey} className="flex items-center gap-2">
-                            {perm.name}
-                            {(isOverridden || willOverride) && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Label htmlFor={perm.actionKey} className="flex items-center gap-2">
+                                {perm.name}
+                                {showDot && (
                                   <span
                                     className={cn(
                                       "h-3 w-3 rounded-full",
-                                      willOverride ? "bg-amber-500" : "bg-blue-500",
+                                      isUnsavedChange ? "bg-amber-500" : "bg-blue-500",
                                     )}
                                   />
-                                </TooltipTrigger>
-                                <TooltipContent className="flex flex-col">
-                                  <span>
-                                    {willOverride
-                                      ? "Cambio sin guardar"
-                                      : `Personalizado (${perm.overrideEffect === "grant" ? "habilitado" : "deshabilitado"})`}
-                                  </span>
-                                  <span className="text-muted-foreground">
-                                    Por defecto: {perm.inBaseline ? "habilitado" : "deshabilitado"}
-                                  </span>
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-                          </Label>
+                                )}
+                              </Label>
+                            </TooltipTrigger>
+                            <TooltipContent className="flex flex-col">
+                              <span>
+                                {isUnsavedChange
+                                  ? "Cambio sin guardar"
+                                  : `Personalizado (${perm.overrideEffect === "grant" ? "habilitado" : "deshabilitado"})`}
+                              </span>
+                              <span className="text-accent/60">
+                                Por defecto: {perm.inBaseline ? "habilitado" : "deshabilitado"}
+                              </span>
+                            </TooltipContent>
+                          </Tooltip>
                         </li>
                       );
                     })}
@@ -195,7 +187,6 @@ export default function CustomizeRole() {
             </ul>
           ) : null}
         </CardContent>
-
         <CardFooter className="flex flex-wrap justify-between gap-3 pt-4">
           <div className="flex items-center gap-3">
             {isLoading && <Loader className="text-sm" size={18} text="Cargando" />}
