@@ -23,6 +23,7 @@ const Roles = lazy(() => import("./features/roles/Roles"));
 const CreateRole = lazy(() => import("./features/roles/views/CreateRole"));
 const EditRole = lazy(() => import("./features/roles/views/EditRole"));
 const ViewRole = lazy(() => import("./features/roles/views/ViewRole"));
+const CustomizeRole = lazy(() => import("./features/roles/views/CustomizeRole"));
 
 const Permissions = lazy(() => import("./features/permissions/Permissions"));
 const CreatePermission = lazy(() => import("./features/permissions/views/CreatePermission"));
@@ -188,6 +189,22 @@ const router = createBrowserRouter([
           >
             <ProtectedRoute requiredPermission="roles-view">
               <ViewRole />
+            </ProtectedRoute>
+          </Suspense>
+        ),
+      },
+      {
+        path: "roles/override/:id",
+        element: (
+          <Suspense
+            fallback={
+              <div className="relative h-full w-full">
+                <PageLoader className="-mt-8" />
+              </div>
+            }
+          >
+            <ProtectedRoute requiredPermission="roles-update">
+              <CustomizeRole />
             </ProtectedRoute>
           </Suspense>
         ),
