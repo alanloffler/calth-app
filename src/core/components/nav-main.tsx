@@ -29,7 +29,7 @@ interface IProps {
     icon?: LucideIcon | ComponentType<SVGProps<SVGSVGElement>>;
     isActive?: boolean;
     items?: IItem[];
-    permission: TPermission;
+    permission?: TPermission;
     role?: string | string[];
     title: string;
     url: string;
@@ -38,7 +38,7 @@ interface IProps {
 
 interface IItem {
   icon?: LucideIcon | ComponentType<SVGProps<SVGSVGElement>>;
-  permission: TPermission;
+  permission?: TPermission;
   title: string;
   url: string;
 }
