@@ -28,6 +28,20 @@ const getModule = (actionKey: string) => {
   return idx === -1 ? actionKey : actionKey.substring(0, idx);
 };
 
+// TODO: refactor if translation is implemented
+const EPermissions = {
+  admin: "Administradores",
+  business: "Negocio",
+  calendar: "Agenda",
+  events: "Turnos",
+  medical_history: "Historias médicas",
+  patient: "Pacientes",
+  permissions: "Permisos",
+  professional: "Profesionales",
+  roles: "Roles",
+  settings: "Configuraciones",
+};
+
 export default function CustomizeRole() {
   const [intent, setIntent] = useState<Record<string, boolean>>({});
   const [original, setOriginal] = useState<Record<string, boolean>>({});
@@ -156,78 +170,87 @@ export default function CustomizeRole() {
             <span className="text-destructive text-center text-sm">Error cargando permisos</span>
           ) : effective ? (
             <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
-              {Object.entries(grouped).map(([category, perms]) => (
-                <li className="flex flex-col gap-3" key={category}>
-                  <h2 className="text-xxs font-medium uppercase">{category}</h2>
-                  <ul className="flex flex-col gap-3 pl-4">
-                    {perms.map((perm) => {
-                      const checked = intent[perm.id] ?? perm.isEffective;
-                      const isUnsavedChange = original[perm.id] !== undefined && intent[perm.id] !== original[perm.id];
-                      const hasPersistedOverride = perm.overrideEffect !== null;
-                      const showDot = isUnsavedChange || hasPersistedOverride;
+              {Object.entries(grouped)
+                .sort(([a], [b]) => {
+                  const la = EPermissions[a as keyof typeof EPermissions] ?? a;
+                  const lb = EPermissions[b as keyof typeof EPermissions] ?? b;
+                  return la.localeCompare(lb, "es");
+                })
+                .map(([category, perms]) => (
+                  <li className="flex flex-col gap-3" key={category}>
+                    <h2 className="text-xxs font-medium uppercase">
+                      {EPermissions[category as keyof typeof EPermissions]}
+                    </h2>
+                    <ul className="flex flex-col gap-3 pl-4">
+                      {perms.map((perm) => {
+                        const checked = intent[perm.id] ?? perm.isEffective;
+                        const isUnsavedChange =
+                          original[perm.id] !== undefined && intent[perm.id] !== original[perm.id];
+                        const hasPersistedOverride = perm.overrideEffect !== null;
+                        const showDot = isUnsavedChange || hasPersistedOverride;
 
-                      const isViewPermission = perm.actionKey.endsWith("-view");
-                      const isCriticalPermission = CRITICAL_PERMISSIONS_FOR_SUPERADMIN.includes(perm.actionKey);
-                      const isLockedForSuperAdmin = isSuperAdmin && isCriticalPermission;
-                      const hasDependentChecked =
-                        isViewPermission && moduleHasNonViewChecked.has(getModule(perm.actionKey));
-                      const isDisabled = isLockedForSuperAdmin || hasDependentChecked;
+                        const isViewPermission = perm.actionKey.endsWith("-view");
+                        const isCriticalPermission = CRITICAL_PERMISSIONS_FOR_SUPERADMIN.includes(perm.actionKey);
+                        const isLockedForSuperAdmin = isSuperAdmin && isCriticalPermission;
+                        const hasDependentChecked =
+                          isViewPermission && moduleHasNonViewChecked.has(getModule(perm.actionKey));
+                        const isDisabled = isLockedForSuperAdmin || hasDependentChecked;
 
-                      return (
-                        <li className="flex items-center gap-2" key={perm.id}>
-                          <Checkbox
-                            id={perm.actionKey}
-                            checked={checked}
-                            disabled={isDisabled}
-                            onCheckedChange={(value) => {
-                              const next = !!value;
-                              setIntent((prev) => {
-                                const updated = { ...prev, [perm.id]: next };
-                                if (next && !isViewPermission) {
-                                  const moduleKey = getModule(perm.actionKey);
-                                  const viewPerm = effective?.find((p) => p.actionKey === `${moduleKey}-view`);
-                                  if (viewPerm) updated[viewPerm.id] = true;
-                                }
-                                return updated;
-                              });
-                            }}
-                          />
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Label htmlFor={perm.actionKey} className="flex items-center gap-2">
-                                {perm.name}
-                                {isLockedForSuperAdmin && (
-                                  <span className="text-muted-foreground text-xs">
-                                    <LockKeyhole className="h-3.5 w-3.5" />
-                                  </span>
-                                )}
-                                {showDot && (
-                                  <span
-                                    className={cn(
-                                      "h-3 w-3 rounded-full",
-                                      isUnsavedChange ? "bg-amber-500" : "bg-blue-500",
-                                    )}
-                                  />
-                                )}
-                              </Label>
-                            </TooltipTrigger>
-                            <TooltipContent className="flex flex-col">
-                              <span>
-                                {isUnsavedChange
-                                  ? "Cambio sin guardar"
-                                  : `Personalizado (${perm.overrideEffect === "grant" ? "habilitado" : "deshabilitado"})`}
-                              </span>
-                              <span className="text-muted-foreground">
-                                Por defecto: {perm.inBaseline ? "habilitado" : "deshabilitado"}
-                              </span>
-                            </TooltipContent>
-                          </Tooltip>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </li>
-              ))}
+                        return (
+                          <li className="flex items-center gap-2" key={perm.id}>
+                            <Checkbox
+                              id={perm.actionKey}
+                              checked={checked}
+                              disabled={isDisabled}
+                              onCheckedChange={(value) => {
+                                const next = !!value;
+                                setIntent((prev) => {
+                                  const updated = { ...prev, [perm.id]: next };
+                                  if (next && !isViewPermission) {
+                                    const moduleKey = getModule(perm.actionKey);
+                                    const viewPerm = effective?.find((p) => p.actionKey === `${moduleKey}-view`);
+                                    if (viewPerm) updated[viewPerm.id] = true;
+                                  }
+                                  return updated;
+                                });
+                              }}
+                            />
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Label htmlFor={perm.actionKey} className="flex items-center gap-2">
+                                  {perm.name}
+                                  {isLockedForSuperAdmin && (
+                                    <span className="text-muted-foreground text-xs">
+                                      <LockKeyhole className="h-3.5 w-3.5" />
+                                    </span>
+                                  )}
+                                  {showDot && (
+                                    <span
+                                      className={cn(
+                                        "h-3 w-3 rounded-full",
+                                        isUnsavedChange ? "bg-amber-500" : "bg-blue-500",
+                                      )}
+                                    />
+                                  )}
+                                </Label>
+                              </TooltipTrigger>
+                              <TooltipContent className="flex flex-col">
+                                <span>
+                                  {isUnsavedChange
+                                    ? "Cambio sin guardar"
+                                    : `Personalizado (${perm.overrideEffect === "grant" ? "habilitado" : "deshabilitado"})`}
+                                </span>
+                                <span className="text-muted-foreground">
+                                  Por defecto: {perm.inBaseline ? "habilitado" : "deshabilitado"}
+                                </span>
+                              </TooltipContent>
+                            </Tooltip>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                ))}
             </ul>
           ) : null}
         </CardContent>
