@@ -279,9 +279,9 @@ export function BlockedDays({ userId }: IProps) {
           <DataTable
             className="**:data-[slot=table-container]:min-h-75"
             columns={columns}
+            controls={{ search: true }}
             data={blockedDays}
             defaultSorting={[{ id: "date", desc: false }]}
-            searchable={false}
           />
         )}
       </section>
