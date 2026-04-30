@@ -295,7 +295,7 @@ export default function Users() {
     <>
       <div className="flex flex-col gap-8">
         <PageHeader
-          title={uppercaseFirst(ERolePlural[role as TUserRole])}
+          title={uppercaseFirst(ERolePlural[role as TUserRole] ?? "")}
           subtitle={`Gestioná los ${ERolePlural[role as TUserRole]} del sistema`}
         >
           <Protected requiredPermission={["admin-create", "patient-create", "professional-create"]} mode="some">
