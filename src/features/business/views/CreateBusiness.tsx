@@ -10,6 +10,7 @@ import { Stepper } from "@components/Stepper";
 
 import type { z } from "zod";
 import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 
 import type { ICreateBusiness } from "@business/interfaces/create-business.interface";
@@ -17,7 +18,6 @@ import type { createAdminSchema } from "@business/schemas/create-admin.schema";
 import type { createBusinessSchema } from "@business/schemas/create-business.schema";
 import type { createContactSchema } from "@business/schemas/create-contact.schema";
 import { BusinessService } from "@business/services/business.service";
-import { tryCatch } from "@core/utils/try-catch";
 
 type AdminData = z.infer<typeof createAdminSchema>;
 type BusinessData = z.infer<typeof createBusinessSchema>;
@@ -49,17 +49,14 @@ export default function CreateBusiness() {
     collectedData.current.admin = data;
   }
 
-  async function handleFinish() {
-    const [response, error] = await tryCatch(BusinessService.create(collectedData.current as ICreateBusiness));
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    if (response) {
-      toast.success("Negocio creado exitosamente");
+  const { mutate: handleFinish } = useMutation({
+    mutationKey: ["business", "create"],
+    mutationFn: () => BusinessService.create(collectedData.current as ICreateBusiness),
+    onSuccess: (response) => {
+      toast.success(response.message);
       setShowStepper(false);
-    }
-  }
+    },
+  });
 
   function handleTimerEnd(): void {
     if (!slug) return;
