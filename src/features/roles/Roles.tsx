@@ -160,14 +160,15 @@ export default function Roles() {
                   </Tooltip>
                 </Protected>
               )}
-              {(admin?.role.value === EUserRole.super || admin?.role.value === EUserRole.admin) && (
-                <Button className="hover:text-edit" size="sm" variant="outline" asChild>
-                  <Link to={`/roles/override/${row.original.id}`}>
-                    <FilePenLine />
-                    Override
-                  </Link>
-                </Button>
-              )}
+              {(admin?.role.value === EUserRole.super || admin?.role.value === EUserRole.admin) &&
+                row.original.value !== ERoles.super && (
+                  <Button className="hover:text-edit" size="sm" variant="outline" asChild>
+                    <Link to={`/roles/override/${row.original.id}`}>
+                      <FilePenLine />
+                      Override
+                    </Link>
+                  </Button>
+                )}
               {row.original.value !== ERoles.super && row.original.value !== ERoles.admin && (
                 <>
                   <Protected requiredPermission="roles-delete">
