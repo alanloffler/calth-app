@@ -38,6 +38,11 @@ class RolesModuleService {
     return response.data;
   }
 
+  public async findIdByValue(value: string): Promise<IApiResponse<string>> {
+    const response = await apiClient.get(`/roles/value/${value}`);
+    return response.data;
+  }
+
   public async update(id: string, role: Partial<IRole>): Promise<IApiResponse<IRole>> {
     const response = await apiClient.patch(`/roles/${id}`, role);
     return response.data;
