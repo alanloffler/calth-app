@@ -227,7 +227,7 @@ export default function CustomizeRole() {
                                   {showDot && (
                                     <span
                                       className={cn(
-                                        "h-3 w-3 rounded-full",
+                                        "h-3 w-3 shrink-0 rounded-full",
                                         isUnsavedChange ? "bg-amber-500" : "bg-blue-500",
                                       )}
                                     />
