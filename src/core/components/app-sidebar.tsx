@@ -3,6 +3,7 @@ import {
   CalendarCheck,
   CalendarDays,
   GalleryVerticalEnd,
+  Key,
   KeyRound,
   LayoutDashboard,
   Megaphone,
@@ -104,6 +105,12 @@ const data = {
           title: "Tu negocio",
           url: "/settings/business",
           icon: Store,
+          permission: "business-update" as TPermission,
+        },
+        {
+          title: "API keys",
+          url: "/settings/api-keys/",
+          icon: Key,
           permission: "business-update" as TPermission,
         },
         {
