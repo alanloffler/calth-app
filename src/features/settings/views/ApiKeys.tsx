@@ -3,12 +3,14 @@ import { FilePenLine, Plus, Trash2 } from "lucide-react";
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { DataTable } from "@components/data-table/DataTable";
+import { EditDialog } from "@components/dialogs/EditDialog";
 import { PageHeader } from "@components/pages/PageHeader";
 import { Protected } from "@auth/components/Protected";
 import { SortableHeader } from "@components/data-table/SortableHeader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { useState } from "react";
 
 import type { IApiKey } from "@settings/interfaces/api-key.interface";
 import { DefaultShortTableConfig } from "@core/config/table.config";
@@ -19,6 +21,9 @@ const keys = [
 ];
 
 export default function ApiKeys() {
+  const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
+  const [selectedKey, setSelectedKey] = useState<IApiKey | null>(null);
+
   const columns: ColumnDef<IApiKey>[] = [
     {
       accessorKey: "id",
@@ -50,7 +55,10 @@ export default function ApiKeys() {
               <TooltipTrigger asChild>
                 <Button
                   className="hover:text-edit"
-                  onClick={() => console.log("edit api key")}
+                  onClick={() => {
+                    setSelectedKey(row.original);
+                    setOpenEditDialog(true);
+                  }}
                   size="icon-sm"
                   variant="outline"
                 >
@@ -81,25 +89,32 @@ export default function ApiKeys() {
   ];
 
   return (
-    <div className="flex flex-col gap-8">
-      <PageHeader title="API keys" subtitle="Gestioná las API keys para los servicios del sistema">
-        <Protected requiredPermission="business-update">
-          <Button variant="default" size="lg" onClick={() => console.log("create api key")}>
-            <Plus />
-            Crear API Key
-          </Button>
-        </Protected>
-      </PageHeader>
-      <DataTable
-        columns={columns}
-        controls={{ search: false }}
-        data={keys}
-        defaultPageSize={DefaultShortTableConfig.limit}
-        defaultSorting={[{ id: "name", desc: false }]}
-        loading={false}
-        pageSizes={DefaultShortTableConfig.pageSizes}
-        rowCount={keys?.length}
-      />
-    </div>
+    <>
+      <div className="flex flex-col gap-8">
+        <PageHeader title="API keys" subtitle="Gestioná las API keys para los servicios del sistema">
+          <Protected requiredPermission="business-update">
+            <Button variant="default" size="lg" onClick={() => console.log("create api key")}>
+              <Plus />
+              Crear API Key
+            </Button>
+          </Protected>
+        </PageHeader>
+        <DataTable
+          columns={columns}
+          controls={{ search: false }}
+          data={keys}
+          defaultPageSize={DefaultShortTableConfig.limit}
+          defaultSorting={[{ id: "name", desc: false }]}
+          loading={false}
+          pageSizes={DefaultShortTableConfig.pageSizes}
+          rowCount={keys?.length}
+        />
+      </div>
+      {selectedKey && (
+        <EditDialog open={openEditDialog} setOpen={setOpenEditDialog} title="Editar API Key" description="">
+          <form>Editar key: {selectedKey.id}</form>
+        </EditDialog>
+      )}
+    </>
   );
 }
