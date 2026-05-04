@@ -1,3 +1,8 @@
+export const DefaultShortTableConfig = {
+  limit: 5,
+  pageSizes: [5, 10, 20],
+};
+
 export const EventsTableConfig = {
   limit: 10,
   pageSizes: [5, 10, 20, 50],
