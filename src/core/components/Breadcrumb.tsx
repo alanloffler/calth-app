@@ -171,6 +171,14 @@ const BREADCRUMB_ROUTES: BreadcrumbRoute[] = [
     ],
   },
   {
+    path: "/settings/api-keys",
+    paths: [
+      { label: "Inicio", url: "/dashboard" },
+      { label: "Configuraciones", url: null },
+      { label: "API keys", url: null },
+    ],
+  },
+  {
     path: "/settings/business",
     paths: [
       { label: "Inicio", url: "/dashboard" },
