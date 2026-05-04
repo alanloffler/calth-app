@@ -17,9 +17,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip"
 import type z from "zod";
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { IApiKey } from "@settings/interfaces/api-key.interface";
@@ -115,6 +115,12 @@ export default function ApiKeys() {
     select: (response) => response.data,
   });
 
+  useEffect(() => {
+    if (!openCreateDialog) {
+      createForm.reset();
+    }
+  }, [openCreateDialog, createForm]);
+
   const { mutate: createApiKey, isPending: isCreating } = useMutation({
     mutationKey: ["api-keys", "create"],
     mutationFn: (data: z.infer<typeof apiKeySchema>) => ApiKeyService.create(data),
@@ -123,7 +129,6 @@ export default function ApiKeys() {
       toast.success(response.message);
     },
     onSettled: () => {
-      resetForm();
       setOpenCreateDialog(false);
     },
   });
@@ -139,10 +144,6 @@ export default function ApiKeys() {
       setOpenRemoveDialog(false);
     },
   });
-
-  function resetForm(): void {
-    createForm.reset();
-  }
 
   return (
     <>
@@ -203,7 +204,7 @@ export default function ApiKeys() {
             />
           </FieldGroup>
           <div className="flex justify-end gap-4 pt-4">
-            <Button variant="ghost" onClick={resetForm}>
+            <Button type="button" variant="ghost" onClick={() => setOpenCreateDialog(false)}>
               Cancelar
             </Button>
             <Button disabled={!createForm.formState.isDirty} form="create-apikey" type="submit" variant="default">
