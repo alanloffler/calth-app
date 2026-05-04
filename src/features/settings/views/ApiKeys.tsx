@@ -11,15 +11,12 @@ import { SortableHeader } from "@components/data-table/SortableHeader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import type { IApiKey } from "@settings/interfaces/api-key.interface";
+import { ApiKeyService } from "@settings/services/api-key.service";
 import { DefaultShortTableConfig } from "@core/config/table.config";
-
-const keys = [
-  { id: "63e69ea4-817b-4588-9e51-a93367d54f6b", name: "Anthropic", key: "5Zp7tCutWuUYoYqlsP3sGIyjXs6wEwAN" },
-  { id: "1f8e7284-fc2b-4f19-86ac-452efcca45b5", name: "OpenAI", key: "I2rVd5zUkYVSmWeNBjX3z0L46usYq1tJ" },
-];
 
 export default function ApiKeys() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
@@ -93,6 +90,12 @@ export default function ApiKeys() {
     },
   ];
 
+  const { data: keys, isLoading: isLoadingKeys } = useQuery({
+    queryKey: ["api-keys"],
+    queryFn: () => ApiKeyService.findAll(),
+    select: (response) => response.data,
+  });
+
   return (
     <>
       <div className="flex flex-col gap-8">
@@ -110,7 +113,7 @@ export default function ApiKeys() {
           data={keys}
           defaultPageSize={DefaultShortTableConfig.limit}
           defaultSorting={[{ id: "name", desc: false }]}
-          loading={false}
+          loading={isLoadingKeys}
           pageSizes={DefaultShortTableConfig.pageSizes}
           rowCount={keys?.length}
         />
