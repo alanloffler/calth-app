@@ -30,6 +30,7 @@ const CreatePermission = lazy(() => import("./features/permissions/views/CreateP
 const EditPermission = lazy(() => import("./features/permissions/views/EditPermission"));
 const ViewPermission = lazy(() => import("./features/permissions/views/ViewPermission"));
 
+const ApiKeys = lazy(() => import("./features/settings/views/ApiKeys"));
 const AppSettings = lazy(() => import("./features/settings/AppSettings"));
 const BusinessSettings = lazy(() => import("./features/settings/BusinessSettings"));
 const DashboardSettings = lazy(() => import("./features/settings/DashboardSettings"));
@@ -285,6 +286,22 @@ const router = createBrowserRouter([
           >
             <ProtectedRoute requiredPermission="business-update">
               <BusinessSettings />
+            </ProtectedRoute>
+          </Suspense>
+        ),
+      },
+      {
+        path: "settings/api-keys",
+        element: (
+          <Suspense
+            fallback={
+              <div className="relative h-full w-full">
+                <PageLoader className="-mt-8" />
+              </div>
+            }
+          >
+            <ProtectedRoute requiredPermission="business-update">
+              <ApiKeys />
             </ProtectedRoute>
           </Suspense>
         ),
