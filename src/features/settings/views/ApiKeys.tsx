@@ -2,6 +2,7 @@ import { FilePenLine, Plus, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
+import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { DataTable } from "@components/data-table/DataTable";
 import { EditDialog } from "@components/dialogs/EditDialog";
 import { PageHeader } from "@components/pages/PageHeader";
@@ -21,6 +22,7 @@ const keys = [
 ];
 
 export default function ApiKeys() {
+  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
   const [selectedKey, setSelectedKey] = useState<IApiKey | null>(null);
 
@@ -73,7 +75,10 @@ export default function ApiKeys() {
               <TooltipTrigger asChild>
                 <Button
                   className="hover:text-delete"
-                  onClick={() => console.log("delete api key")}
+                  onClick={() => {
+                    setSelectedKey(row.original);
+                    setOpenDeleteDialog(true);
+                  }}
                   size="icon-sm"
                   variant="outline"
                 >
@@ -111,9 +116,23 @@ export default function ApiKeys() {
         />
       </div>
       {selectedKey && (
-        <EditDialog open={openEditDialog} setOpen={setOpenEditDialog} title="Editar API Key" description="">
-          <form>Editar key: {selectedKey.id}</form>
-        </EditDialog>
+        <>
+          <EditDialog open={openEditDialog} setOpen={setOpenEditDialog} title="Editar API Key" description="">
+            <form>Editar key: {selectedKey.id}</form>
+          </EditDialog>
+          <ConfirmDialog
+            open={openDeleteDialog}
+            setOpen={setOpenDeleteDialog}
+            title="Eliminar API Key"
+            description="¿Seguro que querés eliminar la API key?"
+            showAlert
+            alertMessage="La API key será eliminada de la base de datos. Esta acción es irreversible."
+            callback={() => console.log("delete api key")}
+            variant="destructive"
+          >
+            <div>Delete key: {selectedKey.id}</div>
+          </ConfirmDialog>
+        </>
       )}
     </>
   );
