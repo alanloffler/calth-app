@@ -11,15 +11,17 @@ import { SortableHeader } from "@components/data-table/SortableHeader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import type { IApiKey } from "@settings/interfaces/api-key.interface";
 import { ApiKeyService } from "@settings/services/api-key.service";
 import { DefaultShortTableConfig } from "@core/config/table.config";
+import { queryClient } from "@core/lib/query-client";
 
 export default function ApiKeys() {
-  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
+  const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
   const [selectedKey, setSelectedKey] = useState<IApiKey | null>(null);
 
@@ -74,7 +76,7 @@ export default function ApiKeys() {
                   className="hover:text-delete"
                   onClick={() => {
                     setSelectedKey(row.original);
-                    setOpenDeleteDialog(true);
+                    setOpenRemoveDialog(true);
                   }}
                   size="icon-sm"
                   variant="outline"
@@ -94,6 +96,18 @@ export default function ApiKeys() {
     queryKey: ["api-keys"],
     queryFn: () => ApiKeyService.findAll(),
     select: (response) => response.data,
+  });
+
+  const { mutate: removeApiKey, isPending: isRemoving } = useMutation({
+    mutationKey: ["api-keys", "remove"],
+    mutationFn: (id: string) => ApiKeyService.remove(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["api-keys"] });
+      toast.success(response.message);
+    },
+    onSettled: () => {
+      setOpenRemoveDialog(false);
+    },
   });
 
   return (
@@ -124,16 +138,28 @@ export default function ApiKeys() {
             <form>Editar key: {selectedKey.id}</form>
           </EditDialog>
           <ConfirmDialog
-            open={openDeleteDialog}
-            setOpen={setOpenDeleteDialog}
+            open={openRemoveDialog}
+            setOpen={setOpenRemoveDialog}
             title="Eliminar API Key"
             description="¿Seguro que querés eliminar la API key?"
             showAlert
             alertMessage="La API key será eliminada de la base de datos. Esta acción es irreversible."
-            callback={() => console.log("delete api key")}
+            loader={isRemoving}
+            callback={() => removeApiKey(selectedKey.id)}
             variant="destructive"
           >
-            <div>Delete key: {selectedKey.id}</div>
+            <div className="flex flex-col">
+              <ul>
+                <li className="flex items-center gap-2">
+                  <span className="font-semibold">Proveedor:</span>
+                  <span>{selectedKey.name}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="font-semibold">Clave:</span>
+                  <span>{selectedKey.key}</span>
+                </li>
+              </ul>
+            </div>
           </ConfirmDialog>
         </>
       )}
