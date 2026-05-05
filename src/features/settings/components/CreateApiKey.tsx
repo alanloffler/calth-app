@@ -1,9 +1,11 @@
 import { Button } from "@components/ui/button";
+import { ClearIconButton } from "@components/ui/ClearIconButton";
 import { Controller } from "react-hook-form";
 import { EditDialog } from "@components/dialogs/EditDialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 import { Loader } from "@components/Loader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 
 import type z from "zod";
 import { toast } from "sonner";
@@ -27,6 +29,7 @@ export function CreateApiKey({ open, setOpen }: IProps) {
     defaultValues: {
       name: "",
       key: "",
+      linkedTo: undefined,
     },
   });
 
@@ -79,6 +82,32 @@ export function CreateApiKey({ open, setOpen }: IProps) {
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="key">Clave</FieldLabel>
                 <Input aria-invalid={fieldState.invalid} id="key" {...field} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="linkedTo"
+            control={createForm.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="linkedTo">Enlazar con</FieldLabel>
+                <div className="flex items-center gap-3">
+                  <Select aria-invalid={fieldState.invalid} value={field.value || ""} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-1/2" id="linkedTo">
+                      <SelectValue placeholder="Seleccionar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem key="ia" value="ia">
+                        IA
+                      </SelectItem>
+                      <SelectItem key="email" value="email">
+                        E-mail
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <ClearIconButton type="button" state={field.value} setState={() => field.onChange(undefined)} />
+                </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
