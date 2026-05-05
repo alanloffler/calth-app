@@ -5,11 +5,11 @@ import { Button } from "@components/ui/button";
 import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { CreateApiKey } from "@settings/components/CreateApiKey";
 import { DataTable } from "@components/data-table/DataTable";
-import { EditDialog } from "@components/dialogs/EditDialog";
 import { PageHeader } from "@components/pages/PageHeader";
 import { Protected } from "@auth/components/Protected";
 import { SortableHeader } from "@components/data-table/SortableHeader";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@components/ui/tooltip";
+import { UpdateApiKey } from "@settings/components/UpdateApiKey";
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
@@ -138,9 +138,9 @@ export default function ApiKeys() {
       <CreateApiKey open={openCreateDialog} setOpen={setOpenCreateDialog} />
       {selectedKey && (
         <>
-          <EditDialog open={openEditDialog} setOpen={setOpenEditDialog} title="Editar API Key" description="">
-            <form>Edit form</form>
-          </EditDialog>
+          {/* Update dialog */}
+          <UpdateApiKey apiKey={selectedKey} open={openEditDialog} setOpen={setOpenEditDialog} />
+          {/* Remove dialog */}
           <ConfirmDialog
             open={openRemoveDialog}
             setOpen={setOpenRemoveDialog}
