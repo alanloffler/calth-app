@@ -1,7 +1,8 @@
-import { FilePenLine, Link, Plus, Trash2, Unlink } from "lucide-react";
+import { FilePenLine, Link, Plus, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
+import { CheckedIcon } from "@components/CheckedIcon";
 import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { CreateApiKey } from "@settings/components/CreateApiKey";
 import { DataTable } from "@components/data-table/DataTable";
@@ -58,6 +59,11 @@ export default function ApiKeys() {
             {row.original.linkedTo}
           </Badge>
         ),
+    },
+    {
+      accessorKey: "active",
+      header: () => <div className="text-center">Activo</div>,
+      cell: ({ row }) => (row.original.active ? <CheckedIcon state={row.original.active} /> : null),
     },
     {
       id: "actions",
