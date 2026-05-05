@@ -1,4 +1,4 @@
-import { FilePenLine, Plus, Trash2 } from "lucide-react";
+import { FilePenLine, Link, Plus, Trash2, Unlink } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
@@ -45,15 +45,26 @@ export default function ApiKeys() {
     },
     {
       accessorKey: "key",
-      header: () => <span>Clave parcial</span>,
+      header: () => <span>Clave</span>,
       cell: ({ row }) => <span className="text-muted-foreground">{row.original.key}</span>,
+    },
+    {
+      accessorKey: "linkedTo",
+      header: () => <span>Enlazado a</span>,
+      cell: ({ row }) =>
+        row.original.linkedTo && (
+          <Badge size="small" variant="role">
+            <Link className="mr-2 size-3" />
+            {row.original.linkedTo}
+          </Badge>
+        ),
     },
     {
       id: "actions",
       minSize: 168,
       cell: ({ row }) => (
         <div className="flex justify-end gap-2">
-          <Protected requiredPermission="roles-update">
+          <Protected requiredPermission="*">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -71,7 +82,7 @@ export default function ApiKeys() {
               <TooltipContent>Editar</TooltipContent>
             </Tooltip>
           </Protected>
-          <Protected requiredPermission="roles-delete">
+          <Protected requiredPermission="*">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
