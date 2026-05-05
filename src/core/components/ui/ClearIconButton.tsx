@@ -6,8 +6,10 @@ import { cn } from "@core/lib/utils";
 interface IProps {
   state: any | undefined;
   setState: Dispatch<SetStateAction<any | undefined>>;
+  type: "button" | "submit" | "reset" | undefined;
 }
-export function ClearIconButton({ state, setState }: IProps) {
+
+export function ClearIconButton({ state, setState, type }: IProps) {
   return (
     <button
       className={cn(
@@ -15,6 +17,7 @@ export function ClearIconButton({ state, setState }: IProps) {
         state && "pointer-events-auto opacity-100",
       )}
       onClick={() => setState(undefined)}
+      type={type}
     >
       <X className="text-background size-3" />
     </button>
