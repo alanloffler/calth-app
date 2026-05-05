@@ -3,4 +3,5 @@ export interface IApiKey {
   name: string;
   key: string;
   linkedTo: string;
+  active: boolean;
 }
