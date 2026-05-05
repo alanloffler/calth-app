@@ -6,10 +6,10 @@ import { cn } from "@core/lib/utils";
 interface IProps {
   state: any | undefined;
   setState: Dispatch<SetStateAction<any | undefined>>;
-  type: "button" | "submit" | "reset" | undefined;
+  type?: "button" | "submit" | "reset" | undefined;
 }
 
-export function ClearIconButton({ state, setState, type }: IProps) {
+export function ClearIconButton({ state, setState, type = "button" }: IProps) {
   return (
     <button
       className={cn(
