@@ -218,12 +218,12 @@ export function DataTable<TData, TValue>({
         </Table>
         {!loading && (
           <div className={cn("flex items-center", rowCount && rowCount > 0 ? "justify-between" : "justify-end")}>
-            {rowCount && rowCount > 0 && (
+            {rowCount && rowCount > 0 ? (
               <div className="text-muted-foreground flex items-center gap-1 text-xs font-medium">
                 <Database className="size-4 text-sky-500 dark:text-sky-800" />
                 {`${rowCount} filas`}
               </div>
-            )}
+            ) : null}
             <Pagination table={table} pageSizes={pageSizes} />
           </div>
         )}
