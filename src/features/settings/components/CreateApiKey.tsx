@@ -108,7 +108,7 @@ export function CreateApiKey({ open, setOpen }: IProps) {
                       ))}
                     </SelectContent>
                   </Select>
-                  <ClearIconButton type="button" state={field.value} setState={() => field.onChange(undefined)} />
+                  <ClearIconButton type="button" state={field.value} onClear={() => field.onChange(undefined)} />
                 </div>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
