@@ -1,4 +1,5 @@
 import { Button } from "@components/ui/button";
+import { Checkbox } from "@components/ui/checkbox";
 import { ClearIconButton } from "@components/ui/ClearIconButton";
 import { Controller } from "react-hook-form";
 import { EditDialog } from "@components/dialogs/EditDialog";
@@ -31,6 +32,7 @@ export function CreateApiKey({ open, setOpen }: IProps) {
       name: "",
       key: "",
       linkedTo: undefined,
+      active: false,
     },
   });
 
@@ -108,6 +110,22 @@ export function CreateApiKey({ open, setOpen }: IProps) {
                   </Select>
                   <ClearIconButton type="button" state={field.value} setState={() => field.onChange(undefined)} />
                 </div>
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="active"
+            control={createForm.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid} className="flex flex-row gap-3">
+                <Checkbox
+                  id="active"
+                  className="size-5!"
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(!!checked)}
+                />
+                <FieldLabel htmlFor="active">Activo</FieldLabel>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
