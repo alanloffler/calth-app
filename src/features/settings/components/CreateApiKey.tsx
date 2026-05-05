@@ -15,6 +15,7 @@ import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { ApiKeyService } from "@settings/services/api-key.service";
+import { LINKED_TO } from "@core/config/api-key.config";
 import { apiKeySchema } from "@settings/schemas/api-key.schema";
 import { queryClient } from "@core/lib/query-client";
 
@@ -98,12 +99,11 @@ export function CreateApiKey({ open, setOpen }: IProps) {
                       <SelectValue placeholder="Seleccionar" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem key="ia" value="ia">
-                        IA
-                      </SelectItem>
-                      <SelectItem key="email" value="email">
-                        E-mail
-                      </SelectItem>
+                      {LINKED_TO.map((lt) => (
+                        <SelectItem key={lt.id} value={lt.value}>
+                          {lt.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <ClearIconButton type="button" state={field.value} setState={() => field.onChange(undefined)} />
