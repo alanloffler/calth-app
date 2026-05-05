@@ -100,14 +100,14 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
                 </PopoverContent>
               </Popover>
             </div>
-            <ClearIconButton state={date} setState={setDate} />
+            <ClearIconButton state={date} onClear={() => setDate(undefined)} />
           </div>
           {/* Status input */}
           <div className="flex items-center gap-3">
             <div className="w-full min-w-35 xl:w-45 2xl:w-50">
               <SelectEventStatus status={status} setStatus={setStatus} />
             </div>
-            <ClearIconButton state={status} setState={setStatus} />
+            <ClearIconButton state={status} onClear={() => setStatus(undefined)} />
           </div>
           {/* Professional input */}
           <div className="flex items-center gap-3">
@@ -119,14 +119,14 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
                 onChange={setProfessionalId}
               />
             </div>
-            <ClearIconButton state={professionalId} setState={setProfessionalId} />
+            <ClearIconButton state={professionalId} onClear={() => setProfessionalId(undefined)} />
           </div>
           {/* Patient input */}
           <div className="flex items-center gap-3">
             <div className="w-full min-w-35 xl:w-45 2xl:w-50">
               <UserCombobox placeholder="Paciente" userType="patient" value={patientId} onChange={setPatientId} />
             </div>
-            <ClearIconButton state={patientId} setState={setPatientId} />
+            <ClearIconButton state={patientId} onClear={() => setPatientId(undefined)} />
           </div>
           {/* Recurrent input */}
           <div className="flex w-full min-w-35 items-center gap-3 xl:w-45 2xl:w-50">
