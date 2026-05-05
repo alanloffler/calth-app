@@ -1,8 +1,9 @@
-import { X, Check, FilePenLine, FileText, Trash2, RotateCcw, Ban } from "lucide-react";
+import { FilePenLine, FileText, Trash2, RotateCcw, Ban } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
+import { CheckedIcon } from "@components/CheckedIcon";
 import { ConfirmDialog } from "@components/dialogs/ConfirmDialog";
 import { DataTable } from "@components/data-table/DataTable";
 import { EditHistorySheet } from "@medical-history/components/sheets/EditHistorySheet";
@@ -23,7 +24,6 @@ import type { TPermission } from "@permissions/interfaces/permission.type";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { HistoryTableConfig } from "@core/config/table.config";
 import { MedicalHistoryService } from "@medical-history/services/medical-history.service";
-import { cn } from "@core/lib/utils";
 import { queryClient } from "@core/lib/query-client";
 import { useEventStore } from "@calendar/stores/event.store";
 
@@ -95,18 +95,7 @@ export function HistoryTable({ history, isLoading }: IProps) {
     {
       accessorKey: "recipe",
       header: () => <div className="text-center">Receta</div>,
-      cell: ({ row }) => (
-        <div
-          className={cn(
-            "flex w-fit place-self-center rounded-full border bg-gray-200 p-0.5",
-            row.original?.recipe
-              ? "border-green-200 bg-green-100 text-green-500 dark:border-green-900/70 dark:bg-green-950"
-              : "border-red-200 bg-red-100 text-red-500 dark:border-red-900/70 dark:bg-red-950",
-          )}
-        >
-          {row.original?.recipe ? <Check className="size-3.5" /> : <X className="size-3.5" />}
-        </div>
-      ),
+      cell: ({ row }) => <CheckedIcon state={row.original.recipe} />,
     },
     {
       id: "actions",
