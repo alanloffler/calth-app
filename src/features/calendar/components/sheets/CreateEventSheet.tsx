@@ -1,3 +1,5 @@
+import { Sparkles } from "lucide-react";
+
 import { Button } from "@components/ui/button";
 import { Calendar, CalendarDayButton } from "@components/ui/calendar";
 import { ChooseRecurringDate } from "@calendar/components/ChooseRecurringDate";
@@ -29,6 +31,7 @@ import { UsersService } from "@users/services/users.service";
 import { eventSchema } from "@calendar/schemas/event.schema";
 import { parseCalendarConfig } from "@calendar/utils/calendar.utils";
 import { queryClient } from "@core/lib/query-client";
+import { useAuthStore } from "@auth/stores/auth.store";
 import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { useEventStore } from "@calendar/stores/event.store";
 
@@ -37,6 +40,8 @@ export function CreateEventSheet() {
   const [month, setMonth] = useState<Date | undefined>(new Date());
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [recurringDays, setRecurringDays] = useState<IRecurrentDayResponse | undefined>(undefined);
+  const [selectDays, setSelectDays] = useState<boolean>(false);
+  const hasAiActive = useAuthStore((state) => state.admin?.hasAiActive);
   const { openCreateEventSheet: open, setOpenCreateEventSheet: setOpen } = useEventStore();
   const { selectedProfessional } = useCalendarStore();
 
@@ -352,6 +357,28 @@ export function CreateEventSheet() {
                   );
                 }}
               />
+            </FieldGroup>
+            <FieldGroup>
+              {hasAiActive && (
+                <section className="flex flex-col gap-3">
+                  <Button
+                    className="w-fit"
+                    disabled={!startDate || new Date(startDate).getHours() < 1}
+                    onClick={() => setSelectDays(true)}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    <Sparkles />
+                    Días recurrentes
+                  </Button>
+                  {selectDays && (
+                    <p className="text-sm">
+                      Detalles de días seleccionados, viene la respuesta del backend, generada por la AI
+                    </p>
+                  )}
+                </section>
+              )}
             </FieldGroup>
             <FieldGroup>
               <ChooseRecurringDate
