@@ -27,7 +27,7 @@ class ApiKeyModuleService {
   }
 
   public async update(id: string, data: z.infer<typeof apiKeySchema>): Promise<IApiResponse<void>> {
-    if (data.linkedTo === "") delete data.linkedTo;
+    if (data.linkedTo === "") (data as { linkedTo: string | null }).linkedTo = null;
 
     const response = await apiClient.patch(`/api-keys/${id}`, data);
     return response.data;
