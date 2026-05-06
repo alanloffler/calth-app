@@ -1,4 +1,4 @@
-import { FilePenLine, Link, Plus, Trash2 } from "lucide-react";
+import { FilePenLine, Link, Mail, Plus, Sparkles, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
@@ -20,6 +20,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import type { IApiKey } from "@settings/interfaces/api-key.interface";
 import { ApiKeyService } from "@settings/services/api-key.service";
 import { DefaultShortTableConfig } from "@core/config/table.config";
+import { cn } from "@core/lib/utils";
 import { queryClient } from "@core/lib/query-client";
 import { useAuthStore } from "@auth/stores/auth.store";
 
@@ -144,8 +145,40 @@ export default function ApiKeys() {
             </Button>
           </Protected>
         </PageHeader>
-        <div>{loggedUser?.hasAiActive ? "Tiene ai activado" : "No tiene ai activado"}</div>
-        <div>{loggedUser?.hasEmailActive ? "Tiene email activado" : "No tiene email activado"}</div>
+        <section className="flex flex-col gap-1 text-sm">
+          <div className="flex items-center gap-3">
+            <div
+              className={cn(
+                "flex size-7 items-center justify-center rounded-full border",
+                loggedUser?.hasAiActive
+                  ? "border-green-200 bg-green-100 text-green-600 dark:border-green-900/30 dark:bg-green-800/30 dark:text-green-800"
+                  : "border-red-200 bg-red-100 text-red-600 dark:border-red-900/30 dark:bg-red-800/30 dark:text-red-800",
+              )}
+            >
+              <Sparkles className="size-4 shrink-0" />
+            </div>
+            <p>
+              {loggedUser?.hasAiActive
+                ? "La inteligencia artificial está activada"
+                : "La inteligencia artificial no está activada"}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div
+              className={cn(
+                "flex size-7 items-center justify-center rounded-full border",
+                loggedUser?.hasEmailActive
+                  ? "border-green-200 bg-green-100 text-green-600 dark:border-green-900/30 dark:bg-green-800/30 dark:text-green-800"
+                  : "border-red-200 bg-red-100 text-red-600 dark:border-red-900/30 dark:bg-red-800/30 dark:text-red-800",
+              )}
+            >
+              <Mail className="size-4 shrink-0" />
+            </div>
+            <p>
+              {loggedUser?.hasEmailActive ? "El envío de emails está activado" : "El envío de emails no está activado"}
+            </p>
+          </div>
+        </section>
         <DataTable
           columns={columns}
           controls={{ search: false }}
