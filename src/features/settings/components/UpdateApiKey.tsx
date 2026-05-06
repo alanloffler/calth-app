@@ -20,6 +20,7 @@ import { ApiKeyService } from "@settings/services/api-key.service";
 import { LINKED_TO } from "@core/config/api-key.config";
 import { apiKeySchema } from "@settings/schemas/api-key.schema";
 import { queryClient } from "@core/lib/query-client";
+import { useAuthStore } from "@auth/stores/auth.store";
 
 interface IProps {
   apiKey: IApiKey;
@@ -28,6 +29,8 @@ interface IProps {
 }
 
 export function UpdateApiKey({ apiKey, open, setOpen }: IProps) {
+  const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
+
   const form = useForm<z.input<typeof apiKeySchema>>({
     resolver: zodResolver(apiKeySchema),
     defaultValues: {
@@ -43,6 +46,7 @@ export function UpdateApiKey({ apiKey, open, setOpen }: IProps) {
     mutationFn: (data: z.infer<typeof apiKeySchema>) => ApiKeyService.update(apiKey.id, data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["api-keys"] });
+      refreshAdmin();
       toast.success(response.message);
     },
     onSettled: () => {
