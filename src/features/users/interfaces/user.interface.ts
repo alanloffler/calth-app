@@ -9,6 +9,8 @@ export interface IUser {
   deletedAt?: string;
   email: string;
   firstName: string;
+  hasAiActive?: boolean;
+  hasEmailActive?: boolean;
   ic: string;
   id: string;
   lastName: string;
