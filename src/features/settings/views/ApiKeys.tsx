@@ -21,12 +21,15 @@ import type { IApiKey } from "@settings/interfaces/api-key.interface";
 import { ApiKeyService } from "@settings/services/api-key.service";
 import { DefaultShortTableConfig } from "@core/config/table.config";
 import { queryClient } from "@core/lib/query-client";
+import { useAuthStore } from "@auth/stores/auth.store";
 
 export default function ApiKeys() {
   const [openCreateDialog, setOpenCreateDialog] = useState<boolean>(false);
   const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
   const [openRemoveDialog, setOpenRemoveDialog] = useState<boolean>(false);
   const [selectedKey, setSelectedKey] = useState<IApiKey | null>(null);
+  const loggedUser = useAuthStore((state) => state.admin);
+  const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
 
   const columns: ColumnDef<IApiKey>[] = [
     {
@@ -122,6 +125,7 @@ export default function ApiKeys() {
     mutationFn: (id: string) => ApiKeyService.remove(id),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["api-keys"] });
+      refreshAdmin();
       toast.success(response.message);
     },
     onSettled: () => {
@@ -140,6 +144,8 @@ export default function ApiKeys() {
             </Button>
           </Protected>
         </PageHeader>
+        <div>{loggedUser?.hasAiActive ? "Tiene ai activado" : "No tiene ai activado"}</div>
+        <div>{loggedUser?.hasEmailActive ? "Tiene email activado" : "No tiene email activado"}</div>
         <DataTable
           columns={columns}
           controls={{ search: false }}
