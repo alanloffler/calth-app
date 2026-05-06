@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type z from "zod";
 import { toast } from "sonner";
 import { useEffect, type Dispatch, type SetStateAction } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -53,6 +53,9 @@ export function CreateApiKey({ open, setOpen }: IProps) {
       createForm.reset();
     }
   }, [open, createForm]);
+
+  const linkedTo = useWatch({ control: createForm.control, name: "linkedTo" });
+  if (linkedTo === undefined) createForm.setValue("active", false);
 
   return (
     <EditDialog
@@ -122,6 +125,7 @@ export function CreateApiKey({ open, setOpen }: IProps) {
                 <Checkbox
                   id="active"
                   className="size-5!"
+                  disabled={createForm.getValues().linkedTo === undefined}
                   checked={field.value}
                   onCheckedChange={(checked) => field.onChange(!!checked)}
                 />
