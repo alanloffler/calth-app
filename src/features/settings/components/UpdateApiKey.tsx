@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type z from "zod";
 import { toast } from "sonner";
 import { useEffect, type Dispatch, type SetStateAction } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -60,6 +60,9 @@ export function UpdateApiKey({ apiKey, open, setOpen }: IProps) {
       });
     }
   }, [open, apiKey, form]);
+
+  const linkedTo = useWatch({ control: form.control, name: "linkedTo" });
+  if (linkedTo === "") form.setValue("active", false);
 
   return (
     <EditDialog
