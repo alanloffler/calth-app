@@ -76,8 +76,14 @@ export function ChooseRecurringDate({
       setDisplay(checked);
       setDays(2);
       onActiveChange(checked);
+      if (!checked) {
+        setRecurringDays(undefined);
+        setIsNotAvailableError(false);
+        setIsFetchingError(false);
+        setOpenRecurringDialog(false);
+      }
     },
-    [onActiveChange],
+    [onActiveChange, setRecurringDays],
   );
 
   async function handleCheckAvailability(): Promise<void> {
