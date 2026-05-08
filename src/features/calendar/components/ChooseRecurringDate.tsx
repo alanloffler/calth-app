@@ -346,11 +346,11 @@ export function ChooseRecurringDate({
                     <div className="flex flex-col gap-1">
                       <h3 className="text-sm font-medium">Se van a crear {days} turnos recurrentes</h3>
                       <ul className="flex flex-col gap-1">
-                        {recurringDays?.dates.map((d) => (
+                        {recurringDays?.dates.map((d, idx) => (
                           <li className="flex items-center gap-3" key={d.date}>
-                            <span className="flex w-fit rounded-full bg-green-200 p-0.5">
-                              <Check className="size-3.5 text-green-700" />
-                            </span>
+                            <Badge size="small" variant="green">
+                              Turno {idx + 1}
+                            </Badge>
                             <span className="text-sm">{format(d.date, "EEEE, P - HH:mm", { locale: es })} hs.</span>
                           </li>
                         ))}
