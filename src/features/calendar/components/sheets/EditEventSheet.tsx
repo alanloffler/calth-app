@@ -1,6 +1,6 @@
 import { Button } from "@components/ui/button";
 import { Calendar, CalendarDayButton } from "@components/ui/calendar";
-import { ChooseRecurringDate } from "@calendar/components/ChooseRecurringDate";
+import { ChooseRecurringDate } from "@calendar/components/recurrent-days/ChooseRecurringDate";
 import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { HourGrid } from "@calendar/components/HourGrid";
