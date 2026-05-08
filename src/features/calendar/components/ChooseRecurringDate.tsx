@@ -1,4 +1,4 @@
-import { Check, Lightbulb, Minus, Plus } from "lucide-react";
+import { Check, Lightbulb, Minus, Plus, X } from "lucide-react";
 
 import { Activity, useCallback } from "react";
 import { Badge } from "@components/Badge";
@@ -14,6 +14,7 @@ import {
 } from "@components/ui/dialog";
 import { FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@components/ui/table";
 
 import { addMinutes, format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -215,9 +216,6 @@ export function ChooseRecurringDate({
               {(recurringDays && recurringDays.dates.length === 0) ||
                 (isNotAvailableError ? (
                   <div className="flex flex-col gap-3">
-                    <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
-                      No hay {days} turnos recurrentes disponibles, elegí otra fecha u horario
-                    </div>
                     <ul className="flex flex-col gap-1">
                       {recurringDays?.dates.map((d) => (
                         <li className="flex items-center gap-3" key={d.date}>
@@ -228,24 +226,112 @@ export function ChooseRecurringDate({
                         </li>
                       ))}
                     </ul>
-                    {recurringDays && recurringDays.suggestion && (
-                      <div className="flex items-center justify-between gap-3 rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-blue-600 shadow-xs">
-                        <div className="flex items-center gap-3">
-                          <Lightbulb className="size-4 shrink-0" />
-                          <h3 className="font-semibold">Sugerencia:</h3>
-                          <span>{`${format(recurringDays?.suggestion, "EEEE", { locale: es })} a las ${format(recurringDays?.suggestion, "HH:mm", { locale: es })} hs.`}</span>
-                        </div>
-                        <Button
-                          onClick={() => {
-                            pendingCheckRef.current = true;
-                            onSuggestionSelect(recurringDays.suggestion);
-                          }}
-                          size="sm"
-                          type="button"
-                          variant="default"
-                        >
-                          Elegir
-                        </Button>
+                    <div className="w-fit rounded-md border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-600">
+                      No hay {days} turnos recurrentes disponibles, elegí otra fecha u horario
+                    </div>
+                    {recurringDays && recurringDays.suggestions && (
+                      <div className="flex flex-col gap-3">
+                        <h3 className="text-sm font-semibold">Sugerencias:</h3>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="bg-accent py-1!">
+                                <div className="flex items-center gap-2">
+                                  <Check className="size-3 text-green-600" />
+                                  Mismo día
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <X className="size-3 text-red-600" />
+                                  Distinto horario
+                                </div>
+                              </TableHead>
+                              <TableHead className="bg-accent py-1!">
+                                <div className="flex items-center gap-2">
+                                  <X className="size-3 text-red-600" />
+                                  Distinto día
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Check className="size-3 text-green-600" />
+                                  Mismo horario
+                                </div>
+                              </TableHead>
+                              <TableHead className="bg-accent py-1!">
+                                <div className="flex items-center gap-2">
+                                  <X className="size-3 text-red-600" />
+                                  Distinto día
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <X className="size-3 text-red-600" />
+                                  Distinto horario
+                                </div>
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            <TableRow>
+                              <TableCell className="align-top">
+                                <ul className="flex flex-col gap-2">
+                                  {recurringDays?.suggestions.sameDay.map((date) => (
+                                    <li key={date}>
+                                      <Button
+                                        className="hover:bg-muted"
+                                        onClick={() => {
+                                          pendingCheckRef.current = true;
+                                          onSuggestionSelect(date);
+                                        }}
+                                        size="xs"
+                                        type="button"
+                                        variant="outline"
+                                      >
+                                        {format(parseISO(date), "EEEE, dd/MM - HH:mm", { locale: es })}
+                                      </Button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </TableCell>
+                              <TableCell className="align-top">
+                                <ul className="flex flex-col gap-2">
+                                  {recurringDays?.suggestions.otherDaysSameHour.map((date) => (
+                                    <li key={date}>
+                                      <Button
+                                        className="hover:bg-muted"
+                                        onClick={() => {
+                                          pendingCheckRef.current = true;
+                                          onSuggestionSelect(date);
+                                        }}
+                                        size="xs"
+                                        type="button"
+                                        variant="outline"
+                                      >
+                                        {format(parseISO(date), "EEEE, dd/MM - HH:mm", { locale: es })}
+                                      </Button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </TableCell>
+                              <TableCell className="align-top">
+                                <ul className="flex flex-col gap-2">
+                                  {recurringDays?.suggestions.otherDaysAnyHour.map((date) => (
+                                    <li key={date}>
+                                      <Button
+                                        className="hover:bg-muted"
+                                        onClick={() => {
+                                          pendingCheckRef.current = true;
+                                          onSuggestionSelect(date);
+                                        }}
+                                        size="xs"
+                                        type="button"
+                                        variant="outline"
+                                      >
+                                        {format(parseISO(date), "EEEE, dd/MM - HH:mm", { locale: es })}
+                                      </Button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
                       </div>
                     )}
                   </div>
