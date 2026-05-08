@@ -5,5 +5,11 @@ export interface IRecurrentDay {
 
 export interface IRecurrentDayResponse {
   dates: IRecurrentDay[];
-  suggestion: string;
+  suggestions: IRecurrentSuggestion;
+}
+
+interface IRecurrentSuggestion {
+  sameDay: string[];
+  otherDaysSameHour: string[];
+  otherDaysAnyHour: string[];
 }
