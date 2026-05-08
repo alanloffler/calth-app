@@ -1,4 +1,4 @@
-import { Check, Lightbulb, Minus, Plus, X } from "lucide-react";
+import { Check, Minus, Plus, X } from "lucide-react";
 
 import { Activity, useCallback } from "react";
 import { Badge } from "@components/Badge";
