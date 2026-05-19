@@ -4,6 +4,7 @@ import type { IApiResponse } from "@core/interfaces/api-response.interface";
 import type { IEventFilters } from "@event/interfaces/filters.interface";
 import type { IPaginatedEvents } from "@event/interfaces/paginated-events.interface";
 import type { IRecurrentDayResponse } from "@event/interfaces/recurrent-day.interface";
+import type { IScheduleImpactPayload, IScheduleImpactResponse } from "@calendar/interfaces/schedule-impact.interface";
 import { apiClient } from "@core/client/client";
 
 class EventsModuleService {
@@ -79,6 +80,11 @@ class EventsModuleService {
   ): Promise<IApiResponse<IRecurrentDayResponse>> {
     const path = `/events/check-recurring?professionalId=${professionalId}&startDate=${startDate}&days=${days}`;
     const response = await apiClient.get(path);
+    return response.data;
+  }
+
+  public async checkScheduleImpact(payload: IScheduleImpactPayload): Promise<IApiResponse<IScheduleImpactResponse>> {
+    const response = await apiClient.post("/events/schedule-impact", payload);
     return response.data;
   }
 }
