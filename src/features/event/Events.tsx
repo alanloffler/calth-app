@@ -1,4 +1,4 @@
-import { FilePenLine, FileText, Plus, Trash2 } from "lucide-react";
+import { CalendarClock, FilePenLine, FileText, Plus, Trash2 } from "lucide-react";
 
 import { Badge } from "@components/Badge";
 import { Button } from "@components/ui/button";
@@ -106,6 +106,14 @@ export default function Events() {
             <Badge size="icon" variant="recurrent">
               R
             </Badge>
+          )}
+          {row.original.needsReschedule && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CalendarClock className="size-4 shrink-0 text-amber-500" />
+              </TooltipTrigger>
+              <TooltipContent>Requiere reagendamiento</TooltipContent>
+            </Tooltip>
           )}
           {row.original.title}
         </div>
