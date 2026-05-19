@@ -17,6 +17,7 @@ import { enUS, es } from "date-fns/locale";
 import { format, type Locale } from "date-fns";
 import { toast } from "sonner";
 import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
+import { useLocation } from "react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
@@ -37,10 +38,11 @@ const localeMap: Record<string, Locale> = {
 };
 
 export default function Events() {
+  const location = useLocation();
   const [filters, setFilters] = useState<IEventFilters>({
     date: undefined,
     patientId: undefined,
-    professionalId: undefined,
+    professionalId: (location.state as { professionalId?: string })?.professionalId ?? undefined,
     recurrent: false,
     status: undefined,
   });
