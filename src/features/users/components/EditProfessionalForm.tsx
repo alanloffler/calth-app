@@ -7,20 +7,25 @@ import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@components/ui/field";
 import { Input } from "@components/ui/input";
 import { Loader } from "@components/Loader";
+import { ScheduleImpactDialog } from "@users/components/ScheduleImpactDialog";
 import { WorkingDays } from "@components/WorkingDays";
 
 import z from "zod";
 import { toast } from "sonner";
-import { type MouseEvent, useCallback, useEffect, useState } from "react";
+import { type MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { useMaskito } from "@maskito/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
+import type { IScheduleImpactPayload } from "@calendar/interfaces/schedule-impact.interface";
 import type { TPermission } from "@permissions/interfaces/permission.type";
+import { EventsService } from "@event/services/events.service";
 import { UsersService } from "@users/services/users.service";
 import { digitsMask } from "@core/masks/maskito-digits";
+import { hasScheduleChanged } from "@users/utils/schedule-changed.util";
 import { tryCatch } from "@core/utils/try-catch";
 import { updateProfessionalSchema } from "@users/schemas/update-professional.schema";
 import { useAuthStore } from "@auth/stores/auth.store";
@@ -44,6 +49,12 @@ export function EditProfessionalForm({ userId }: IProps) {
   const navigate = useNavigate();
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
   const userRole = location.state.role;
+
+  const dialogActionRef = useRef<"save" | "save-and-manage">("save");
+  const [affectedEvents, setAffectedEvents] = useState<ICalendarEvent[]>([]);
+  const [impactDialogOpen, setImpactDialogOpen] = useState<boolean>(false);
+  const [isCheckingImpact, setIsCheckingImpact] = useState<boolean>(false);
+  const [pendingData, setPendingData] = useState<z.infer<typeof updateProfessionalSchema> | null>(null);
 
   const debouncedEmail = useDebounce(email, 500);
   const debouncedIc = useDebounce(ic, 500);
@@ -180,12 +191,18 @@ export function EditProfessionalForm({ userId }: IProps) {
   }
 
   const { mutate: updateProfessional, isPending: isSaving } = useMutation({
-    mutationKey: ["admin", "update"],
-    mutationFn: (data: z.infer<typeof updateProfessionalSchema>) => UsersService.update(userId, "admin", data),
+    mutationKey: ["professional", "update"],
+    mutationFn: (data: z.infer<typeof updateProfessionalSchema>) => UsersService.update(userId, "professional", data),
     onSuccess: (response) => {
       if (userToUpdate?.ic === admin?.ic) refreshAdmin();
       toast.success(response.message);
-      navigate("/users/role/professional");
+
+      if (dialogActionRef.current === "save-and-manage") {
+        navigate("/events", { state: { professionalId: userId } });
+      } else {
+        navigate("/users/role/professional");
+      }
+      dialogActionRef.current = "save";
     },
   });
 
@@ -201,12 +218,58 @@ export function EditProfessionalForm({ userId }: IProps) {
     const { password: _, ...dataWithoutPassword } = data;
     const updateData = data.password ? data : (dataWithoutPassword as z.infer<typeof updateProfessionalSchema>);
 
+    if (userToUpdate?.professionalProfile && hasScheduleChanged(userToUpdate.professionalProfile, data)) {
+      setIsCheckingImpact(true);
+
+      const payload: IScheduleImpactPayload = {
+        professionalId: userId,
+        startHour: data.startHour,
+        endHour: data.endHour,
+        workingDays: data.workingDays,
+      };
+
+      const [response, error] = await tryCatch(EventsService.checkScheduleImpact(payload));
+      setIsCheckingImpact(false);
+
+      if (error) {
+        toast.error("Error al evaluar el impacto del cambio de horario");
+        return;
+      }
+
+      if (response?.data && response?.data.affectedCount > 0) {
+        setPendingData(updateData);
+        setAffectedEvents(response.data.events);
+        setImpactDialogOpen(true);
+        return;
+      }
+    }
+
     updateProfessional(updateData);
   }
 
   function handleCancel(): void {
     form.reset();
     navigate(-1);
+  }
+
+  // Schedule impact dialog
+  function handleImpactCancel(): void {
+    setImpactDialogOpen(false);
+    setPendingData(null);
+    setAffectedEvents([]);
+  }
+
+  // TODO: refactor this two methods into one with arg type: save|save-and-manage
+  function handleSaveAnyway(): void {
+    dialogActionRef.current = "save";
+    setImpactDialogOpen(false);
+    updateProfessional(pendingData!);
+  }
+
+  function handleSaveAndManage(): void {
+    dialogActionRef.current = "save-and-manage";
+    setImpactDialogOpen(false);
+    updateProfessional(pendingData!);
   }
 
   return (
@@ -219,7 +282,7 @@ export function EditProfessionalForm({ userId }: IProps) {
         <CardContent>
           <form
             className="grid grid-cols-1 gap-6 md:grid-cols-2"
-            id="create-user"
+            id="update-user"
             onSubmit={form.handleSubmit(onSubmit)}
           >
             <div className="flex flex-col gap-6">
@@ -583,8 +646,19 @@ export function EditProfessionalForm({ userId }: IProps) {
             <Button variant="ghost" onClick={handleCancel}>
               Cancelar
             </Button>
-            <Button disabled={!form.formState.isDirty} form="create-user" type="submit" variant="default">
-              {isSaving ? <Loader color="white" text="Guardando" /> : "Guardar"}
+            <Button
+              disabled={!form.formState.isDirty || isCheckingImpact}
+              form="update-user"
+              type="submit"
+              variant="default"
+            >
+              {isSaving ? (
+                <Loader color="white" text="Guardando" />
+              ) : isCheckingImpact ? (
+                <Loader color="white" text="Evaluando impacto" />
+              ) : (
+                "Guardar"
+              )}
             </Button>
           </div>
         </CardFooter>
@@ -598,6 +672,14 @@ export function EditProfessionalForm({ userId }: IProps) {
           <BlockedDays userId={userId} />
         </CardContent>
       </Card>
+      /* Schedule impact dialog */
+      <ScheduleImpactDialog
+        affectedEvents={affectedEvents}
+        onCancel={handleImpactCancel}
+        onSaveAndManage={handleSaveAndManage}
+        onSaveAnyway={handleSaveAnyway}
+        open={impactDialogOpen}
+      />
     </section>
   );
 }
