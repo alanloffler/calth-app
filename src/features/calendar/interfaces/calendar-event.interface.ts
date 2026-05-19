@@ -6,6 +6,7 @@ export interface ICalendarEvent {
   createdAt: Date;
   endDate: Date;
   id: string;
+  needsReschedule: boolean;
   professional: IProfessionalEvent;
   professionalId: string;
   recurrentId: string;
