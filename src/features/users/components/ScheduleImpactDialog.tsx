@@ -27,7 +27,7 @@ interface IProps {
 export function ScheduleImpactDialog({ affectedEvents, open, onCancel, onSaveAnyway, onSaveAndManage }: IProps) {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onCancel()}>
-      <DialogContent className="sm:min gap-6">
+      <DialogContent className="gap-6 sm:min-w-160">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CalendarClock className="size-5 shrink-0 text-amber-500" />
@@ -67,7 +67,7 @@ export function ScheduleImpactDialog({ affectedEvents, open, onCancel, onSaveAny
             Guardar de todas formas
           </Button>
           <Button onClick={onSaveAndManage} variant="default">
-            Guardar de todas formas
+            Guardar y gestionar turnos
           </Button>
         </DialogFooter>
       </DialogContent>
