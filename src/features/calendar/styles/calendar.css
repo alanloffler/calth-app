@@ -29,6 +29,15 @@
   border-radius: 0px 0px 10px 10px;
 }
 
+/*
+    WARN: Out of range events (bottom)
+    Possible side effects on events that extends
+    from one day to another
+*/
+.rbc-time-view .rbc-event-continues-later {
+  display: none !important;
+}
+
 /* Disable All day slot on header */
 .rbc-allday-cell {
   display: none !important;
