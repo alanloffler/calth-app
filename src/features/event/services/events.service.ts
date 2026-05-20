@@ -43,6 +43,9 @@ class EventsModuleService {
     if (filters.recurrent) {
       queryParams += `&recurrent=${filters.recurrent}`;
     }
+    if (filters.needsReschedule) {
+      queryParams += `&needsReschedule=${filters.needsReschedule}`;
+    }
     if (filters.status) {
       queryParams += `&status=${filters.status}`;
     }
