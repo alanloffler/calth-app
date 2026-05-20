@@ -41,6 +41,7 @@ export default function Events() {
   const location = useLocation();
   const [filters, setFilters] = useState<IEventFilters>({
     date: undefined,
+    needsReschedule: (location.state as { needsReschedule?: boolean })?.needsReschedule ?? false,
     patientId: undefined,
     professionalId: (location.state as { professionalId?: string })?.professionalId ?? undefined,
     recurrent: false,
@@ -142,7 +143,7 @@ export default function Events() {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                className="hover:text-view"
+                className="hover:text-view hover:bg-background"
                 size="icon-sm"
                 variant="outline"
                 onClick={() => {
@@ -159,7 +160,7 @@ export default function Events() {
             <Protected requiredPermission="events-update">
               <TooltipTrigger asChild>
                 <Button
-                  className="hover:text-edit"
+                  className="hover:text-edit hover:bg-background"
                   size="icon-sm"
                   variant="outline"
                   onClick={() => {
@@ -177,7 +178,7 @@ export default function Events() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  className="hover:text-delete"
+                  className="hover:text-delete hover:bg-background"
                   size="icon-sm"
                   variant="outline"
                   onClick={() => {
