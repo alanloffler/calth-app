@@ -20,11 +20,10 @@ interface IProps {
   affectedEvents: ICalendarEvent[];
   open: boolean;
   onCancel: () => void;
-  onSaveAnyway: () => void;
   onSaveAndManage: () => void;
 }
 
-export function ScheduleImpactDialog({ affectedEvents, open, onCancel, onSaveAnyway, onSaveAndManage }: IProps) {
+export function ScheduleImpactDialog({ affectedEvents, open, onCancel, onSaveAndManage }: IProps) {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onCancel()}>
       <DialogContent className="gap-6 sm:min-w-160">
@@ -53,7 +52,7 @@ export function ScheduleImpactDialog({ affectedEvents, open, onCancel, onSaveAny
                 <TableRow key={event.id}>
                   <TableCell>{`${event.user.firstName} ${event.user.lastName}`}</TableCell>
                   <TableCell>{format(new Date(event.startDate), "P", { locale: es })}</TableCell>
-                  <TableCell>{`${format(new Date(event.startDate), "HH:mm")} - ${format(new Date(event.startDate), "HH:mm")} hs.`}</TableCell>
+                  <TableCell>{`${format(new Date(event.startDate), "HH:mm")} - ${format(new Date(event.endDate), "HH:mm")} hs.`}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -62,9 +61,6 @@ export function ScheduleImpactDialog({ affectedEvents, open, onCancel, onSaveAny
         <DialogFooter className="flex-col gap-2 sm:flex-row">
           <Button onClick={onCancel} variant="ghost">
             Cancelar
-          </Button>
-          <Button onClick={onSaveAnyway} variant="outline">
-            Guardar de todas formas
           </Button>
           <Button onClick={onSaveAndManage} variant="default">
             Guardar y gestionar turnos
