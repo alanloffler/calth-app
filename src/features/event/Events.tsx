@@ -23,10 +23,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
 import type { IEventFilters } from "@event/interfaces/filters.interface";
 import { DEventStatus } from "@calendar/dictionaries/status.dictionary";
+import { EUserRole } from "@roles/enums/user-role.enum";
 import { EventsService } from "@event/services/events.service";
 import { EventsTableConfig } from "@core/config/table.config";
 import { formatShortDateTime } from "@core/formatters/date.formatter";
 import { queryClient } from "@core/lib/query-client";
+import { useAuthStore } from "@auth/stores/auth.store";
 import { useEventStore } from "@calendar/stores/event.store";
 
 // TODO: get from config
@@ -38,12 +40,17 @@ const localeMap: Record<string, Locale> = {
 };
 
 export default function Events() {
+  const userLogged = useAuthStore((state) => state.admin);
+  const userLoggedRole = userLogged?.role.value;
+
   const location = useLocation();
   const [filters, setFilters] = useState<IEventFilters>({
     date: undefined,
     needsReschedule: (location.state as { needsReschedule?: boolean })?.needsReschedule ?? false,
     patientId: undefined,
-    professionalId: (location.state as { professionalId?: string })?.professionalId ?? undefined,
+    professionalId:
+      (location.state as { professionalId?: string })?.professionalId ??
+      (userLoggedRole === EUserRole.professional ? userLogged?.id : undefined),
     recurrent: false,
     status: undefined,
   });
