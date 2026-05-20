@@ -30,10 +30,11 @@
 }
 
 /*
-    WARN: Out of range events (bottom)
+    WARN: Out of range events (before and after)
     Possible side effects on events that extends
     from one day to another
 */
+.rbc-time-view .rbc-event-continues-earlier,
 .rbc-time-view .rbc-event-continues-later {
   display: none !important;
 }
