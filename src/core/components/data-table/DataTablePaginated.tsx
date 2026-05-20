@@ -216,7 +216,11 @@ export function DataTablePaginated<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  className={row.original.needsReschedule ? "bg-amber-200/70 dark:bg-amber-300/60" : ""}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       style={{
