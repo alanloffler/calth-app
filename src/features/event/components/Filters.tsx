@@ -30,18 +30,19 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
   const [patientId, setPatientId] = useState<string | undefined>(filters?.patientId);
   const [professionalId, setProfessionalId] = useState<string | undefined>(filters?.professionalId);
   const [recurrent, setRecurrent] = useState<boolean>(filters?.recurrent || false);
+  const [needsReschedule, setNeedsReschedule] = useState<boolean>(filters?.needsReschedule || false);
   const [status, setStatus] = useState<string | undefined>(filters?.status);
   const { open } = useSidebar();
 
   useEffect(() => {
-    setFilters((prev) => ({ ...prev, date, patientId, professionalId, recurrent, status }));
-  }, [date, professionalId, patientId, recurrent, status, setFilters]);
+    setFilters((prev) => ({ ...prev, date, needsReschedule, patientId, professionalId, recurrent, status }));
+  }, [date, needsReschedule, professionalId, patientId, recurrent, status, setFilters]);
 
   useEffect(() => {
     Promise.resolve().then(onSearch);
   }, [onSearch]);
 
-  const hasFilters = date || patientId || professionalId || recurrent || status;
+  const hasFilters = date || needsReschedule || patientId || professionalId || recurrent || status;
 
   const handleClearFilters = () => {
     setDate(undefined);
@@ -51,6 +52,7 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
     setStatus(undefined);
     setFilters({
       date: undefined,
+      needsReschedule: false,
       patientId: undefined,
       professionalId: undefined,
       recurrent: false,
@@ -138,6 +140,18 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
             />
             <Label className="font-normal" htmlFor="recurrent">
               Recurrentes
+            </Label>
+          </div>
+          {/* Needs reschedule input */}
+          <div className="flex w-full min-w-35 items-center gap-3 xl:w-45 2xl:w-50">
+            <Checkbox
+              className="size-4.5"
+              id="needs-reschedule"
+              checked={!!needsReschedule}
+              onCheckedChange={() => setNeedsReschedule(!needsReschedule)}
+            />
+            <Label className="font-normal" htmlFor="needs-reschedule">
+              Necesitan reagendamiento
             </Label>
           </div>
         </div>
