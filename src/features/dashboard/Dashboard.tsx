@@ -10,6 +10,7 @@ import { LatestPatients } from "@dashboard/components/LatestPatients";
 import { Link } from "react-router";
 import { Protected } from "@auth/components/Protected";
 
+import { EUserRole } from "@roles/enums/user-role.enum";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { usePermission } from "@permissions/hooks/usePermission";
 import { useSettingsStore } from "@settings/stores/settings.store";
@@ -19,6 +20,7 @@ export default function Dashboard() {
   const showPermissions = usePermission(["permissions-view", "permissions-create"], "some");
   const showRoles = usePermission(["roles-view", "roles-create"], "some");
   const user = useAuthStore((state) => state.admin);
+  const isProfessional = user?.role.value === EUserRole.professional;
   const { dashboardSettings } = useSettingsStore();
 
   const showLinksAsCard = dashboardSettings.find((setting) => setting.key === "showLinksAsCard")?.value === "true";
@@ -37,7 +39,7 @@ export default function Dashboard() {
       )}
       <div className="grid grid-cols-1 gap-8 empty:hidden lg:grid-cols-12">
         <LatestEvents className="col-span-12 xl:col-span-8 2xl:col-span-6" />
-        <LatestPatients className="col-span-12 xl:col-span-4 2xl:col-span-6" />
+        {!isProfessional && <LatestPatients className="col-span-12 xl:col-span-4 2xl:col-span-6" />}
       </div>
       <div className="flex flex-col gap-8">
         {showAdmin && (
