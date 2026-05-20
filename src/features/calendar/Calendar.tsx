@@ -9,6 +9,7 @@ import { CalendarEventsList } from "@calendar/components/CalendarEventsList";
 import { Card } from "@components/ui/card";
 import { CustomEvent } from "@calendar/components/calendar/CustomEvent";
 import { ErrorNotification } from "@components/notifications/ErrorNotification";
+import { Forbidden } from "@auth/components/Forbidden";
 import { Link } from "react-router";
 import { Loader } from "@components/Loader";
 import { PageLoader } from "@components/PageLoader";
@@ -36,9 +37,11 @@ import {
   getCalendarRangeFromDate,
   formatDateToString,
 } from "@calendar/utils/calendar.utils";
+import { EUserRole } from "@roles/enums/user-role.enum";
 import { useCalendarStore } from "@calendar/stores/calendar.store";
 import { useEventStore } from "@calendar/stores/event.store";
 import { usePermission } from "@permissions/hooks/usePermission";
+import { useAuthStore } from "@auth/stores/auth.store";
 
 const locales = { "es-AR": es };
 
@@ -56,10 +59,15 @@ interface IDateRange {
 }
 
 export default function Calendar() {
+  const userLogged = useAuthStore((state) => state.admin);
+  const isProfessional = userLogged?.role.value === EUserRole.professional;
+
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [errorNotification, setErrorNotification] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
-  const [selectedProfessionalId, setSelectedProfessionalId] = useState<string | undefined>(undefined);
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState<string | undefined>(
+    isProfessional ? userLogged?.id : undefined,
+  );
   const canViewEvent = usePermission("events-view");
   const { refreshKey, setSelectedEvent, setOpenViewEventSheet } = useEventStore();
   const { selectedDate, selectedView, setSelectedDate, setSelectedView } = useCalendarStore();
@@ -166,30 +174,32 @@ export default function Calendar() {
 
   return (
     <>
-      <div className="flex flex-1 flex-col gap-8">
+      <div className={cn("flex flex-1 flex-col", isProfessional ? "gap-0" : "gap-8")}>
         <div className="flex items-center gap-4">
-          <Select
-            disabled={!professionals}
-            value={selectedProfessionalId || ""}
-            onValueChange={(professionalId) => {
-              if (professionalId) setSelectedProfessionalId(professionalId);
-            }}
-          >
-            <SelectTrigger className="min-w-60" id="professionals" size="lg">
-              <SelectValue
-                placeholder={isLoadingProfessionals ? "Cargando profesionales" : "Seleccionar profesional"}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {professionals?.map((professional) => (
-                <SelectItem key={professional.id} value={professional.id}>
-                  {`${professional.professionalProfile?.professionalPrefix} ${professional.firstName} ${professional.lastName}`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Forbidden to={[EUserRole.professional]} variant="invisible">
+            <Select
+              disabled={!professionals}
+              value={selectedProfessionalId || ""}
+              onValueChange={(professionalId) => {
+                if (professionalId) setSelectedProfessionalId(professionalId);
+              }}
+            >
+              <SelectTrigger className="min-w-60" id="professionals" size="lg">
+                <SelectValue
+                  placeholder={isLoadingProfessionals ? "Cargando profesionales" : "Seleccionar profesional"}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {professionals?.map((professional) => (
+                  <SelectItem key={professional.id} value={professional.id}>
+                    {`${professional.professionalProfile?.professionalPrefix} ${professional.firstName} ${professional.lastName}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Forbidden>
           {isLoadingProfessional && <Loader text="Cargando profesional" />}
-          {isLoadingProfessionals && <Loader text="Cargando profesionales" />}
+          {!isProfessional && isLoadingProfessionals && <Loader text="Cargando profesionales" />}
         </div>
         {errorNotification && <ErrorNotification message={errorMessage} tryAgain={false} />}
         {selectedProfessional && selectedProfessionalConfig && !errorNotification && (
