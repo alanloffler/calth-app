@@ -75,6 +75,7 @@ const data = {
           url: "/users/role/professional",
           icon: Briefcase,
           permission: "professional-view" as TPermission,
+          role: ["admin", "superadmin"],
         },
       ],
     },
