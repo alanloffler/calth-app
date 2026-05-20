@@ -5,6 +5,7 @@ import { Calendar } from "@components/ui/calendar";
 import { Card } from "@components/ui/card";
 import { Checkbox } from "@components/ui/checkbox";
 import { ClearIconButton } from "@components/ui/ClearIconButton";
+import { Forbidden } from "@auth/components/Forbidden";
 import { Label } from "@components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { SelectEventStatus } from "@event/components/ui/SelectEventStatus";
@@ -15,7 +16,9 @@ import { format } from "date-fns";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 import type { IEventFilters } from "@event/interfaces/filters.interface";
+import { EUserRole } from "@roles/enums/user-role.enum";
 import { cn } from "@core/lib/utils";
+import { useAuthStore } from "@auth/stores/auth.store";
 import { useSidebar } from "@components/ui/sidebar";
 
 interface IProps {
@@ -27,11 +30,13 @@ interface IProps {
 export function Filters({ filters, onSearch, setFilters }: IProps) {
   const [calendarOpen, setCalendarOpen] = useState<boolean>(false);
   const [date, setDate] = useState<Date | undefined>(filters?.date);
+  const [needsReschedule, setNeedsReschedule] = useState<boolean>(filters?.needsReschedule || false);
   const [patientId, setPatientId] = useState<string | undefined>(filters?.patientId);
   const [professionalId, setProfessionalId] = useState<string | undefined>(filters?.professionalId);
   const [recurrent, setRecurrent] = useState<boolean>(filters?.recurrent || false);
-  const [needsReschedule, setNeedsReschedule] = useState<boolean>(filters?.needsReschedule || false);
   const [status, setStatus] = useState<string | undefined>(filters?.status);
+  const userLogged = useAuthStore((state) => state.admin);
+  const isProfessional = userLogged?.role.value === EUserRole.professional;
   const { open } = useSidebar();
 
   useEffect(() => {
@@ -42,19 +47,19 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
     Promise.resolve().then(onSearch);
   }, [onSearch]);
 
-  const hasFilters = date || needsReschedule || patientId || professionalId || recurrent || status;
+  const hasFilters = date || needsReschedule || patientId || (!isProfessional && professionalId) || recurrent || status;
 
   const handleClearFilters = () => {
     setDate(undefined);
     setPatientId(undefined);
-    setProfessionalId(undefined);
+    if (!isProfessional) setProfessionalId(undefined);
     setRecurrent(false);
     setStatus(undefined);
     setFilters({
       date: undefined,
       needsReschedule: false,
       patientId: undefined,
-      professionalId: undefined,
+      professionalId: isProfessional ? professionalId : undefined,
       recurrent: false,
       status: undefined,
     });
@@ -112,17 +117,19 @@ export function Filters({ filters, onSearch, setFilters }: IProps) {
             <ClearIconButton state={status} onClear={() => setStatus(undefined)} />
           </div>
           {/* Professional input */}
-          <div className="flex items-center gap-3">
-            <div className="w-full min-w-35 xl:w-45 2xl:w-50">
-              <UserCombobox
-                placeholder="Profesional"
-                userType="professional"
-                value={professionalId}
-                onChange={setProfessionalId}
-              />
+          <Forbidden to={[EUserRole.professional]} variant="invisible">
+            <div className="flex items-center gap-3">
+              <div className="w-full min-w-35 xl:w-45 2xl:w-50">
+                <UserCombobox
+                  placeholder="Profesional"
+                  userType="professional"
+                  value={professionalId}
+                  onChange={setProfessionalId}
+                />
+              </div>
+              <ClearIconButton state={professionalId} onClear={() => setProfessionalId(undefined)} />
             </div>
-            <ClearIconButton state={professionalId} onClear={() => setProfessionalId(undefined)} />
-          </div>
+          </Forbidden>
           {/* Patient input */}
           <div className="flex items-center gap-3">
             <div className="w-full min-w-35 xl:w-45 2xl:w-50">
