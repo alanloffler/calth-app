@@ -197,8 +197,10 @@ export function EditProfessionalForm({ userId }: IProps) {
       if (userToUpdate?.ic === admin?.ic) refreshAdmin();
       toast.success(response.message);
 
+      // TODO: widget to notify urgent and needed action to reschedule events,
+      // maybe on sidebar, right before username button
       if (dialogActionRef.current === "save-and-manage") {
-        navigate("/events", { state: { professionalId: userId } });
+        navigate("/events", { state: { professionalId: userId, needsReschedule: true } });
       } else {
         navigate("/users/role/professional");
       }
@@ -257,13 +259,6 @@ export function EditProfessionalForm({ userId }: IProps) {
     setImpactDialogOpen(false);
     setPendingData(null);
     setAffectedEvents([]);
-  }
-
-  // TODO: refactor this two methods into one with arg type: save|save-and-manage
-  function handleSaveAnyway(): void {
-    dialogActionRef.current = "save";
-    setImpactDialogOpen(false);
-    updateProfessional(pendingData!);
   }
 
   function handleSaveAndManage(): void {
@@ -677,7 +672,6 @@ export function EditProfessionalForm({ userId }: IProps) {
         affectedEvents={affectedEvents}
         onCancel={handleImpactCancel}
         onSaveAndManage={handleSaveAndManage}
-        onSaveAnyway={handleSaveAnyway}
         open={impactDialogOpen}
       />
     </section>
