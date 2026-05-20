@@ -39,6 +39,7 @@ interface IProps {
 interface IItem {
   icon?: LucideIcon | ComponentType<SVGProps<SVGSVGElement>>;
   permission?: TPermission;
+  role?: string | string[];
   title: string;
   url: string;
 }
@@ -87,22 +88,24 @@ export function NavMain({ items }: IProps) {
                       </SidebarMenuButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent side="right" align="start" className="min-w-48">
-                      {item.items.map((subItem) => (
-                        <Protected requiredPermission={subItem.permission} key={subItem.title}>
-                          <DropdownMenuItem
-                            asChild
-                            className={cn(
-                              "text-sm",
-                              isActive(subItem.url) && "bg-sidebar-accent text-sidebar-accent-foreground",
-                            )}
-                          >
-                            <Link to={subItem.url}>
-                              {showMenuIcons && subItem.icon && <subItem.icon />}
-                              {subItem.title}
-                            </Link>
-                          </DropdownMenuItem>
-                        </Protected>
-                      ))}
+                      {item.items
+                        .filter((subItem) => hasRoleAccess(subItem.role))
+                        .map((subItem) => (
+                          <Protected requiredPermission={subItem.permission} key={subItem.title}>
+                            <DropdownMenuItem
+                              asChild
+                              className={cn(
+                                "text-sm",
+                                isActive(subItem.url) && "bg-sidebar-accent text-sidebar-accent-foreground",
+                              )}
+                            >
+                              <Link to={subItem.url}>
+                                {showMenuIcons && subItem.icon && <subItem.icon />}
+                                {subItem.title}
+                              </Link>
+                            </DropdownMenuItem>
+                          </Protected>
+                        ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </Protected>
@@ -131,18 +134,20 @@ export function NavMain({ items }: IProps) {
                   </Protected>
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {item.items.map((subItem) => (
-                        <Protected requiredPermission={subItem.permission} key={subItem.title}>
-                          <SidebarMenuSubItem>
-                            <SidebarMenuSubButton asChild isActive={isActive(subItem.url)}>
-                              <Link to={subItem.url}>
-                                {showMenuIcons && subItem.icon && <subItem.icon />}
-                                <span className={isActive(subItem.url) ? "font-medium" : ""}>{subItem.title}</span>
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        </Protected>
-                      ))}
+                      {item.items
+                        .filter((subItem) => hasRoleAccess(subItem.role))
+                        .map((subItem) => (
+                          <Protected requiredPermission={subItem.permission} key={subItem.title}>
+                            <SidebarMenuSubItem>
+                              <SidebarMenuSubButton asChild isActive={isActive(subItem.url)}>
+                                <Link to={subItem.url}>
+                                  {showMenuIcons && subItem.icon && <subItem.icon />}
+                                  <span className={isActive(subItem.url) ? "font-medium" : ""}>{subItem.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          </Protected>
+                        ))}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </SidebarMenuItem>
