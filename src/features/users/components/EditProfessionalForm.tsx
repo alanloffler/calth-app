@@ -31,6 +31,7 @@ import { updateProfessionalSchema } from "@users/schemas/update-professional.sch
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useDebounce } from "@core/hooks/useDebounce";
 import { usePermission } from "@permissions/hooks/usePermission";
+import { useRescheduleNotificationStore } from "@event/stores/reschedule-notification.store";
 
 interface IProps {
   userId: string;
@@ -45,6 +46,7 @@ export function EditProfessionalForm({ userId }: IProps) {
   const [username, setUsername] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const admin = useAuthStore((state) => state.admin);
+  const fetchRescheduleEvents = useRescheduleNotificationStore((state) => state.fetch);
   const location = useLocation();
   const navigate = useNavigate();
   const refreshAdmin = useAuthStore((state) => state.refreshAdmin);
@@ -196,9 +198,8 @@ export function EditProfessionalForm({ userId }: IProps) {
     onSuccess: (response) => {
       if (userToUpdate?.ic === admin?.ic) refreshAdmin();
       toast.success(response.message);
+      fetchRescheduleEvents(userToUpdate?.professionalProfile?.id);
 
-      // TODO: widget to notify urgent and needed action to reschedule events,
-      // maybe on sidebar, right before username button
       if (dialogActionRef.current === "save-and-manage") {
         navigate("/events", { state: { professionalId: userId, needsReschedule: true } });
       } else {
