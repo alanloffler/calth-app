@@ -22,6 +22,7 @@ import { Patients } from "@components/icons/Patients";
 import { NavActions, type INavAction } from "@components/nav-actions";
 import { NavMain } from "@components/nav-main";
 import { NavUser } from "@components/nav-user";
+import { RescheduleNotification } from "@event/components/RescheduleNotification";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@components/ui/sidebar";
 import { TeamSwitcher } from "@components/team-switcher";
 
@@ -32,6 +33,7 @@ import type { TPermission } from "@permissions/interfaces/permission.type";
 import { cn } from "@core/lib/utils";
 import { useAuthStore } from "@auth/stores/auth.store";
 import { useEventStore } from "@calendar/stores/event.store";
+import { useRescheduleNotificationStore } from "@event/stores/reschedule-notification.store";
 
 const data = {
   teams: {
@@ -149,6 +151,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   );
 
   const contentRef = useRef<HTMLDivElement>(null);
+  const eventsNeedsReschedule = useRescheduleNotificationStore((state) => state.count > 0);
   const [hasScroll, setHasScroll] = useState(false);
   const { openMobile } = useSidebar();
   const { setOpenCreateEventSheet } = useEventStore();
@@ -239,6 +242,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       >
         <NavMain items={data.navMain} />
         <NavActions items={navActions} />
+
+        {eventsNeedsReschedule ? (
+          <div className="px-4 pt-8">
+            <RescheduleNotification />
+          </div>
+        ) : null}
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
