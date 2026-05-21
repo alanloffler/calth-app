@@ -1,8 +1,14 @@
 import { Button } from "@components/ui/button";
 
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 
 export function RescheduleNotification() {
+  const navigate = useNavigate();
+
+  function handleReschedule(): void {
+    navigate("/events?needsReschedule=true");
+  }
+
   return (
     <div className="flex flex-col rounded-md border bg-white p-2 text-sm">
       <h3 className="flex items-center gap-2 font-semibold text-yellow-600">
@@ -12,11 +18,9 @@ export function RescheduleNotification() {
         Acción requerida
       </h3>
       <span className="">Tenés que reasignar turnos</span>
-      <Link to="/events" state={{ needsReschedule: true }}>
-        <Button className="mt-2" size="sm" variant="default">
-          Reasignar
-        </Button>
-      </Link>
+      <Button className="mt-3 w-fit place-self-center" onClick={handleReschedule} size="sm" variant="default">
+        Reasignar
+      </Button>
     </div>
   );
 }
