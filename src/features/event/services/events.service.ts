@@ -2,6 +2,7 @@ import { endOfMonth, format, startOfMonth } from "date-fns";
 
 import type { IApiResponse } from "@core/interfaces/api-response.interface";
 import type { IEventFilters } from "@event/interfaces/filters.interface";
+import type { INeedsRescheduleResponse } from "@event/interfaces/needs-reschedule.interface";
 import type { IPaginatedEvents } from "@event/interfaces/paginated-events.interface";
 import type { IRecurrentDayResponse } from "@event/interfaces/recurrent-day.interface";
 import type { IScheduleImpactPayload, IScheduleImpactResponse } from "@calendar/interfaces/schedule-impact.interface";
@@ -67,6 +68,12 @@ class EventsModuleService {
     const path = `/events/days-with-events/${professionalId}?fromDate=${fromDate}&toDate=${toDate}`;
 
     const response = await apiClient.get(path);
+    return response.data;
+  }
+
+  public async findNeedsReschedule(professionalId?: string): Promise<IApiResponse<INeedsRescheduleResponse>> {
+    const query = professionalId ? `?professionalId=${professionalId}` : "";
+    const response = await apiClient.get(`events/needs-reschedule${query}`);
     return response.data;
   }
 
