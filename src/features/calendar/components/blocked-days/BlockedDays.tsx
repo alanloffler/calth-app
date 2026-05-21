@@ -33,6 +33,7 @@ import type { IBlockedDay } from "@calendar/interfaces/blocked-day.interface";
 import { CalendarService } from "@calendar/services/calendar.service";
 import { blockedDaysSchema } from "@calendar/schemas/blocked-days.schema";
 import { queryClient } from "@core/lib/query-client";
+import { useRescheduleNotificationStore } from "@event/stores/reschedule-notification.store";
 
 interface IProps {
   userId: string;
@@ -43,6 +44,7 @@ export function BlockedDays({ userId }: IProps) {
   const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [selectedBlockedDay, setSelectedBlockedDay] = useState<IBlockedDay | null>(null);
+  const refetchNeedsReschedule = useRescheduleNotificationStore((state) => state.fetch);
 
   const { data: blockedDays, isLoading: isLoadingBlockedDays } = useQuery({
     queryKey: ["blocked-days", userId],
@@ -165,6 +167,7 @@ export function BlockedDays({ userId }: IProps) {
         toast.success(response.message);
         queryClient.invalidateQueries({ queryKey: ["blocked-days", userId] });
         form.reset();
+        refetchNeedsReschedule();
       }
     },
   });
@@ -176,6 +179,7 @@ export function BlockedDays({ userId }: IProps) {
       if (response.statusCode === 200) {
         toast.success(response.message);
         queryClient.invalidateQueries({ queryKey: ["blocked-days", userId] });
+        refetchNeedsReschedule();
       }
     },
     onSettled: () => {
