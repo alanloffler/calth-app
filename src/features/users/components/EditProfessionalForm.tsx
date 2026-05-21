@@ -201,7 +201,7 @@ export function EditProfessionalForm({ userId }: IProps) {
       fetchRescheduleEvents(userToUpdate?.professionalProfile?.id);
 
       if (dialogActionRef.current === "save-and-manage") {
-        navigate("/events", { state: { professionalId: userId, needsReschedule: true } });
+        navigate(`/events?needsReschedule=true&professionalId=${userId}`);
       } else {
         navigate("/users/role/professional");
       }
