@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { AuthService } from "@auth/services/auth.service";
 import { useAuthStore } from "@auth/stores/auth.store";
+import { useRescheduleNotificationStore } from "@event/stores/reschedule-notification.store";
 import { useSettingsStore } from "@settings/stores/settings.store";
 import { useTheme } from "@core/providers/theme-provider";
 
@@ -49,6 +50,9 @@ export function AppInitializer({ children }: IProps) {
 
           if (isMounted && response.data) {
             setAdmin(response.data);
+
+            const professionalId = response.data.professionalProfile?.id;
+            await useRescheduleNotificationStore.getState().fetch(professionalId);
           }
         }
       } catch {
