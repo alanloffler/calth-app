@@ -16,8 +16,8 @@ import type { ColumnDef, PaginationState, SortingState } from "@tanstack/react-t
 import { enUS, es } from "date-fns/locale";
 import { format, type Locale } from "date-fns";
 import { toast } from "sonner";
-import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
-import { useLocation } from "react-router";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useSearchParams } from "react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type { ICalendarEvent } from "@calendar/interfaces/calendar-event.interface";
@@ -43,17 +43,32 @@ export default function Events() {
   const userLogged = useAuthStore((state) => state.admin);
   const userLoggedRole = userLogged?.role.value;
 
-  const location = useLocation();
-  const [filters, setFilters] = useState<IEventFilters>({
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [filters, setFilters] = useState<IEventFilters>(() => ({
     date: undefined,
-    needsReschedule: (location.state as { needsReschedule?: boolean })?.needsReschedule ?? false,
+    needsReschedule: searchParams.get("needsReschedule") === "true",
     patientId: undefined,
     professionalId:
-      (location.state as { professionalId?: string })?.professionalId ??
+      searchParams.get("professionalId") ??
       (userLoggedRole === EUserRole.professional ? userLogged?.id : undefined),
     recurrent: false,
     status: undefined,
-  });
+  }));
+
+  useEffect(() => {
+    const needsReschedule = searchParams.get("needsReschedule");
+    const professionalId = searchParams.get("professionalId");
+
+    if (needsReschedule === null && professionalId === null) return;
+
+    setFilters((prev) => ({
+      ...prev,
+      needsReschedule: needsReschedule === "true",
+      ...(professionalId ? { professionalId } : {}),
+    }));
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams]);
   const [openRemoveHardDialog, setOpenRemoveHardDialog] = useState<boolean>(false);
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: EventsTableConfig.limit });
   const [sorting, setSorting] = useState<SortingState>([]);
