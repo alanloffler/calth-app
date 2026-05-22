@@ -35,7 +35,9 @@ import {
   parseCalendarConfig,
 } from "@calendar/utils/calendar.utils";
 import { queryClient } from "@core/lib/query-client";
+import { useAuthStore } from "@auth/stores/auth.store";
 import { useEventStore } from "@calendar/stores/event.store";
+import { useRescheduleNotificationStore } from "@event/stores/reschedule-notification.store";
 
 export function EditEventSheet() {
   const [isRecurringActive, setIsRecurringActive] = useState<boolean>(false);
@@ -43,6 +45,8 @@ export function EditEventSheet() {
   const [professionalConfig, setProfessionalConfig] = useState<ICalendarConfig | null>(null);
   const [recurringDays, setRecurringDays] = useState<IRecurrentDayResponse | undefined>(undefined);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const admin = useAuthStore((state) => state.admin);
+  const fetchReschedule = useRescheduleNotificationStore((state) => state.fetch);
   const { openEditEventSheet, openViewEventSheet, selectedEvent: event, setOpenEditEventSheet } = useEventStore();
 
   // Form
@@ -193,6 +197,7 @@ export function EditEventSheet() {
     onSuccess: (response) => {
       toast.success(response.message);
       queryClient.invalidateQueries({ queryKey: ["events", "list"] });
+      fetchReschedule(admin?.professionalProfile?.id);
       setOpenEditEventSheet(false);
     },
   });
