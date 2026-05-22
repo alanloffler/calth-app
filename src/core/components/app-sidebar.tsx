@@ -185,6 +185,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const handleOpenCreateEventSheet = useCallback(() => setOpenCreateEventSheet(true), [setOpenCreateEventSheet]);
 
+  const navMain = useMemo(
+    () =>
+      data.navMain.map((item) =>
+        item.url === "/events"
+          ? { ...item, navigateTo: eventsNeedsReschedule ? "/events?needsReschedule=false" : "/events" }
+          : item,
+      ),
+    [eventsNeedsReschedule],
+  );
+
   const navActions = useMemo<INavAction[]>(
     () => [
       {
@@ -240,7 +250,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         )}
         key={adminPermissions}
       >
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
         <NavActions items={navActions} />
 
         {eventsNeedsReschedule ? (
