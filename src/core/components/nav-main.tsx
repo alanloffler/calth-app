@@ -29,6 +29,7 @@ interface IProps {
     icon?: LucideIcon | ComponentType<SVGProps<SVGSVGElement>>;
     isActive?: boolean;
     items?: IItem[];
+    navigateTo?: string;
     permission?: TPermission;
     role?: string | string[];
     title: string;
@@ -162,7 +163,7 @@ export function NavMain({ items }: IProps) {
                   isActive={isActive(item.url)}
                   tooltip={showMenuTooltips ? item.title : undefined}
                 >
-                  <Link to={item.url} className="group-data-[collapsible=icon]:justify-center">
+                  <Link to={item.navigateTo ?? item.url} className="group-data-[collapsible=icon]:justify-center">
                     {state === "collapsed" ? item.icon && <item.icon /> : showMenuIcons && item.icon && <item.icon />}
                     <span className="group-data-[collapsible=icon]:sr-only">{item.title}</span>
                   </Link>
